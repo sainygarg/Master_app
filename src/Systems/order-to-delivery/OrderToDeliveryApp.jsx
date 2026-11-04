@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { useLocation } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { LoginPage } from './components/LoginPage';
 import { DashboardView } from './components/DashboardView';
@@ -61,6 +62,18 @@ export function App() {
   // Navigation State ('dashboard' | 'orders' | 'stages' | 'settings')
   const [currentView, setCurrentView] = useState('orders'); // default to Orders page
   const [selectedStageId, setSelectedStageId] = useState('material_check');
+
+  // Deep-link from the other system's sidebar: /order-to-delivery?view=stages&stage=<id>
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const view = params.get('view');
+    if (['dashboard', 'orders', 'stages', 'settings'].includes(view)) {
+      setCurrentView(view);
+      const stage = params.get('stage');
+      if (stage) setSelectedStageId(stage);
+    }
+  }, [location.search]);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewFormat, setViewFormat] = useState('table'); // 'table' | 'cards'
 
@@ -467,10 +480,10 @@ export function App() {
         <footer className="border-t border-[#E8DFD3] bg-white/60 py-5 text-center text-xs text-stone-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="font-serif font-bold text-stone-700 tracking-wider">
-              SAINY GARG COUTURE â€¢ ORDER TO DELIVERY
+              SAINY GARG COUTURE Ã¢â‚¬Â¢ ORDER TO DELIVERY
             </div>
             <div className="text-[11px] text-stone-400">
-              Logged in: <strong>{currentUser.name}</strong> ({currentUser.role}) â€¢ Isolated Storage Mode
+              Logged in: <strong>{currentUser.name}</strong> ({currentUser.role}) Ã¢â‚¬Â¢ Isolated Storage Mode
             </div>
           </div>
         </footer>
@@ -478,7 +491,7 @@ export function App() {
       </div>
 
       {/* ========================================================= */}
-      {/* ðŸ“± MOBILE BOTTOM NAVIGATION BAR (FIXED FOR SMARTPHONES)  */}
+      {/* Ã°Å¸â€œÂ± MOBILE BOTTOM NAVIGATION BAR (FIXED FOR SMARTPHONES)  */}
       {/* ========================================================= */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#E8DFD3] flex items-center justify-around py-2 px-1 lg:hidden shadow-lg select-none">
         

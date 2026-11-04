@@ -16,12 +16,14 @@ import {
   PanelLeftOpen,
   LogOut,
   ChevronRight,
+  ChevronDown,
   ChevronLeft,
   Database
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { canUserAccessPage, canUserAccessStage } from '../utils/userStorage';
 import SidebarSystemSwitcher from '../../../core/layout/SidebarSystemSwitcher';
+import { SystemNavGroup, OtherSystemGroup } from '../../../core/layout/SystemNavGroup';
 
 const stageIcons = {
   material_check: PackageCheck,
@@ -47,6 +49,7 @@ export const Sidebar = ({
   onToggleSidebar,
   onLogout
 }) => {
+  const [stagesOpen, setStagesOpen] = React.useState(currentView === 'stages');
   const activeOrdersCount = orders.filter(o => o.currentStageIndex < 9).length;
 
   const handleStageClick = (stageId) => {
@@ -271,12 +274,10 @@ export const Sidebar = ({
           </button>
         </div>
 
-        {/* System Switcher Tab (Order Flow / Checklist) */}
-        <SidebarSystemSwitcher collapsed={false} />
-
-        {/* Navigation Items (Clean Unified List - NO "Production Section" Heading!) */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin">
-          
+        {/* Navigation: Order Flow + Checklist dropdown pages */}
+        <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
+         <SystemNavGroup systemId="order-to-delivery" defaultOpen active>
+          <div className="space-y-1.5">
           {/* Dashboard */}
           {canAccessDashboard && (
             <button
@@ -313,17 +314,27 @@ export const Sidebar = ({
                 <ShoppingBag className="w-4 h-4 text-[#9B783E]" />
                 <span className="font-bold">Orders</span>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                currentView === 'orders' ? 'bg-white/20 text-white' : 'bg-[#FAF2E6] text-[#5B172E]'
-              }`}>
-                {orders.length}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  currentView === 'orders' ? 'bg-white/20 text-white' : 'bg-[#FAF2E6] text-[#5B172E]'
+                }`}>
+                  {orders.length}
+                </span>
+                <span
+                  role="button"
+                  aria-label="Toggle order stages"
+                  onClick={(e) => { e.stopPropagation(); setStagesOpen((o) => !o); }}
+                  className="p-0.5 rounded hover:bg-black/10"
+                >
+                  {stagesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </span>
+              </div>
             </button>
           )}
 
-          <div className="border-b border-[#E8DFD3] my-2" />
-
-          {/* Permitted Stages (Directly listed without "Production Stages" section heading) */}
+          {/* 10 production stages as subpages of Orders */}
+          {stagesOpen && (
+          <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-1">
           {permittedStages.map((stage) => {
             const originalIndex = STAGES.findIndex(s => s.id === stage.id) + 1;
             const stageOrders = orders.filter(o => o.currentStageId === stage.id);
@@ -363,7 +374,12 @@ export const Sidebar = ({
               </button>
             );
           })}
+          </div>
+          )}
+          </div>
+         </SystemNavGroup>
 
+         <OtherSystemGroup systemId="checklist-delegation" />
         </div>
       </div>
 

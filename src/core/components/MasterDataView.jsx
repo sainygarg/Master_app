@@ -186,7 +186,7 @@ function MasterDataPanel({ type }) {
             const { data, error } = await supabase.from(config.table).delete().eq('id', row.id).select();
             if (error) throw error;
             if (!data || data.length === 0) {
-                setError('Delete blocked â€” no row was removed. This is usually a Supabase Row Level Security policy preventing deletes on this table.');
+                setError('Delete blocked Ã¢â‚¬â€ no row was removed. This is usually a Supabase Row Level Security policy preventing deletes on this table.');
                 return;
             }
             load();
@@ -285,7 +285,7 @@ function MasterDataPanel({ type }) {
                     })
                     .filter((obj) => obj.name || obj.item_details);
 
-                if (payload.length === 0) throw new Error('No valid rows found â€” make sure the header row matches the expected columns.');
+                if (payload.length === 0) throw new Error('No valid rows found Ã¢â‚¬â€ make sure the header row matches the expected columns.');
 
                 const { error } = await supabase.from(config.table).upsert(payload, { onConflict: config.table === 'purchase_master_items' ? 'item_details' : undefined });
                 if (error) throw error;
@@ -323,7 +323,7 @@ function MasterDataPanel({ type }) {
                                 }`}
                         >
                             <Lucide.UploadCloud size={15} />
-                            {importing ? 'Importingâ€¦' : `Import ${config.pluralLabel} (Excel/CSV)`}
+                            {importing ? 'ImportingÃ¢â‚¬Â¦' : `Import ${config.pluralLabel} (Excel/CSV)`}
                         </button>
                         <input
                             ref={fileInputRef}
@@ -373,7 +373,7 @@ function MasterDataPanel({ type }) {
             {error && <div className="mb-4 text-xs font-semibold text-rose-600">{error}</div>}
 
             {loading ? (
-                <div className="py-10 text-sm text-center text-gray-500">Loading {config.pluralLabel.toLowerCase()}â€¦</div>
+                <div className="py-10 text-sm text-center text-gray-500">Loading {config.pluralLabel.toLowerCase()}Ã¢â‚¬Â¦</div>
             ) : filteredRows.length === 0 ? (
                 <div className="py-10 text-sm text-center text-gray-500">
                     {searchTerm.trim() ? `No ${config.pluralLabel.toLowerCase()} match "${searchTerm}".` : `No ${config.pluralLabel.toLowerCase()} added yet.`}
@@ -459,15 +459,15 @@ function MasterDataPanel({ type }) {
                                         if (f.key === 'item_description') {
                                             return (
                                                 <td key={f.key} className="px-3 py-2 text-gray-700 max-w-[180px]" title={val}>
-                                                    <span className="block truncate">{val || 'â€”'}</span>
+                                                    <span className="block truncate">{val || 'Ã¢â‚¬â€'}</span>
                                                 </td>
                                             );
                                         }
                                         return (
                                             <td key={f.key} className="px-3 py-2.5 text-gray-800 whitespace-nowrap">
                                                 {Array.isArray(val)
-                                                    ? (val.length ? val.join(', ') : 'â€”')
-                                                    : (val !== null && val !== undefined && val !== '' ? String(val) : 'â€”')}
+                                                    ? (val.length ? val.join(', ') : 'Ã¢â‚¬â€')
+                                                    : (val !== null && val !== undefined && val !== '' ? String(val) : 'Ã¢â‚¬â€')}
                                             </td>
                                         );
                                     })}
@@ -531,7 +531,7 @@ function FieldFormatModal({ config, onClose, onDownloadTemplate, onUploadClick }
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose}></div>
             <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh] border border-blue-50 overflow-hidden">
-                {/* Header â€” sticky */}
+                {/* Header Ã¢â‚¬â€ sticky */}
                 <div className="flex items-center justify-between flex-shrink-0 px-6 py-5 bg-gradient-to-r from-purple-600 to-indigo-600">
                     <div className="flex items-center gap-3">
                         <div className="bg-white/20 rounded-xl p-2.5">
@@ -741,7 +741,7 @@ function AddRecordModal({ config, record, onClose, onSaved, zClass = 'fixed inse
         <div className={`${zClass} flex items-center justify-center p-4`}>
             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose}></div>
             <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] border border-blue-50 overflow-hidden">
-                {/* Header â€” sticky */}
+                {/* Header Ã¢â‚¬â€ sticky */}
                 <div className="flex items-center justify-between flex-shrink-0 px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-purple-50 border-blue-50">
                     <h3 className="text-lg font-black text-gray-900">{record ? 'Edit' : 'Add'} {config.label}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
@@ -847,7 +847,7 @@ function AddRecordModal({ config, record, onClose, onSaved, zClass = 'fixed inse
 
                                                 <label className={`w-14 h-14 rounded-xl border border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/40 hover:bg-blue-50 flex flex-col items-center justify-center text-blue-600 cursor-pointer transition-all flex-shrink-0 ${uploadingImage ? 'opacity-50 pointer-events-none' : ''}`}>
                                                     <Lucide.UploadCloud size={16} className={uploadingImage ? 'animate-bounce' : ''} />
-                                                    <span className="text-[8.5px] font-bold mt-0.5">{uploadingImage ? 'Waitâ€¦' : 'Upload'}</span>
+                                                    <span className="text-[8.5px] font-bold mt-0.5">{uploadingImage ? 'WaitÃ¢â‚¬Â¦' : 'Upload'}</span>
                                                     <input
                                                         type="file"
                                                         multiple
@@ -931,7 +931,7 @@ function AddRecordModal({ config, record, onClose, onSaved, zClass = 'fixed inse
                         {error && <div className="mt-3 text-xs font-semibold text-rose-600">{error}</div>}
                     </div>
 
-                    {/* Footer â€” sticky */}
+                    {/* Footer Ã¢â‚¬â€ sticky */}
                     <div className="flex justify-end flex-shrink-0 gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                         <button
                             type="button"
@@ -945,7 +945,7 @@ function AddRecordModal({ config, record, onClose, onSaved, zClass = 'fixed inse
                             disabled={saving}
                             className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-xs font-bold text-white disabled:opacity-60"
                         >
-                            {saving ? 'Savingâ€¦' : record ? 'Update' : 'Save'}
+                            {saving ? 'SavingÃ¢â‚¬Â¦' : record ? 'Update' : 'Save'}
                         </button>
                     </div>
                 </form>
@@ -983,7 +983,7 @@ function TransporterComboField({ table, value, onChange }) {
     const inputCls = 'w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all';
 
     if (loadingOpts) {
-        return <div className="px-4 py-3 text-xs text-gray-400 border bg-gray-50 border-gray-150 rounded-2xl">Loading transportersâ€¦</div>;
+        return <div className="px-4 py-3 text-xs text-gray-400 border bg-gray-50 border-gray-150 rounded-2xl">Loading transportersÃ¢â‚¬Â¦</div>;
     }
 
     return (
@@ -1004,7 +1004,7 @@ function TransporterComboField({ table, value, onChange }) {
                     {options.map((name) => (
                         <option key={name} value={name}>{name}</option>
                     ))}
-                    <option value="__add_new__">âž• Add New Transporter</option>
+                    <option value="__add_new__">Ã¢Å¾â€¢ Add New Transporter</option>
                 </select>
                 {options.length === 0 && (
                     <p className="text-[11px] text-gray-400">

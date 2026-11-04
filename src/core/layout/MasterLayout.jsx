@@ -59,7 +59,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
     const cachedImage = localStorage.getItem("profile_image");
     setProfileImage(cachedImage || "");
 
-    // â”€â”€ FETCH RBAC PERMISSIONS FROM DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ FETCH RBAC PERMISSIONS FROM DB Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     const fetchPermissionsAndProfile = async () => {
       try {
         // Sync profile image and permissions
@@ -224,7 +224,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           window.dispatchEvent(new Event("permissions-updated"));
         }
       } catch (err) {
-        console.warn("âš ï¸ Profile sync failed, falling back to legacy localStorage permissions:", err.message);
+        console.warn("Ã¢Å¡Â Ã¯Â¸Â Profile sync failed, falling back to legacy localStorage permissions:", err.message);
 
         // Graceful legacy fallback
         const roleLower = (storedRole || "user").toLowerCase();
@@ -492,7 +492,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
 
   const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
 
-  // â”€â”€ Sidebar pending-task badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sidebar pending-task badges Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // Keyed by system id, then by menu item label, so new systems can plug in
   // their own pending counts the same way without touching the render code.
   const purchasePendingCounts = usePurchasePendingCounts();

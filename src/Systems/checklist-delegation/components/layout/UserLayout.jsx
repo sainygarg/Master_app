@@ -19,7 +19,7 @@ const UserLayout = ({ children }) => {
     const storedUsername = localStorage.getItem('user-name')
 
     if (!storedUsername) {
-      navigate('/login')
+      navigate('/order-to-delivery')
       return
     }
 
@@ -62,7 +62,7 @@ const UserLayout = ({ children }) => {
     localStorage.removeItem('role')
     localStorage.removeItem('email_id')
     localStorage.removeItem('profile_image')
-    navigate('/login')
+    navigate('/order-to-delivery')
   }
 
   const routes = isAdmin

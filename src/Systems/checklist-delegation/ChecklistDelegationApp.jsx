@@ -25,7 +25,6 @@ import AdminDataPage from './pages/admin/admin-data-page';
 import AdminDelegationTask from './pages/delegation-data';
 import MisReport from './pages/MisReport';
 import Demo from './pages/user/Demo';
-import LoginPage from './pages/LoginPage';
 
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
@@ -47,7 +46,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const hasAuth = !!username || !!masterAuth;
 
   if (!hasAuth) {
-    return <Navigate to="/checklist-login" replace />;
+    return <Navigate to="/order-to-delivery" replace />;
   }
 
   // Special Case: Allow 'user' role for assign-task and checklist if canSelfAssign is enabled
@@ -89,8 +88,6 @@ export function ChecklistDelegationApp() {
       <RealtimeLogoutListener />
       <Routes>
         {/* --- Public / Auth Routes --- */}
-        <Route path="/checklist-login" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} />
 
         {/* --- Main Dashboard Redirects --- */}
         <Route path="/dashboard" element={<Navigate to="/dashboard/admin" replace />} />

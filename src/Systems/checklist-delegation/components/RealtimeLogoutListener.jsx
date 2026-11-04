@@ -2,6 +2,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../SupabaseClient";
 
+// Users who signed in through the main (Order Flow) login are not rows in the
+// Supabase "users" table, so the Supabase status checks must not apply to them.
+const isMasterSession = () => !!localStorage.getItem("sainy_couture_auth_user_v3");
+
 const RealtimeLogoutListener = () => {
   const navigate = useNavigate();
 
@@ -17,7 +21,7 @@ const RealtimeLogoutListener = () => {
     let subscription;
     const username = localStorage.getItem("user-name");
     const userId = localStorage.getItem("user-id");
-    if (!username || !userId) return;
+    if (!username || !userId || isMasterSession()) return;
 
     subscription = supabase
       .channel("user-status-watch")
@@ -45,7 +49,7 @@ const RealtimeLogoutListener = () => {
             }
 
             localStorage.clear();
-            window.location.href = "/login";
+            window.location.href = "/order-to-delivery";
           }
         }
       )
@@ -98,7 +102,7 @@ const RealtimeLogoutListener = () => {
   useEffect(() => {
     const checkUserStatusOnLoad = async () => {
       const username = localStorage.getItem("user-name");
-      if (!username) return;
+      if (!username || isMasterSession()) return;
 
       const { data } = await supabase
         .from("users")
@@ -111,7 +115,7 @@ const RealtimeLogoutListener = () => {
       // If user doesn't exist (deleted) or is inactive, logout
       if (!userDataResult || userDataResult.status === "inactive") {
         localStorage.clear();
-        window.location.href = "/login";
+        window.location.href = "/order-to-delivery";
       }
     };
 

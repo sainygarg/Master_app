@@ -9,7 +9,7 @@ import supabase from "../../SupabaseClient";
 import { CheckSquare, ClipboardList, Database, Zap, Settings, CalendarCheck, Calendar as CalendarIcon, BookmarkCheck, Bell, Video, Link, ChevronDown, ChevronRight, LogOut, Home, X, Menu, UserRound } from 'lucide-react';
 
 import { useChecklistDelegationPendingCounts } from '../../hooks/usePendingCounts';
-import SidebarSystemSwitcher from '../../../../core/layout/SidebarSystemSwitcher';
+import { SystemNavGroup, OtherSystemGroup } from '../../../../core/layout/SystemNavGroup';
 
 export default function AdminLayout({ children, darkMode, toggleDarkMode, showLayout = true }) {
   const location = useLocation();
@@ -36,7 +36,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
     if (!storedUsername) {
       // Redirect to login if not authenticated
-      navigate("/login");
+      navigate("/order-to-delivery");
       return;
     }
 
@@ -200,7 +200,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     localStorage.removeItem("email_id");
     localStorage.removeItem("token");
     localStorage.removeItem("profile_image");
-    window.location.href = "/login";
+    window.location.href = "/order-to-delivery";
   };
 
   // No data categories needed as Task is now a main route
@@ -386,8 +386,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
           </Link>
         </div>
         {/* System Switcher inside Sidebar */}
-        <SidebarSystemSwitcher collapsed={false} />
         <nav className="flex-1 overflow-y-auto p-2">
+          <OtherSystemGroup systemId="order-to-delivery" />
+          <SystemNavGroup systemId="checklist-delegation" defaultOpen active>
           <ul className="space-y-1">
             {accessibleRoutes.map((route) => (
               <li key={route.label}>
@@ -461,6 +462,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
               </li>
             ))}
           </ul>
+        </SystemNavGroup>
         </nav>
         <div className="border-t border-slate-200 p-4 bg-white">
           <div className="flex flex-col">
@@ -579,8 +581,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
               </Link>
             </div>
             {/* System Switcher inside Mobile Sidebar Drawer */}
-            <SidebarSystemSwitcher collapsed={false} />
             <nav className="flex-1 overflow-y-auto p-2 bg-white">
+              <OtherSystemGroup systemId="order-to-delivery" onNavigate={() => setIsMobileMenuOpen(false)} />
+              <SystemNavGroup systemId="checklist-delegation" defaultOpen active>
               <ul className="space-y-1">
                 {accessibleRoutes.map((route) => (
                   <li key={route.label}>
@@ -650,6 +653,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                   </li>
                 ))}
               </ul>
+            </SystemNavGroup>
             </nav>
             <div className="border-t border-slate-200 p-4 bg-white">
               <div className="flex items-center justify-between">

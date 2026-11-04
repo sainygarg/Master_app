@@ -201,7 +201,7 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
             );
         }
 
-        console.warn(`ðŸ›‘ Route Guard: Blocked access to ${path}. System: ${currentSystem}, PageAllowed: ${isPageAllowed}`);
+        console.warn(`Ã°Å¸â€ºâ€˜ Route Guard: Blocked access to ${path}. System: ${currentSystem}, PageAllowed: ${isPageAllowed}`);
         
         // Render a premium 403 - Access Denied page
         return (

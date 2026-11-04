@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { canUserAccessPage, canUserAccessStage } from '../utils/userStorage';
+import SidebarSystemSwitcher from '../../../core/layout/SidebarSystemSwitcher';
 
 const stageIcons = {
   material_check: PackageCheck,
@@ -95,6 +96,9 @@ export const Sidebar = ({
             <PanelLeftOpen className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Sidebar System Switcher (Mini Icon Mode) */}
+        <SidebarSystemSwitcher collapsed={true} />
 
         {/* Center: Icon-Only Navigation with Live Badges */}
         <div className="flex-1 overflow-y-auto py-2 flex flex-col items-center space-y-2.5 scrollbar-none">
@@ -266,6 +270,9 @@ export const Sidebar = ({
             <PanelLeftClose className="w-5 h-5" />
           </button>
         </div>
+
+        {/* System Switcher Tab (Order Flow / Checklist) */}
+        <SidebarSystemSwitcher collapsed={false} />
 
         {/* Navigation Items (Clean Unified List - NO "Production Section" Heading!) */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin">

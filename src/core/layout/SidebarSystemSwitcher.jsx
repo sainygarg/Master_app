@@ -27,7 +27,7 @@ export default function SidebarSystemSwitcher({ collapsed = false }) {
           {activeSystem === 'order-to-delivery' ? (
             <Scissors className="w-5 h-5 text-[#5B172E] group-hover:text-white transition-colors" />
           ) : (
-            <ClipboardCheck className="w-5 h-5 text-[#173254] group-hover:text-white transition-colors" />
+            <ClipboardCheck className="w-5 h-5 text-[#5B172E] group-hover:text-white transition-colors" />
           )}
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
         </button>
@@ -78,7 +78,7 @@ export default function SidebarSystemSwitcher({ collapsed = false }) {
           }}
           className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
             activeSystem === 'checklist-delegation'
-              ? 'bg-[#173254] text-white shadow-xs'
+              ? 'bg-[#5B172E] text-white shadow-xs'
               : 'text-stone-600 hover:text-stone-900 hover:bg-white/80'
           }`}
         >

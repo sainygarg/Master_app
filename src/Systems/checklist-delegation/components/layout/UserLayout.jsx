@@ -1,5 +1,4 @@
 "use client"
-import aceLogo from "../assets/Ace_Logoo.jpg";
 
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -93,17 +92,26 @@ const UserLayout = ({ children }) => {
     }
   }
 
+  if (typeof window !== 'undefined' && window.__IS_MASTER_SYSTEM__) {
+    return <>{children}</>;
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-green-50 to-teal-50 dark:from-gray-900 dark:to-teal-950">
+    <div className="flex h-screen overflow-hidden bg-[#FAF6F0]">
       {/* Sidebar for desktop */}
-      <aside className="hidden w-64 flex-shrink-0 border-r border-green-200 dark:border-teal-800 bg-white dark:bg-gray-950 md:flex md:flex-col">
-        <div className="flex h-14 items-center border-b border-green-200 dark:border-teal-800 px-4 bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900 dark:to-teal-900">
+      <aside className="hidden w-64 flex-shrink-0 border-r border-[#E8DFD3] bg-[#FAF6F0] md:flex md:flex-col">
+        <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
           <Link
             to={isAdmin ? "/admin/dashboard" : "/user/dashboard"}
-            className="flex items-center gap-2 font-bold text-green-700 dark:text-green-300 font-sleek"
+            className="flex items-center gap-2.5 font-bold text-[#431021]"
           >
-            <img src={aceLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-green-200" />
-            <span className="tracking-wide">Bhatia Enterprises</span>
+            <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+              SG
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-serif font-bold text-sm text-[#431021] leading-tight truncate">Sainy Couture</span>
+              <span className="text-[10px] text-stone-500 font-medium">Checklist & Delegation</span>
+            </div>
           </Link>
         </div>
         <nav className="flex-1 overflow-y-auto p-2">
@@ -112,9 +120,9 @@ const UserLayout = ({ children }) => {
               <li key={route.href}>
                 <Link
                   to={route.href}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === route.href
-                    ? "bg-gradient-to-r from-green-100 to-teal-100 text-green-700 dark:from-green-900 dark:to-teal-900 dark:text-green-300"
-                    : "text-gray-700 hover:bg-green-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${location.pathname === route.href
+                    ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                    : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                     }`}
                 >
                   {getIcon(route.icon)}
@@ -172,27 +180,32 @@ const UserLayout = ({ children }) => {
 
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-950 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-200 ease-in-out md:hidden`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#FAF6F0] border-r border-[#E8DFD3] transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-200 ease-in-out md:hidden flex flex-col`}
       >
-        <div className="flex h-14 items-center border-b border-green-200 dark:border-teal-800 px-4 bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900 dark:to-teal-900">
+        <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
           <Link
             to={isAdmin ? "/admin/dashboard" : "/user/dashboard"}
-            className="flex items-center gap-2 font-bold text-green-700 dark:text-green-300 font-sleek"
+            className="flex items-center gap-2.5 font-bold text-[#431021]"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <img src={aceLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-green-200" />
-            <span className="tracking-wide">Bhatia Enterprises</span>
+            <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+              SG
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-serif font-bold text-sm text-[#431021] leading-tight truncate">Sainy Couture</span>
+              <span className="text-[10px] text-stone-500 font-medium">Checklist & Delegation</span>
+            </div>
           </Link>
         </div>
-        <nav className="flex-1 overflow-y-auto p-2 bg-white dark:bg-gray-950">
+        <nav className="flex-1 overflow-y-auto p-2 bg-[#FAF6F0]">
           <ul className="space-y-1">
             {routes.map((route) => (
               <li key={route.href}>
                 <Link
                   to={route.href}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === route.href
-                    ? "bg-gradient-to-r from-green-100 to-teal-100 text-green-700 dark:from-green-900 dark:to-teal-900 dark:text-green-300"
-                    : "text-gray-700 hover:bg-green-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${location.pathname === route.href
+                    ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                    : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

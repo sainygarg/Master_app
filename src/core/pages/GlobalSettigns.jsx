@@ -16,9 +16,9 @@ export default function GlobalSettings() {
   const [activeTab, setActiveTab] = useState("users");
   const [showGlobalShipToModal, setShowGlobalShipToModal] = useState(false);
   const [globalShipToForm, setGlobalShipToForm] = useState({
-    name: 'Bhatia Enterprises',
+    name: 'Sainy Couture',
     contact: '9028105766',
-    email: 'purchase-team@bhatia.com',
+    email: 'orders@sainycouture.com',
     gstin: '22AAAFB4097G1ZR',
     address: 'Nehru Chowk, Bilaspur (C.G.)',
     term: DEFAULT_COMPANY_TERMS
@@ -35,9 +35,9 @@ export default function GlobalSettings() {
       .then(({ data }) => {
         if (data && data.extra_fields) {
           setGlobalShipToForm({
-            name: data.extra_fields.name || 'Bhatia Enterprises',
+            name: data.extra_fields.name || 'Sainy Couture',
             contact: data.extra_fields.contact || '9028105766',
-            email: data.extra_fields.email || 'purchase-team@bhatia.com',
+            email: data.extra_fields.email || 'orders@sainycouture.com',
             gstin: data.extra_fields.gstin || '22AAAFB4097G1ZR',
             address: data.extra_fields.address || 'Nehru Chowk, Bilaspur (C.G.)',
             term: data.extra_fields.term || DEFAULT_COMPANY_TERMS
@@ -1058,7 +1058,7 @@ export default function GlobalSettings() {
                       type="email"
                       value={userForm.email_id}
                       onChange={(e) => setUserForm({ ...userForm, email_id: e.target.value })}
-                      placeholder="e.g. user@bhatiya.com"
+                      placeholder="e.g. user@sainycouture.com"
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -1083,9 +1083,8 @@ export default function GlobalSettings() {
                       onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-600"
                     >
-                      <option value="user">User (Doer)</option>
-                      <option value="hod">HOD (Head of Department)</option>
-                      <option value="admin">Administrator (Full Access)</option>
+                      <option value="admin">Admin</option>
+                      <option value="user">User</option>
                     </select>
                   </div>
 
@@ -1352,7 +1351,7 @@ export default function GlobalSettings() {
                     required
                     value={globalShipToForm.name}
                     onChange={(e) => setGlobalShipToForm({ ...globalShipToForm, name: e.target.value })}
-                    placeholder="e.g. Bhatia Enterprises"
+                    placeholder="e.g. Sainy Couture"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                 </div>
@@ -1377,7 +1376,7 @@ export default function GlobalSettings() {
                     type="email"
                     value={globalShipToForm.email}
                     onChange={(e) => setGlobalShipToForm({ ...globalShipToForm, email: e.target.value })}
-                    placeholder="e.g. shipping@bhatia.com"
+                    placeholder="e.g. shipping@sainycouture.com"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                 </div>

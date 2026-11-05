@@ -25,7 +25,7 @@ export const INITIAL_ORDERS = [
     stageData: {
       material_check: { dyeStatus: 'In Process', materialReadyDate: '2026-11-04', remarks: 'Sage Green custom dye shade #7B9075.' }
     },
-    history: [{ stageId: 'material_check', stageName: 'Material Check', timestamp: '2026-11-01T10:30:00.000Z', action: 'Order Placed by Priya', actor: 'Priya Sharma', notes: 'Material Check initiated.' }]
+    history: [{ stageId: 'material_check', stageName: 'Material QC', timestamp: '2026-11-01T10:30:00.000Z', action: 'Order Placed by Priya', actor: 'Priya Sharma', notes: 'Material QC initiated.' }]
   },
   {
     id: 'SG-1022',

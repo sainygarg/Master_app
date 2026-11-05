@@ -1,40 +1,40 @@
 :root {
-  /* Theme override: Remap purple & violet to Navy Blue & clean neutrals */
-  --color-purple-50: #f8fafc;
-  --color-purple-100: #f1f5f9;
-  --color-purple-200: #e2e8f0;
-  --color-purple-300: #cbd5e1;
-  --color-purple-400: #94a3b8;
-  --color-purple-500: #1e40af;
-  --color-purple-600: #173254;
-  --color-purple-700: #10243e;
-  --color-purple-800: #0d1e33;
-  --color-purple-900: #081321;
-  --color-purple-950: #040910;
+  /* Theme override: Remap purple & violet to Order Flow Royal Maroon, Gold & Ivory neutrals */
+  --color-purple-50: #FAF6F0;
+  --color-purple-100: #FAF5EE;
+  --color-purple-200: #F3ECE2;
+  --color-purple-300: #E8DFD3;
+  --color-purple-400: #C5A059;
+  --color-purple-500: #802243;
+  --color-purple-600: #5B172E;
+  --color-purple-700: #431021;
+  --color-purple-800: #340C1A;
+  --color-purple-900: #240611;
+  --color-purple-950: #16030A;
 
-  --color-violet-50: #f8fafc;
-  --color-violet-100: #f1f5f9;
-  --color-violet-200: #e2e8f0;
-  --color-violet-300: #cbd5e1;
-  --color-violet-400: #94a3b8;
-  --color-violet-500: #1e40af;
-  --color-violet-600: #173254;
-  --color-violet-700: #10243e;
-  --color-violet-800: #0d1e33;
-  --color-violet-900: #081321;
-  --color-violet-950: #040910;
+  --color-violet-50: #FAF6F0;
+  --color-violet-100: #FAF5EE;
+  --color-violet-200: #F3ECE2;
+  --color-violet-300: #E8DFD3;
+  --color-violet-400: #C5A059;
+  --color-violet-500: #802243;
+  --color-violet-600: #5B172E;
+  --color-violet-700: #431021;
+  --color-violet-800: #340C1A;
+  --color-violet-900: #240611;
+  --color-violet-950: #16030A;
 
-  --color-indigo-50: #f8fafc;
-  --color-indigo-100: #f1f5f9;
-  --color-indigo-200: #e2e8f0;
-  --color-indigo-300: #cbd5e1;
-  --color-indigo-400: #94a3b8;
-  --color-indigo-500: #1e40af;
-  --color-indigo-600: #173254;
-  --color-indigo-700: #10243e;
-  --color-indigo-800: #0d1e33;
-  --color-indigo-900: #081321;
-  --color-indigo-950: #040910;
+  --color-indigo-50: #FAF6F0;
+  --color-indigo-100: #FAF5EE;
+  --color-indigo-200: #F3ECE2;
+  --color-indigo-300: #E8DFD3;
+  --color-indigo-400: #C5A059;
+  --color-indigo-500: #802243;
+  --color-indigo-600: #5B172E;
+  --color-indigo-700: #431021;
+  --color-indigo-800: #340C1A;
+  --color-indigo-900: #240611;
+  --color-indigo-950: #16030A;
 }
 
 @keyframes toast-slide-in {
@@ -74,18 +74,18 @@
 }
 
 .gradient-bg {
-    background: linear-gradient(to right, #173254, #1e3a8a);
+    background: linear-gradient(to right, #5B172E, #802243);
 }
 
 .gradient-bg2 {
-    background: linear-gradient(to right, #173254, #1e40af);
+    background: linear-gradient(to right, #5B172E, #C5A059);
 }
 
 .gradient-bg:hover {
-    background: linear-gradient(to right, #10243e, #173254);
+    background: linear-gradient(to right, #431021, #5B172E);
 }
 
-/* Corporate Navy Blue & Crisp White Theme Overrides */
+/* Order Flow Royal Maroon & Warm Sand Theme Overrides */
 [class*="from-purple-600"][class*="to-pink-600"],
 [class*="from-purple-600"][class*="to-indigo-600"],
 [class*="from-indigo-600"][class*="to-purple-600"],
@@ -93,7 +93,7 @@
 [class*="from-blue-600"][class*="to-purple-600"],
 [class*="from-purple-600"][class*="to-indigo-700"] {
     background-image: none !important;
-    background-color: #173254 !important;
+    background-color: #5B172E !important;
     color: #ffffff !important;
 }
 
@@ -101,7 +101,7 @@
 [class*="hover:from-purple-700"][class*="hover:to-indigo-700"]:hover,
 [class*="hover:from-indigo-700"][class*="hover:to-purple-700"]:hover {
     background-image: none !important;
-    background-color: #10243e !important;
+    background-color: #431021 !important;
     color: #ffffff !important;
 }
 
@@ -112,14 +112,14 @@
 [class*="from-blue-50"][class*="to-purple-50"],
 [class*="from-blue-100"][class*="to-purple-100"] {
     background-image: none !important;
-    background-color: #f8fafc !important;
+    background-color: #FAF6F0 !important;
 }
 
-/* Text clipping gradient titles become crisp solid corporate navy */
+/* Text clipping gradient titles become crisp solid Order Flow deep maroon */
 .bg-clip-text.text-transparent {
     background-image: none !important;
-    -webkit-text-fill-color: #173254 !important;
-    color: #173254 !important;
+    -webkit-text-fill-color: #431021 !important;
+    color: #431021 !important;
 }
 
 /* Improve scrolling performance for large tables */
@@ -167,4 +167,51 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #cbd5e1;
+}
+
+
+/* ==============================================================================
+   GLOBAL HIGH-CONTRAST LUXURY TEXT SELECTION
+   Deep Royal Maroon (#5B172E) with Crisp White (#ffffff) text
+   ============================================================================== */
+::selection {
+  background-color: #5B172E !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+::-moz-selection {
+  background-color: #5B172E !important;
+  color: #ffffff !important;
+}
+
+*::selection {
+  background-color: #5B172E !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+*::-moz-selection {
+  background-color: #5B172E !important;
+  color: #ffffff !important;
+}
+
+input::selection,
+textarea::selection,
+span::selection,
+p::selection,
+div::selection,
+td::selection,
+th::selection,
+h1::selection,
+h2::selection,
+h3::selection,
+h4::selection,
+h5::selection,
+h6::selection,
+button::selection,
+a::selection {
+  background-color: #5B172E !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

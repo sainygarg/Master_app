@@ -2,12 +2,12 @@ import React from 'react';
 import { Navigate, Routes, Route } from 'react-router-dom';
 import './checklist.css';
 
-// --- Page Imports ---
+// --- Page Imports (Strictly the 11 Checklist & Delegation Pages) ---
 import AdminDashboard from './pages/admin/Dashboard';
 import NotificationsPage from './pages/admin/Notifications';
 import QuickTask from './pages/QuickTask';
 import AdminAssignTask from './pages/admin/AssignTask';
-import AccountDataPage from './pages/admin/account-data-page';
+import DelegationPage from './pages/delegation';
 import AllTasks from './pages/admin/AllTasks';
 import CalendarPage from './pages/admin/CalendarPage';
 import HolidayListPage from './pages/admin/HolidayListPage';
@@ -15,16 +15,6 @@ import WorkingDayCalendarPage from './pages/admin/WorkingDayCalendarPage';
 import AdminApprovalPage from './pages/admin/AdminApprovalPage';
 import Setting from './pages/Setting';
 import TrainingVideo from './pages/admin/TrainingVideo';
-import ChecklistTask from './pages/admin/ChecklistTask';
-import MaintenanceTask from './pages/admin/MaintenanceTask';
-import RepairTask from './pages/admin/RepairTask';
-import EATask from './pages/admin/EATask';
-import BulkImport from './pages/BulkImport';
-import DataPage from './pages/admin/DataPage';
-import AdminDataPage from './pages/admin/admin-data-page';
-import AdminDelegationTask from './pages/delegation-data';
-import MisReport from './pages/MisReport';
-import Demo from './pages/user/Demo';
 
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
@@ -49,15 +39,15 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/order-to-delivery" replace />;
   }
 
-  // Special Case: Allow 'user' role for assign-task and checklist if canSelfAssign is enabled
-  if (path.startsWith('/dashboard/assign-task') || path.startsWith('/dashboard/checklist')) {
+  // Special Case: Allow 'user' role for assign-task if canSelfAssign is enabled
+  if (path.startsWith('/dashboard/assign-task')) {
     if (role === 'user' && canSelfAssign) {
       return children;
     }
   }
 
   if (allowedRoles.length > 0 && !allowedRoles.map((r) => r.toLowerCase()).includes(role)) {
-    // If master admin, allow access
+    // If master admin or HOD, allow access
     if (role === 'admin' || role === 'hod') {
       return children;
     }
@@ -87,12 +77,10 @@ export function ChecklistDelegationApp() {
     <MagicToastProvider>
       <RealtimeLogoutListener />
       <Routes>
-        {/* --- Public / Auth Routes --- */}
-
-        {/* --- Main Dashboard Redirects --- */}
+        {/* --- Main Dashboard Redirect --- */}
         <Route path="/dashboard" element={<Navigate to="/dashboard/admin" replace />} />
 
-        {/* --- Core Dashboard Routes --- */}
+        {/* 1. Dashboard */}
         <Route
           path="/dashboard/admin"
           element={
@@ -102,181 +90,7 @@ export function ChecklistDelegationApp() {
           }
         />
 
-        <Route
-          path="/dashboard/demo"
-          element={
-            <ProtectedRoute>
-              <Demo />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* --- Task Management --- */}
-        <Route
-          path="/dashboard/assign-task"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
-              <AdminAssignTask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/quick-task"
-          element={
-            <ProtectedRoute>
-              <QuickTask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/checklist"
-          element={
-            <ProtectedRoute>
-              <ChecklistTask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/maintenance"
-          element={
-            <ProtectedRoute>
-              <MaintenanceTask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/repair"
-          element={
-            <ProtectedRoute>
-              <RepairTask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/ea-task"
-          element={
-            <ProtectedRoute>
-              <EATask />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/calendar"
-          element={
-            <ProtectedRoute>
-              <CalendarPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/task"
-          element={
-            <ProtectedRoute>
-              <AllTasks />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/training-video"
-          element={
-            <ProtectedRoute>
-              <TrainingVideo />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/bulk-import"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
-              <BulkImport />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/holiday-list"
-          element={
-            <SuperAdminRoute>
-              <HolidayListPage />
-            </SuperAdminRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/working-day-calendar"
-          element={
-            <ProtectedRoute>
-              <WorkingDayCalendarPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* --- Data & Reporting --- */}
-        <Route
-          path="/dashboard/data"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
-              <DataPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/data/:category"
-          element={
-            <ProtectedRoute>
-              <DataPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/admin-data"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
-              <AdminDataPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/delegation"
-          element={
-            <ProtectedRoute>
-              <AccountDataPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/delegation-data"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
-              <AdminDelegationTask />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/admin-approval"
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
-              <AdminApprovalPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/mis-report"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <MisReport />
-            </ProtectedRoute>
-          }
-        />
+        {/* 2. Notifications */}
         <Route
           path="/dashboard/notifications"
           element={
@@ -286,7 +100,85 @@ export function ChecklistDelegationApp() {
           }
         />
 
-        {/* --- Settings --- */}
+        {/* 3. Quick Task */}
+        <Route
+          path="/dashboard/quick-task"
+          element={
+            <ProtectedRoute>
+              <QuickTask />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 4. Assign Task */}
+        <Route
+          path="/dashboard/assign-task"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
+              <AdminAssignTask />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 5. Delegation */}
+        <Route
+          path="/dashboard/delegation"
+          element={
+            <ProtectedRoute>
+              <DelegationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 6. Task */}
+        <Route
+          path="/dashboard/task"
+          element={
+            <ProtectedRoute>
+              <AllTasks />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 7. Calendar */}
+        <Route
+          path="/dashboard/calendar"
+          element={
+            <ProtectedRoute>
+              <CalendarPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 8. Holiday Subpages */}
+        <Route
+          path="/dashboard/holiday-list"
+          element={
+            <SuperAdminRoute>
+              <HolidayListPage />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/dashboard/working-day-calendar"
+          element={
+            <ProtectedRoute>
+              <WorkingDayCalendarPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 9. Admin Approval */}
+        <Route
+          path="/dashboard/admin-approval"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
+              <AdminApprovalPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 10. Settings */}
         <Route
           path="/dashboard/setting"
           element={
@@ -296,7 +188,17 @@ export function ChecklistDelegationApp() {
           }
         />
 
-        {/* Fallback */}
+        {/* 11. Training Video */}
+        <Route
+          path="/dashboard/training-video"
+          element={
+            <ProtectedRoute>
+              <TrainingVideo />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback for any other dashboard routes */}
         <Route path="/dashboard/*" element={<Navigate to="/dashboard/admin" replace />} />
       </Routes>
     </MagicToastProvider>

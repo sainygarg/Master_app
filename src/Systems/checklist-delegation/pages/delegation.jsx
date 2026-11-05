@@ -8,7 +8,7 @@ import { insertDelegationDoneAndUpdate } from '../redux/api/delegationApi';
 import { sendUrgentTaskNotification, sendTaskExtensionNotification, isWhatsAppConnected } from '../services/whatsappService';
 import { useMagicToast } from '../context/MagicToastContext';
 import RenderDescription, { MediaViewer } from "../components/RenderDescription";
-import logo from "../assets/bhatiya_Logo.jpg";
+
 
 // Configuration object - Move all configurations here
 const CONFIG = {
@@ -1071,7 +1071,7 @@ function DelegationDataPage() {
               height: 100%;
               z-index: -100;
               pointer-events: none;
-              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Ctext transform='rotate(-30, 150, 100)' x='50' y='100' fill='rgba(124, 58, 237, 0.1)' font-size='25' font-family='Inter, sans-serif' font-weight='900'%3EBHATIA ENTERPRISES%3C/text%3E%3C/svg%3E");
+              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Ctext transform='rotate(-30, 150, 100)' x='50' y='100' fill='rgba(91, 23, 46, 0.08)' font-size='24' font-family='serif' font-weight='900'%3ESAINY COUTURE%3C/text%3E%3C/svg%3E");
               background-repeat: repeat;
             }
           </style>
@@ -1080,7 +1080,7 @@ function DelegationDataPage() {
           <div class="watermark-overlay"></div>
           <div class="header">
             <div class="brand-block">
-              <img src="${logo}" class="brand-logo-img" />
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:36px;height:36px;border-radius:50%;background:#5B172E;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-family:serif;font-size:14px;border:1.5px solid #C5A059;">SG</div><span style="font-family:serif;font-weight:bold;font-size:16px;color:#431021;">Sainy Couture</span></div>
             </div>
             <div class="report-title-container">
               <h1 class="report-main-title">Overdue Delegation Report</h1>

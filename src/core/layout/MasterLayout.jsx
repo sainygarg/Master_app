@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, Link, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Lucide from "lucide-react";
-import bhatiyaLogo from "../../assets/bhatiya_Logo.jpg";
 import supabase from "../../SupabaseClient";
 import { fetchNotifications } from '../../redux/slice/notificationSlice';
 import systemRegistry from "../registry/systemRegistry";
@@ -386,7 +385,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
     const currentPath = location.pathname;
 
     if (currentPath === "/dashboard") {
-      return { title: "Bhatia Enterprises", subtitle: "Master System Platform" };
+      return { title: "Sainy Couture", subtitle: "Sainy Master Suite" };
     }
 
     const systemsList = systemRegistry.getAllSystems();
@@ -397,12 +396,12 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           return currentPath.startsWith(cleanRoute);
         });
         if (hasRoute) {
-          return { title: sys.name, subtitle: "Bhatia Enterprises Module" };
+          return { title: sys.name, subtitle: "Sainy Couture Module" };
         }
       }
     }
 
-    return { title: "Bhatia Enterprises", subtitle: "Master System Platform" };
+    return { title: "Sainy Couture", subtitle: "Sainy Master Suite" };
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -596,11 +595,13 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           {isSidebarCollapsed ? getLucideIcon("ChevronRight", 16) : getLucideIcon("ChevronLeft", 16)}
         </button>
 
-        <div className={`flex h-14 items-center border-b border-slate-200 bg-white ${isSidebarCollapsed ? "justify-center px-2" : "justify-between px-4"}`}>
-          <Link to="/dashboard" className="flex items-center gap-2 font-bold text-[#173254] font-sleek min-w-0" title="Bhatia Enterprises">
-            <img src={bhatiyaLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-slate-200 shrink-0" />
+        <div className={`flex h-16 items-center border-b border-[#E8DFD3] bg-[#FAF6F0] ${isSidebarCollapsed ? "justify-center px-2" : "justify-between px-4"}`}>
+          <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-[#431021] min-w-0" title="Sainy Couture">
+            <div className="w-8 h-8 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+              SG
+            </div>
             {!isSidebarCollapsed && (
-              <span className="tracking-wide text-sm font-black truncate">Bhatia Enterprises</span>
+              <span className="tracking-wide text-sm font-serif font-bold truncate text-[#431021]">Sainy Couture</span>
             )}
           </Link>
           {!isSidebarCollapsed && (
@@ -991,10 +992,12 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           <div className="fixed inset-0 z-[100] md:hidden">
             <div className="fixed inset-0 bg-black/35 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
             <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-2xl flex flex-col">
-              <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4 bg-white">
-                <Link to="/dashboard" className="flex items-center gap-2 font-bold text-[#173254] font-sleek" onClick={() => setIsMobileMenuOpen(false)}>
-                  <img src={bhatiyaLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-slate-200" />
-                  <span className="tracking-wide text-sm font-black">Bhatia Enterprises</span>
+              <div className="flex h-16 items-center justify-between border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
+                <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-[#431021]" onClick={() => setIsMobileMenuOpen(false)}>
+                  <div className="w-8 h-8 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+                    SG
+                  </div>
+                  <span className="tracking-wide text-sm font-serif font-bold text-[#431021]">Sainy Couture</span>
                 </Link>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="text-[#173254] p-1 hover:bg-slate-100 rounded">
                   {getLucideIcon("X", 18)}

@@ -114,15 +114,19 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="w-full max-w-md shadow-lg border border-blue-200 rounded-lg bg-white">
-        <div className="space-y-1 p-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-t-lg text-center">
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF6F0] p-4">
+      <div className="w-full max-w-md shadow-sm border border-[#E8DFD3] rounded-2xl bg-white overflow-hidden">
+        <div className="space-y-1 p-5 bg-[#FAF5EE] border-b border-[#E8DFD3] rounded-t-2xl text-center flex flex-col items-center">
+          <div className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs mb-1">
+            SG
+          </div>
           {/* <img
             src="/logo.png"
             alt="Company Logo"
             className="h-auto w-100 mr-3"
           /> */}
-          <h2 className="text-2xl font-black text-blue-700 p-2 tracking-wide font-sleek uppercase">Bhatia Enterprises</h2>
+          <h2 className="text-2xl font-serif font-bold text-[#431021] tracking-wide">Sainy Couture</h2>
+          <p className="text-xs text-stone-500 font-medium">Checklist & Delegation Portal</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
@@ -163,7 +167,7 @@ const LoginPage = () => {
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 -mx-4 -mb-4 mt-4 rounded-b-lg flex flex-col gap-3">
             <button
               type="submit"
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] text-white rounded-xl font-bold shadow-xs transition-all active:scale-[0.98] disabled:opacity-50"
               disabled={isLoginLoading}
             >
               {isLoginLoading ? "Logging in..." : "Login"}

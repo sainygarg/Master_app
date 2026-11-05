@@ -7,26 +7,26 @@ import {
   INITIAL_TAT_CONFIG
 } from '../data/initialMasters';
 
-const CUSTOMERS_KEY = 'sainy_couture_master_customers_v1';
-const VENDORS_KEY = 'sainy_couture_master_vendors_v1';
-const TRANSPORTERS_KEY = 'sainy_couture_master_transporters_v1';
-const KARIGARS_KEY = 'sainy_couture_master_karigars_v1';
-const DEPARTMENTS_KEY = 'sainy_couture_master_departments_v1';
-const TAT_KEY = 'sainy_couture_master_tat_v2';
+const CUSTOMERS_KEY = 'order_flow_master_customers_v1';
+const VENDORS_KEY = 'order_flow_master_vendors_v1';
+const TRANSPORTERS_KEY = 'order_flow_master_transporters_v1';
+const KARIGARS_KEY = 'order_flow_master_karigars_v1';
+const DEPARTMENTS_KEY = 'order_flow_master_departments_v1';
+const TAT_KEY = 'order_flow_master_tat_v1';
 
 // --- CUSTOMERS ---
 export const getStoredCustomers = () => {
   try {
     const data = localStorage.getItem(CUSTOMERS_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(CUSTOMERS_KEY, JSON.stringify(INITIAL_CUSTOMERS));
       return INITIAL_CUSTOMERS;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_CUSTOMERS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading customers', err);
-    return INITIAL_CUSTOMERS;
+    return [];
   }
 };
 
@@ -42,15 +42,15 @@ export const saveCustomersToStorage = (customers) => {
 export const getStoredVendors = () => {
   try {
     const data = localStorage.getItem(VENDORS_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(VENDORS_KEY, JSON.stringify(INITIAL_VENDORS));
       return INITIAL_VENDORS;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_VENDORS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading vendors', err);
-    return INITIAL_VENDORS;
+    return [];
   }
 };
 
@@ -66,15 +66,15 @@ export const saveVendorsToStorage = (vendors) => {
 export const getStoredTransporters = () => {
   try {
     const data = localStorage.getItem(TRANSPORTERS_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(TRANSPORTERS_KEY, JSON.stringify(INITIAL_TRANSPORTERS));
       return INITIAL_TRANSPORTERS;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_TRANSPORTERS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading transporters', err);
-    return INITIAL_TRANSPORTERS;
+    return [];
   }
 };
 
@@ -90,15 +90,15 @@ export const saveTransportersToStorage = (transporters) => {
 export const getStoredKarigars = () => {
   try {
     const data = localStorage.getItem(KARIGARS_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(KARIGARS_KEY, JSON.stringify(INITIAL_KARIGARS));
       return INITIAL_KARIGARS;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_KARIGARS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading karigars', err);
-    return INITIAL_KARIGARS;
+    return [];
   }
 };
 
@@ -114,15 +114,15 @@ export const saveKarigarsToStorage = (karigars) => {
 export const getStoredDepartments = () => {
   try {
     const data = localStorage.getItem(DEPARTMENTS_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(DEPARTMENTS_KEY, JSON.stringify(INITIAL_DEPARTMENTS));
       return INITIAL_DEPARTMENTS;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_DEPARTMENTS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading departments', err);
-    return INITIAL_DEPARTMENTS;
+    return [];
   }
 };
 
@@ -138,15 +138,15 @@ export const saveDepartmentsToStorage = (departments) => {
 export const getStoredTATConfig = () => {
   try {
     const data = localStorage.getItem(TAT_KEY);
-    if (!data) {
+    if (data === null) {
       localStorage.setItem(TAT_KEY, JSON.stringify(INITIAL_TAT_CONFIG));
       return INITIAL_TAT_CONFIG;
     }
     const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_TAT_CONFIG;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error('Error reading TAT config', err);
-    return INITIAL_TAT_CONFIG;
+    return [];
   }
 };
 
@@ -157,4 +157,3 @@ export const saveTATConfigToStorage = (tatConfig) => {
     console.error('Error saving TAT config', err);
   }
 };
-

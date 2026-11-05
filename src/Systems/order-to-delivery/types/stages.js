@@ -1,7 +1,7 @@
 export const STAGES = [
   {
     id: 'material_check',
-    name: 'Material Check',
+    name: 'Material QC',
     code: 'MC',
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
     dotColor: 'bg-amber-500',
@@ -15,7 +15,7 @@ export const STAGES = [
   },
   {
     id: 'embroidery_marking_cutting',
-    name: 'Embroidery Marking or Cutting',
+    name: 'Marking & Cutting',
     code: 'EMC',
     badgeColor: 'bg-orange-100 text-orange-800 border-orange-200',
     dotColor: 'bg-orange-500',
@@ -31,7 +31,7 @@ export const STAGES = [
   },  
   {
     id: 'embroidery_sample_approval',
-    name: 'Embroidery Sample Approval',
+    name: 'Sample Approval',
     code: 'ESA',
     badgeColor: 'bg-purple-100 text-purple-800 border-purple-200',
     dotColor: 'bg-purple-500',
@@ -46,7 +46,7 @@ export const STAGES = [
   },
   {
     id: 'full_embroidery',
-    name: 'Full Embroidery',
+    name: 'Embroidery',
     code: 'FE',
     badgeColor: 'bg-pink-100 text-pink-800 border-pink-200',
     dotColor: 'bg-pink-500',
@@ -61,7 +61,7 @@ export const STAGES = [
   },
   {
     id: 'final_cutting_karigar_allotment',
-    name: 'Final Cutting and Karigar Allotment',
+    name: 'Karigar Allotment',
     code: 'FCKA',
     badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
     dotColor: 'bg-blue-500',
@@ -78,7 +78,7 @@ export const STAGES = [
   },
   {
     id: 'stitching_completed',
-    name: 'Stitching Completed',
+    name: 'Stitching',
     code: 'SC',
     badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
     dotColor: 'bg-indigo-500',
@@ -91,7 +91,7 @@ export const STAGES = [
   },
   {
     id: 'first_qc_alterations_cleared',
-    name: 'First QC and Alterations Cleared',
+    name: 'First QC',
     code: 'FQC',
     badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
     dotColor: 'bg-rose-500',
@@ -107,7 +107,7 @@ export const STAGES = [
   },
   {
     id: 'finishing_final_qc_passed',
-    name: 'Finishing and Final QC Passed',
+    name: 'Final QC',
     code: 'FFQC',
     badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
     dotColor: 'bg-teal-500',
@@ -120,7 +120,7 @@ export const STAGES = [
   },
   {
     id: 'trial_packing_pickup',
-    name: 'Trial or Packing and Pickup',
+    name: 'Trial & Packing',
     code: 'TPP',
     badgeColor: 'bg-cyan-100 text-cyan-800 border-cyan-200',
     dotColor: 'bg-cyan-500',
@@ -136,7 +136,7 @@ export const STAGES = [
   },
   {
     id: 'final_trial_delivered_return',
-    name: 'Final Trial / Delivered / Return',
+    name: 'Final Delivery',
     code: 'FTDR',
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     dotColor: 'bg-emerald-600',

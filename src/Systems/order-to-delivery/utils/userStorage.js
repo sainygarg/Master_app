@@ -1,7 +1,7 @@
 import { INITIAL_USERS } from '../data/initialUsers';
 
-const USERS_STORAGE_KEY = 'sainy_couture_users_v4';
-const ACTIVE_USER_KEY = 'sainy_couture_active_user_id_v4';
+const USERS_STORAGE_KEY = 'order_flow_users_v1';
+const ACTIVE_USER_KEY = 'order_flow_active_user_id_v1';
 
 export const getStoredUsers = () => {
   try {
@@ -13,7 +13,7 @@ export const getStoredUsers = () => {
     const parsed = JSON.parse(data);
 
     // Fail-safe check: ensure 'admin' exists with correct credentials
-    const hasAdmin = parsed.some((u) => u.username === 'admin');
+    const hasAdmin = Array.isArray(parsed) && parsed.some((u) => u.username === 'admin');
     if (!hasAdmin || !Array.isArray(parsed) || parsed.length === 0) {
       // Refresh with INITIAL_USERS if corrupt or missing admin
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(INITIAL_USERS));
@@ -56,7 +56,7 @@ export const setActiveUserId = (userId) => {
 export const generateNextUserId = (users) => {
   let highest = 0;
   users.forEach((u) => {
-    const match = u.id.match(/USR-(\d+)/);
+    const match = u.id && u.id.match(/USR-(\d+)/);
     if (match) {
       const n = parseInt(match[1], 10);
       if (n > highest) highest = n;

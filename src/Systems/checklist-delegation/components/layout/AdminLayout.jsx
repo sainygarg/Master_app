@@ -1,12 +1,11 @@
 "use client";
-import bhatiyaLogo from "../../assets/bhatiya_Logo.jpg";
 
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNotifications } from '../../redux/slice/notificationSlice';
 import supabase from "../../SupabaseClient";
-import { CheckSquare, ClipboardList, Database, Zap, Settings, CalendarCheck, Calendar as CalendarIcon, BookmarkCheck, Bell, Video, Link, ChevronDown, ChevronRight, LogOut, Home, X, Menu, UserRound } from 'lucide-react';
+import { CheckSquare, ClipboardList, Database, Zap, Settings, CalendarCheck, Calendar as CalendarIcon, BookmarkCheck, Bell, Video, CirclePlus, ChevronDown, ChevronRight, LogOut, Home, X, Menu, UserRound } from 'lucide-react';
 
 import { useChecklistDelegationPendingCounts } from '../../hooks/usePendingCounts';
 import { SystemNavGroup, OtherSystemGroup } from '../../../../core/layout/SystemNavGroup';
@@ -372,22 +371,26 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
   return (
     <div
-      className={`flex h-screen overflow-hidden bg-[#f8fafc]`}
+      className={`flex h-screen overflow-hidden bg-[#FAF6F0]`}
     >
       {/* Sidebar for desktop */}
-      <aside className="hidden w-64 flex-shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col">
-        <div className="flex h-14 items-center border-b border-slate-200 px-4 bg-white">
+      <aside className="hidden w-64 flex-shrink-0 border-r border-[#E8DFD3] bg-[#FAF6F0] md:flex md:flex-col">
+        <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
           <Link
             to="/dashboard/admin"
-            className="flex items-center gap-2 font-bold text-[#173254] font-sleek"
+            className="flex items-center gap-2.5 font-bold text-[#431021]"
           >
-            <img src={bhatiyaLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-slate-200" />
-            <span className="tracking-wide text-sm font-black">Bhatia Enterprises</span>
+            <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+              SG
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-serif font-bold text-sm text-[#431021] leading-tight truncate">Sainy Couture</span>
+              <span className="text-[10px] text-stone-500 font-medium">Checklist & Delegation</span>
+            </div>
           </Link>
         </div>
-        {/* System Switcher inside Sidebar */}
+        {/* Navigation inside Sidebar */}
         <nav className="flex-1 overflow-y-auto p-2">
-          <OtherSystemGroup systemId="order-to-delivery" />
           <SystemNavGroup systemId="checklist-delegation" defaultOpen active>
           <ul className="space-y-1">
             {accessibleRoutes.map((route) => (
@@ -396,9 +399,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                   <div className="flex flex-col">
                     <button
                       onClick={() => route.setIsOpen(!route.isOpen)}
-                      className={`flex items-center justify-between w-full rounded-md px-3 py-2 text-sm font-medium transition-colors ${route.active
-                        ? "bg-[#173254] text-white font-bold shadow-sm"
-                        : "text-slate-700 hover:bg-slate-100"
+                      className={`flex items-center justify-between w-full rounded-xl px-3 py-2 text-sm font-medium transition-colors ${route.active
+                        ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                        : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                         }`}
                     >
                       <div className="flex items-center gap-3">
@@ -408,7 +411,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                         <div className="flex items-center justify-between w-full">
                           <span>{route.label}</span>
                           {route.badge && (
-                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            <span className="bg-[#802243] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                               {route.badge}
                             </span>
                           )}
@@ -421,14 +424,14 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                       )}
                     </button>
                     {route.isOpen && (
-                      <ul className="mt-1 ml-4 space-y-1 border-l-2 border-slate-100 pl-2">
+                      <ul className="mt-1 ml-4 space-y-1 border-l-2 border-[#E8DFD3] pl-2">
                         {route.subItems.map((sub) => (
                           <li key={sub.label}>
                             <Link
                               to={sub.href}
-                              className={`flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${sub.active
-                                ? "text-[#173254] bg-slate-100 font-bold"
-                                : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                              className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sub.active
+                                ? "text-[#5B172E] bg-[#F3ECE2] font-bold"
+                                : "text-stone-500 hover:text-[#5B172E] hover:bg-[#FAF8F5]"
                                 }`}
                             >
                               {sub.label}
@@ -441,9 +444,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                 ) : (
                   <Link
                     to={route.href}
-                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${route.active
-                      ? "bg-[#173254] text-white font-bold shadow-sm"
-                      : "text-slate-700 hover:bg-slate-100"
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${route.active
+                      ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                      : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                       }`}
                   >
                     <route.icon
@@ -452,7 +455,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                     <div className="flex items-center justify-between w-full">
                       <span>{route.label}</span>
                       {route.badge && (
-                        <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        <span className="bg-[#802243] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                           {route.badge}
                         </span>
                       )}
@@ -464,7 +467,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
           </ul>
         </SystemNavGroup>
         </nav>
-        <div className="border-t border-slate-200 p-4 bg-white">
+        <div className="border-t border-[#E8DFD3] p-4 bg-[#FAF6F0]">
           <div className="flex flex-col">
             {/* User info section */}
             <div className="flex items-center justify-between">
@@ -569,20 +572,24 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
             className="fixed inset-0 bg-black/20"
             onClick={() => setIsMobileMenuOpen(false)}
           ></div>
-          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
-            <div className="flex h-14 items-center border-b border-slate-200 px-4 bg-white">
+          <div className="fixed inset-y-0 left-0 w-64 bg-[#FAF6F0] border-r border-[#E8DFD3] shadow-lg flex flex-col">
+            <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
               <Link
                 to="/dashboard/admin"
-                className="flex items-center gap-2 font-bold text-[#173254] font-sleek"
+                className="flex items-center gap-2.5 font-bold text-[#431021]"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <img src={bhatiyaLogo} alt="Bhatia Enterprises Logo" className="h-8 w-8 rounded-full object-cover border border-slate-200" />
-                <span className="tracking-wide text-sm font-black">Bhatia Enterprises</span>
+                <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0">
+                  SG
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-serif font-bold text-sm text-[#431021] leading-tight truncate">Sainy Couture</span>
+                  <span className="text-[10px] text-stone-500 font-medium">Checklist & Delegation</span>
+                </div>
               </Link>
             </div>
-            {/* System Switcher inside Mobile Sidebar Drawer */}
-            <nav className="flex-1 overflow-y-auto p-2 bg-white">
-              <OtherSystemGroup systemId="order-to-delivery" onNavigate={() => setIsMobileMenuOpen(false)} />
+            {/* Navigation inside Mobile Sidebar Drawer */}
+            <nav className="flex-1 overflow-y-auto p-2 bg-[#FAF6F0]">
               <SystemNavGroup systemId="checklist-delegation" defaultOpen active>
               <ul className="space-y-1">
                 {accessibleRoutes.map((route) => (
@@ -591,9 +598,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                       <div className="flex flex-col">
                         <button
                           onClick={() => route.setIsOpen(!route.isOpen)}
-                          className={`flex items-center justify-between w-full rounded-md px-3 py-2 text-sm font-medium transition-colors ${route.active
-                            ? "bg-[#173254] text-white font-bold shadow-sm"
-                            : "text-slate-700 hover:bg-slate-100"
+                          className={`flex items-center justify-between w-full rounded-xl px-3 py-2 text-sm font-medium transition-colors ${route.active
+                            ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                            : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                             }`}
                         >
                           <div className="flex items-center gap-3">
@@ -609,14 +616,14 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                           )}
                         </button>
                         {route.isOpen && (
-                          <ul className="mt-1 ml-4 space-y-1 border-l-2 border-slate-100 pl-2">
+                          <ul className="mt-1 ml-4 space-y-1 border-l-2 border-[#E8DFD3] pl-2">
                             {route.subItems.map((sub) => (
                               <li key={sub.label}>
                                 <Link
                                   to={sub.href}
-                                  className={`flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${sub.active
-                                    ? "text-[#173254] bg-slate-100 font-bold"
-                                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                                  className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sub.active
+                                    ? "text-[#5B172E] bg-[#F3ECE2] font-bold"
+                                    : "text-stone-500 hover:text-[#5B172E] hover:bg-[#FAF8F5]"
                                     }`}
                                   onClick={() => setIsMobileMenuOpen(false)}
                                 >
@@ -630,9 +637,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                     ) : (
                       <Link
                         to={route.href}
-                        className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${route.active
-                          ? "bg-[#173254] text-white font-bold shadow-sm"
-                          : "text-slate-700 hover:bg-slate-100"
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${route.active
+                          ? "bg-[#5B172E] text-white font-bold shadow-xs"
+                          : "text-stone-700 hover:text-[#5B172E] hover:bg-[#F3ECE2]"
                           }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -643,7 +650,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
                         <div className="flex items-center justify-between w-full">
                           <span>{route.label}</span>
                           {route.badge && (
-                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            <span className="bg-[#802243] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                               {route.badge}
                             </span>
                           )}
@@ -744,22 +751,22 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 shadow-sm z-30">
+        <header className="flex h-16 items-center justify-between border-b border-[#E8DFD3] bg-[#FAF6F0] px-4 md:px-6 shadow-xs z-30">
           <div className="flex md:hidden w-8"></div>
           <div className="flex flex-col items-center">
-            <h1 className="text-lg font-bold text-[#173254] font-sleek">
-              Bhatia Enterprises
+            <h1 className="text-lg font-serif font-bold text-[#431021]">
+              Sainy Couture
             </h1>
-            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-[0.2em] -mt-1 hidden xs:block font-sleek">
-              Master System
+            <p className="text-[10px] text-stone-500 font-medium uppercase tracking-[0.2em] -mt-0.5 hidden xs:block">
+              Checklist & Delegation
             </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end mr-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Welcome</span>
-              <span className="text-sm font-bold text-[#173254] -mt-1">Hello, {username || 'User'}</span>
+              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Welcome</span>
+              <span className="text-sm font-bold text-[#431021] -mt-1">Hello, {username || 'User'}</span>
             </div>
-            <div className="h-10 w-10 rounded-full bg-[#173254] flex items-center justify-center shadow-md border-2 border-white ring-2 ring-slate-200 overflow-hidden">
+            <div className="h-10 w-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center shadow-md border-2 border-[#C5A059]/40 ring-2 ring-stone-200 overflow-hidden font-bold text-sm font-serif">
               {profileImage ? (
                 <img
                   src={profileImage}

@@ -39,7 +39,7 @@ export const PipelineView = ({
             </span>
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Complete lifecycle from Material Check & Embroidery to QC, Client Trial & Final Delivery.
+            Complete lifecycle from Material QC & Embroidery to QC, Client Trial & Final Delivery.
           </p>
         </div>
 

@@ -2,12 +2,12 @@ import React from 'react';
 import systemRegistry from '../../core/registry/systemRegistry';
 import ChecklistDelegationApp from './ChecklistDelegationApp';
 
-// Import Checklist-Delegation pages
+// Import the 11 Checklist-Delegation pages
 import AdminDashboard from './pages/admin/Dashboard';
 import NotificationsPage from './pages/admin/Notifications';
 import QuickTask from './pages/QuickTask';
 import AdminAssignTask from './pages/admin/AssignTask';
-import AccountDataPage from './pages/admin/account-data-page';
+import DelegationPage from './pages/delegation';
 import AllTasks from './pages/admin/AllTasks';
 import CalendarPage from './pages/admin/CalendarPage';
 import HolidayListPage from './pages/admin/HolidayListPage';
@@ -15,16 +15,6 @@ import WorkingDayCalendarPage from './pages/admin/WorkingDayCalendarPage';
 import AdminApprovalPage from './pages/admin/AdminApprovalPage';
 import Setting from './pages/Setting';
 import TrainingVideo from './pages/admin/TrainingVideo';
-import ChecklistTask from './pages/admin/ChecklistTask';
-import MaintenanceTask from './pages/admin/MaintenanceTask';
-import RepairTask from './pages/admin/RepairTask';
-import EATask from './pages/admin/EATask';
-import BulkImport from './pages/BulkImport';
-import DataPage from './pages/admin/DataPage';
-import AdminDataPage from './pages/admin/admin-data-page';
-import AdminDelegationTask from './pages/delegation-data';
-import MisReport from './pages/MisReport';
-import Demo from './pages/user/Demo';
 
 systemRegistry.register({
   id: 'checklist-delegation',
@@ -143,7 +133,7 @@ systemRegistry.register({
     },
     {
       path: '/dashboard/delegation',
-      element: <AllTasks defaultTab="delegation" lockedTab={true} />,
+      element: <DelegationPage />,
       protected: true,
     },
     {
@@ -182,66 +172,6 @@ systemRegistry.register({
     {
       path: '/dashboard/training-video',
       element: <TrainingVideo />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/checklist',
-      element: <ChecklistTask />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/maintenance',
-      element: <MaintenanceTask />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/repair',
-      element: <RepairTask />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/ea-task',
-      element: <EATask />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/bulk-import',
-      element: <BulkImport />,
-      protected: true,
-      allowedRoles: ['admin', 'HOD'],
-    },
-    {
-      path: '/dashboard/data',
-      element: <DataPage />,
-      protected: true,
-      allowedRoles: ['admin', 'HOD'],
-    },
-    {
-      path: '/dashboard/data/:category',
-      element: <DataPage />,
-      protected: true,
-    },
-    {
-      path: '/dashboard/admin-data',
-      element: <AdminDataPage />,
-      protected: true,
-      allowedRoles: ['admin', 'HOD'],
-    },
-    {
-      path: '/dashboard/delegation-data',
-      element: <AdminDelegationTask />,
-      protected: true,
-      allowedRoles: ['admin', 'HOD'],
-    },
-    {
-      path: '/dashboard/mis-report',
-      element: <MisReport />,
-      protected: true,
-      allowedRoles: ['admin'],
-    },
-    {
-      path: '/dashboard/demo',
-      element: <Demo />,
       protected: true,
     },
   ],

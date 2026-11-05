@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react';
+﻿import { Trash2 } from 'lucide-react';
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Edit } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux'
@@ -288,7 +288,7 @@ function DelegationPage({
   };
 
   const formatDateTime = useCallback((dateStr) => {
-    if (!dateStr) return "—"
+    if (!dateStr) return "ΓÇö"
     try {
       const date = new Date(dateStr)
       if (isNaN(date.getTime())) return dateStr
@@ -477,7 +477,7 @@ function DelegationPage({
                         </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {task.id || "—"}
+                        {task.id || "ΓÇö"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 min-w-[300px] max-w-[400px]">
                         <RenderDescription
@@ -489,17 +489,17 @@ function DelegationPage({
                       </td>
                       {!departmentFilter && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {task.department || "—"}
+                          {task.department || "ΓÇö"}
                         </td>
                       )}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {task.given_by || "—"}
+                        {task.given_by || "ΓÇö"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {task.name || "—"}
+                        {task.name || "ΓÇö"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap bg-yellow-50">
-                        {formatDateTime(task.task_start_date) || "—"}
+                        {formatDateTime(task.task_start_date) || "ΓÇö"}
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -508,21 +508,21 @@ function DelegationPage({
                             task.frequency === 'Monthly' ? 'bg-purple-100 text-purple-800' :
                               'bg-gray-100 text-gray-800'
                           }`}>
-                          {task.frequency || "—"}
+                          {task.frequency || "ΓÇö"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-blue-50">
                         {task.duration ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            ⏱ {task.duration}
+                            ΓÅ▒ {task.duration}
                           </span>
-                        ) : "—"}
+                        ) : "ΓÇö"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className="capitalize">{task.enable_reminder || "—"}</span>
+                        <span className="capitalize">{task.enable_reminder || "ΓÇö"}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className="capitalize">{task.require_attachment || "—"}</span>
+                        <span className="capitalize">{task.require_attachment || "ΓÇö"}</span>
                       </td>
                     </tr>
                   ))
@@ -580,15 +580,15 @@ function DelegationPage({
                         <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-4">
                           <div className="space-y-1">
                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Dept</span>
-                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.department || '—'}</div>
+                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.department || 'ΓÇö'}</div>
                           </div>
                           <div className="space-y-1">
                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">From</span>
-                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.given_by || '—'}</div>
+                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.given_by || 'ΓÇö'}</div>
                           </div>
                           <div className="space-y-1">
                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Assignee</span>
-                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.name || '—'}</div>
+                            <div className="text-[11px] font-bold text-gray-700 truncate">{task.name || 'ΓÇö'}</div>
                           </div>
                           <div className="space-y-1">
                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Start</span>

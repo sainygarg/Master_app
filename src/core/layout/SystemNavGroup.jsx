@@ -7,7 +7,7 @@ import { STAGES } from '../../Systems/order-to-delivery/types/stages';
 
 const SYSTEM_META = {
   'order-to-delivery': { label: 'Order Flow', Icon: Scissors, color: '#5B172E' },
-  'checklist-delegation': { label: 'Checklist', Icon: ClipboardCheck, color: '#173254' },
+  'checklist-delegation': { label: 'Checklist', Icon: ClipboardCheck, color: '#5B172E' },
 };
 
 /**

@@ -245,8 +245,8 @@ export const UserFormModal = ({
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full px-3 py-2 text-sm font-bold bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 text-[#5B172E]"
                 >
-                  <option value="User">User (Sees ONLY own created orders)</option>
-                  <option value="Admin">Admin (Full Atelier & All Orders Access)</option>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
                 </select>
               </div>
 

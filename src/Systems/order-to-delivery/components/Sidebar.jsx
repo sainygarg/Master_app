@@ -9,7 +9,12 @@ import {
   UserCheck, 
   CheckSquare, 
   ClipboardCheck, 
-  ShieldCheck, 
+  ShieldCheck,
+  BadgeCheck,
+  Shirt,
+  Ruler,
+  Package,
+  Truck, 
   CheckCircle2,
   X,
   PanelLeftClose,
@@ -22,20 +27,19 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { canUserAccessPage, canUserAccessStage } from '../utils/userStorage';
-import SidebarSystemSwitcher from '../../../core/layout/SidebarSystemSwitcher';
 import { SystemNavGroup, OtherSystemGroup } from '../../../core/layout/SystemNavGroup';
 
 const stageIcons = {
   material_check: PackageCheck,
   embroidery_marking_cutting: Scissors,
-  embroidery_sample_approval: Sparkles,
+  embroidery_sample_approval: BadgeCheck,
   full_embroidery: Sparkles,
   final_cutting_karigar_allotment: UserCheck,
-  stitching_completed: CheckSquare,
-  first_qc_alterations_cleared: ClipboardCheck,
+  stitching_completed: Shirt,
+  first_qc_alterations_cleared: Ruler,
   finishing_final_qc_passed: ShieldCheck,
-  trial_packing_pickup: ShoppingBag,
-  final_trial_delivered_return: CheckCircle2,
+  trial_packing_pickup: Package,
+  final_trial_delivered_return: Truck,
 };
 
 export const Sidebar = ({
@@ -100,8 +104,6 @@ export const Sidebar = ({
           </button>
         </div>
 
-        {/* Sidebar System Switcher (Mini Icon Mode) */}
-        <SidebarSystemSwitcher collapsed={true} />
 
         {/* Center: Icon-Only Navigation with Live Badges */}
         <div className="flex-1 overflow-y-auto py-2 flex flex-col items-center space-y-2.5 scrollbar-none">
@@ -353,12 +355,10 @@ export const Sidebar = ({
                 }`}
                 title={stage.name}
               >
-                <div className="flex items-center gap-2 min-w-0 pr-1">
-                  <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-[#EFE8DD] text-[#5B172E]'
-                  }`}>
-                    {originalIndex}
-                  </span>
+                <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${
+                    isSelected ? 'text-[#C5A059]' : 'text-stone-400 group-hover:text-[#5B172E]'
+                  }`} />
                   <span className="truncate text-[11px] leading-tight">
                     {stage.name}
                   </span>

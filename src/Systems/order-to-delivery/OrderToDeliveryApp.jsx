@@ -329,7 +329,7 @@ export function App() {
   const hasStageAccess = canUserAccessStage(currentUser, selectedStageId);
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex text-stone-800">
+    <div className={!window.__IS_MASTER_SYSTEM__ ? "min-h-screen bg-[#FAF6F0] flex text-stone-800" : "w-full text-stone-800"}>
       
       {/* Toast Notification */}
       {toast && (
@@ -341,26 +341,28 @@ export function App() {
         </div>
       )}
 
-      {/* Left Sidebar (with Hide / Unhide support) */}
-      <Sidebar
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        selectedStageId={selectedStageId}
-        setSelectedStageId={setSelectedStageId}
-        orders={scopedOrders}
-        currentUser={currentUser}
-        isSidebarHidden={isSidebarHidden}
-        onToggleSidebar={() => setIsSidebarHidden(!isSidebarHidden)}
-        onLogout={handleLogout}
-      />
+      {/* Left Sidebar (rendered only in standalone mode; MasterShell renders persistent sidebar) */}
+      {!window.__IS_MASTER_SYSTEM__ && (
+        <Sidebar
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          selectedStageId={selectedStageId}
+          setSelectedStageId={setSelectedStageId}
+          orders={scopedOrders}
+          currentUser={currentUser}
+          isSidebarHidden={isSidebarHidden}
+          onToggleSidebar={() => setIsSidebarHidden(!isSidebarHidden)}
+          onLogout={handleLogout}
+        />
+      )}
 
-      {/* Main Content Area - dynamically adjusts padding when sidebar is hidden/unhidden */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+      {/* Main Content Area */}
+      <div className={!window.__IS_MASTER_SYSTEM__ ? `flex-1 flex flex-col min-w-0 transition-all duration-300 ${
         isSidebarHidden ? 'sm:pl-[72px] pl-0' : 'lg:pl-72 pl-0'
-      }`}>
+      }` : 'w-full'}>
         
-        {/* Dynamic Page Views (Scoped to Current User) */}
-        <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+        {/* Dynamic Page Views */}
+        <div className={!window.__IS_MASTER_SYSTEM__ ? "flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8" : "w-full"}>
           
           {/* 1. Dashboard */}
           {currentView === 'dashboard' && canUserAccessPage(currentUser, 'dashboard') && (
@@ -474,112 +476,116 @@ export function App() {
             )
           )}
 
-        </main>
+        </div>
 
         {/* Footer */}
-        <footer className="border-t border-[#E8DFD3] bg-white/60 py-5 text-center text-xs text-stone-500">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div className="font-serif font-bold text-stone-700 tracking-wider">
-              SAINY GARG COUTURE Ã¢â‚¬Â¢ ORDER TO DELIVERY
+        {!window.__IS_MASTER_SYSTEM__ && (
+          <footer className="border-t border-[#E8DFD3] bg-white/60 py-5 text-center text-xs text-stone-500">
+            <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="font-serif font-bold text-stone-700 tracking-wider">
+                SAINY GARG COUTURE • ORDER TO DELIVERY
+              </div>
+              <div className="text-[11px] text-stone-400">
+                Logged in: <strong>{currentUser.name}</strong> ({currentUser.role}) • Isolated Storage Mode
+              </div>
             </div>
-            <div className="text-[11px] text-stone-400">
-              Logged in: <strong>{currentUser.name}</strong> ({currentUser.role}) Ã¢â‚¬Â¢ Isolated Storage Mode
-            </div>
-          </div>
-        </footer>
+          </footer>
+        )}
 
       </div>
 
       {/* ========================================================= */}
-      {/* Ã°Å¸â€œÂ± MOBILE BOTTOM NAVIGATION BAR (FIXED FOR SMARTPHONES)  */}
+      {/* 📱 MOBILE BOTTOM NAVIGATION BAR (FIXED FOR SMARTPHONES)  */}
       {/* ========================================================= */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#E8DFD3] flex items-center justify-around py-2 px-1 lg:hidden shadow-lg select-none">
-        
-        {/* Dashboard */}
-        {canUserAccessPage(currentUser, 'dashboard') && (
-          <button
-            type="button"
-            onClick={() => setCurrentView('dashboard')}
-            className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
-              currentView === 'dashboard'
-                ? 'text-[#5B172E] font-bold'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[10px]">Dashboard</span>
-          </button>
-        )}
+      {!window.__IS_MASTER_SYSTEM__ && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#E8DFD3] flex items-center justify-around py-2 px-1 lg:hidden shadow-lg select-none">
+          
+          {/* Dashboard */}
+          {canUserAccessPage(currentUser, 'dashboard') && (
+            <button
+              type="button"
+              onClick={() => setCurrentView('dashboard')}
+              className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+                currentView === 'dashboard'
+                  ? 'text-[#5B172E] font-bold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="text-[10px]">Dashboard</span>
+            </button>
+          )}
 
-        {/* Orders */}
-        {canUserAccessPage(currentUser, 'orders') && (
+          {/* Orders */}
+          {canUserAccessPage(currentUser, 'orders') && (
+            <button
+              type="button"
+              onClick={() => setCurrentView('orders')}
+              className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all relative ${
+                currentView === 'orders'
+                  ? 'text-[#5B172E] font-bold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5" />
+                {scopedOrders.length > 0 && (
+                  <span className="absolute -top-1 -right-2 px-1 min-w-[14px] h-[14px] rounded-full bg-[#5B172E] text-white text-[8px] flex items-center justify-center font-bold">
+                    {scopedOrders.length}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px]">Orders</span>
+            </button>
+          )}
+
+          {/* Stages (1-10) */}
           <button
             type="button"
-            onClick={() => setCurrentView('orders')}
+            onClick={() => setCurrentView('stages')}
             className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all relative ${
-              currentView === 'orders'
-                ? 'text-[#5B172E] font-bold'
+              currentView === 'stages'
+                ? 'text-[#5B172E] font-bold scale-105'
                 : 'text-stone-500 hover:text-stone-800'
             }`}
           >
             <div className="relative">
-              <ShoppingBag className="w-5 h-5" />
-              {scopedOrders.length > 0 && (
-                <span className="absolute -top-1 -right-2 px-1 min-w-[14px] h-[14px] rounded-full bg-[#5B172E] text-white text-[8px] flex items-center justify-center font-bold">
-                  {scopedOrders.length}
-                </span>
-              )}
+              <Scissors className="w-5 h-5" />
+              <span className="absolute -top-1 -right-2 px-1 min-w-[14px] h-[14px] rounded-full bg-[#9B783E] text-white text-[8px] flex items-center justify-center font-bold">
+                10
+              </span>
             </div>
-            <span className="text-[10px]">Orders</span>
+            <span className="text-[10px]">Stages</span>
           </button>
-        )}
 
-        {/* Stages (1-10) */}
-        <button
-          type="button"
-          onClick={() => setCurrentView('stages')}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all relative ${
-            currentView === 'stages'
-              ? 'text-[#5B172E] font-bold scale-105'
-              : 'text-stone-500 hover:text-stone-800'
-          }`}
-        >
-          <div className="relative">
-            <Scissors className="w-5 h-5" />
-            <span className="absolute -top-1 -right-2 px-1 min-w-[14px] h-[14px] rounded-full bg-[#9B783E] text-white text-[8px] flex items-center justify-center font-bold">
-              10
-            </span>
-          </div>
-          <span className="text-[10px]">Stages</span>
-        </button>
+          {/* Master */}
+          {canUserAccessPage(currentUser, 'settings') && (
+            <button
+              type="button"
+              onClick={() => setCurrentView('settings')}
+              className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+                currentView === 'settings'
+                  ? 'text-[#5B172E] font-bold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <Database className="w-5 h-5" />
+              <span className="text-[10px]">Master</span>
+            </button>
+          )}
 
-        {/* Master */}
-        {canUserAccessPage(currentUser, 'settings') && (
+          {/* Menu (Toggles full drawer) */}
           <button
             type="button"
-            onClick={() => setCurrentView('settings')}
-            className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
-              currentView === 'settings'
-                ? 'text-[#5B172E] font-bold'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
+            onClick={() => setIsSidebarHidden(!isSidebarHidden)}
+            className="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-stone-500 hover:text-[#5B172E]"
           >
-            <Database className="w-5 h-5" />
-            <span className="text-[10px]">Master</span>
+            <Menu className="w-5 h-5" />
+            <span className="text-[10px]">Menu</span>
           </button>
-        )}
 
-        {/* Menu (Toggles full drawer) */}
-        <button
-          type="button"
-          onClick={() => setIsSidebarHidden(!isSidebarHidden)}
-          className="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-stone-500 hover:text-[#5B172E]"
-        >
-          <Menu className="w-5 h-5" />
-          <span className="text-[10px]">Menu</span>
-        </button>
-
-      </div>
+        </div>
+      )}
 
       {/* Modals & Drawers */}
       <OrderFormModal

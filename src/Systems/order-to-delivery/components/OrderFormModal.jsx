@@ -151,17 +151,17 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         material_check: {
           dyeStatus: 'No',
           materialReadyDate: '',
-          remarks: 'Newly created order awaiting material check.'
+          remarks: 'Newly created order awaiting Material QC.'
         }
       },
       history: [
         {
           stageId: 'material_check',
-          stageName: 'Material Check',
+          stageName: 'Material QC',
           timestamp: new Date().toISOString(),
           action: 'Order Placed & Created',
           actor: 'Order Desk',
-          notes: 'Assigned to Material Check stage automatically.'
+          notes: 'Assigned to Material QC stage automatically.'
         }
       ]
     };

@@ -178,14 +178,10 @@ export function ChecklistDelegationApp() {
           }
         />
 
-        {/* 10. Settings */}
+        {/* 10. Settings - Redirected to Unified Master Setting */}
         <Route
           path="/dashboard/setting"
-          element={
-            <SuperAdminRoute>
-              <Setting />
-            </SuperAdminRoute>
-          }
+          element={<Navigate to="/order-to-delivery?view=settings" replace />}
         />
 
         {/* 11. Training Video */}

@@ -1,42 +1,25 @@
 import { INITIAL_ORDERS } from '../data/initialOrders';
 
-const STORAGE_KEY = 'sainy_couture_orders_v8'; // bumped to v8 for updated measurement parameters
+const STORAGE_KEY = 'sainy_couture_orders_v12';
+
+// Clean out any stale/old legacy keys from user's browser localStorage
+(() => {
+  try {
+    for (let i = 1; i <= 11; i++) {
+      localStorage.removeItem(`sainy_couture_orders_v${i}`);
+    }
+  } catch {}
+})();
 
 export const getStoredOrders = () => {
   try {
-    let data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(STORAGE_KEY);
     if (!data) {
-      // Check if previous v7 exists to migrate
-      const prevData = localStorage.getItem('sainy_couture_orders_v7');
-      if (prevData) {
-        data = prevData;
-      } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ORDERS));
-        return INITIAL_ORDERS;
-      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ORDERS));
+      return INITIAL_ORDERS;
     }
     const parsed = JSON.parse(data);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Migrate fullLength from lower to upper if present
-      const migrated = parsed.map(o => {
-        if (o.measurements?.lower?.fullLength && !o.measurements?.upper?.fullLength) {
-          return {
-            ...o,
-            measurements: {
-              ...o.measurements,
-              upper: {
-                ...o.measurements.upper,
-                fullLength: o.measurements.lower.fullLength
-              }
-            }
-          };
-        }
-        return o;
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-      return migrated;
-    }
-    return INITIAL_ORDERS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
     console.error('Failed to parse orders from localStorage', error);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ORDERS));

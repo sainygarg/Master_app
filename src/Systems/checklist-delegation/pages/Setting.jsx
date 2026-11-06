@@ -22,9 +22,9 @@ const formatDateISO = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const Setting = () => {
+const Setting = ({ embedMode = false, initialTab = "leave" }) => {
   const { showToast } = useMagicToast();
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState(embedMode ? initialTab : 'users');
   const [showUserModal, setShowUserModal] = useState(false);
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -1054,9 +1054,8 @@ const Setting = () => {
     }
   };
 
-  return (
-    <AdminLayout>
-      <div className="space-y-8">
+  const settingBody = (
+    <div className="space-y-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-6">
           <h1 className="text-2xl font-bold text-purple-600">User Management System</h1>
 
@@ -2889,7 +2888,16 @@ const Setting = () => {
           </div>
         )}
       </div>
-    </AdminLayout >
+  );
+
+  if (embedMode) {
+    return settingBody;
+  }
+
+  return (
+    <AdminLayout>
+      {settingBody}
+    </AdminLayout>
   );
 };
 

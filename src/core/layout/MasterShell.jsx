@@ -110,12 +110,11 @@ export default function MasterShell({ children }) {
   const isChecklistActive = isChecklist;
   const isMasterSettingActive = isOrderFlow && currentViewParam === 'settings';
 
-  // Automatically expand corresponding dropdowns on route changes
+  // Keep dropdown open for the active module on mount or manual route changes, but do not force-close the other module
   useEffect(() => {
     if (isOrderFlow && currentViewParam !== 'settings') {
       setOrderFlowOpen(true);
-    }
-    if (isChecklist) {
+    } else if (isChecklist) {
       setChecklistOpen(true);
       if (location.pathname.includes('holiday') || location.pathname.includes('working-day')) {
         setHolidayOpen(true);
@@ -193,7 +192,6 @@ export default function MasterShell({ children }) {
         icon: BookmarkCheck,
         badge: pendingCounts.adminApprovalPending > 0 ? pendingCounts.adminApprovalPending : null,
       },
-      { label: 'Settings', href: '/dashboard/setting', icon: Settings },
       { label: 'Training Video', href: '/dashboard/training-video', icon: Video },
     ];
   }, [pendingCounts]);
@@ -257,7 +255,7 @@ export default function MasterShell({ children }) {
             isCollapsed ? 'h-16 justify-center px-2' : 'h-16 justify-between px-4'
           }`}>
             <button
-              onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+              onClick={() => { handleNavigate('/order-to-delivery?view=dashboard'); setOrderFlowOpen(true); setChecklistOpen(false); }}
               className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer"
               title="Sainy Couture Atelier"
             >
@@ -319,7 +317,7 @@ export default function MasterShell({ children }) {
 
               {/* 2. Checklist Icon */}
               <button
-                onClick={() => handleNavigate('/dashboard/admin')}
+                onClick={() => { handleNavigate('/dashboard/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isChecklistActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -335,7 +333,7 @@ export default function MasterShell({ children }) {
 
               {/* 3. Master Setting Icon */}
               <button
-                onClick={() => handleNavigate('/order-to-delivery?view=settings')}
+                onClick={() => { handleNavigate('/order-to-delivery?view=settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -354,16 +352,18 @@ export default function MasterShell({ children }) {
               <div className="flex flex-col">
                 <button
                   type="button"
-                  onClick={() => setOrderFlowOpen(!orderFlowOpen)}
+                  onClick={() => setOrderFlowOpen((prev) => !prev)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
                     isOrderFlowActive
-                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8]'
+                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
                       : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Scissors className="w-4 h-4 text-[#C5A059] shrink-0" />
-                    <span className="truncate">Order to Delivery</span>
+                    <div className={`p-1.5 rounded-lg ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Scissors className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     {orders.length > 0 && (
@@ -371,29 +371,31 @@ export default function MasterShell({ children }) {
                         {orders.length}
                       </span>
                     )}
-                    <span className="p-0.5 rounded text-stone-500 hover:text-stone-800 transition-transform">
+                    <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
                       {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                     </span>
                   </div>
                 </button>
 
-                {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages at the SAME HIERARCHY */}
+                {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages */}
                 {orderFlowOpen && (
-                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
                     
                     {/* 1. Dashboard */}
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                         isOrderFlow && currentViewParam === 'dashboard'
-                          ? 'bg-[#5B172E] text-white font-bold shadow-2xs'
+                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                           : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0 pr-1">
-                        <LayoutDashboard className={`w-3.5 h-3.5 shrink-0 ${isOrderFlow && currentViewParam === 'dashboard' ? 'text-white' : 'text-stone-400'}`} />
-                        <span className="truncate text-[11px]">Dashboard</span>
+                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                          <LayoutDashboard className="w-3 h-3 shrink-0" />
+                        </div>
+                        <span className="truncate text-[11px] font-medium">Dashboard</span>
                       </div>
                       {activeOrdersCount > 0 && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
@@ -408,15 +410,17 @@ export default function MasterShell({ children }) {
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=orders')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                         isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
-                          ? 'bg-[#5B172E] text-white font-bold shadow-2xs'
+                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                           : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0 pr-1">
-                        <ShoppingBag className={`w-3.5 h-3.5 shrink-0 ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'text-white' : 'text-stone-400'}`} />
-                        <span className="truncate text-[11px]">All Orders</span>
+                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                          <ShoppingBag className="w-3 h-3 shrink-0" />
+                        </div>
+                        <span className="truncate text-[11px] font-medium">All Orders</span>
                       </div>
                       {orders.length > 0 && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
@@ -427,31 +431,27 @@ export default function MasterShell({ children }) {
                       )}
                     </button>
 
-                    {/* 3 to 12. The 10 Stages (Same hierarchy as Dashboard and All Orders) */}
-                    {STAGES.map((stage, idx) => {
+                    {/* 3 to 12. The 10 Stages */}
+                    {STAGES.map((stage) => {
                       const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
                       const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
+                      const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
                       return (
                         <button
                           key={stage.id}
                           type="button"
                           onClick={() => handleNavigate(`/order-to-delivery?view=stages&stage=${stage.id}`)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                             isStageActive
-                              ? 'bg-[#5B172E] text-white font-bold shadow-2xs'
+                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                               : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                           }`}
                         >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            {(() => {
-                              const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
-                              return (
-                                <StageIcon className={`w-3.5 h-3.5 shrink-0 ${
-                                  isStageActive ? 'text-[#C5A059]' : 'text-stone-400 group-hover:text-[#5B172E]'
-                                }`} />
-                              );
-                            })()}
-                            <span className="truncate text-[11px]">{stage.name}</span>
+                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                            <div className={`p-1 rounded-md transition-colors ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              <StageIcon className="w-3 h-3 shrink-0" />
+                            </div>
+                            <span className="truncate text-[11px] font-medium">{stage.name}</span>
                           </div>
                           {stageOrders.length > 0 && (
                             <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
@@ -474,16 +474,18 @@ export default function MasterShell({ children }) {
               <div className="flex flex-col">
                 <button
                   type="button"
-                  onClick={() => setChecklistOpen(!checklistOpen)}
+                  onClick={() => setChecklistOpen((prev) => !prev)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
                     isChecklistActive
-                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8]'
+                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
                       : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <ClipboardCheck className="w-4 h-4 text-[#C5A059] shrink-0" />
-                    <span className="truncate">Checklist & Delegation</span>
+                    <div className={`p-1.5 rounded-lg ${isChecklistActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <ClipboardCheck className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Checklist & Delegation</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     {totalChecklistPending > 0 && (
@@ -491,7 +493,7 @@ export default function MasterShell({ children }) {
                         {totalChecklistPending}
                       </span>
                     )}
-                    <span className="p-0.5 rounded text-stone-500 hover:text-stone-800 transition-transform">
+                    <span className={`p-1 rounded-md transition-colors ${checklistOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
                       {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                     </span>
                   </div>
@@ -499,7 +501,7 @@ export default function MasterShell({ children }) {
 
                 {/* Checklist Subpages Dropdown */}
                 {checklistOpen && (
-                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
                     {checklistSubpages.map((sub) => {
                       const SubIcon = sub.icon;
 
@@ -511,15 +513,17 @@ export default function MasterShell({ children }) {
                             <button
                               type="button"
                               onClick={() => setHolidayOpen(!holidayOpen)}
-                              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                                 isAnyChildActive
                                   ? 'bg-[#F3ECE2] text-[#5B172E] font-bold'
                                   : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                               }`}
                             >
-                              <div className="flex items-center gap-2 min-w-0 pr-1">
-                                {SubIcon && <SubIcon className="w-3.5 h-3.5 shrink-0 text-stone-400" />}
-                                <span className="truncate text-[11px]">{sub.label}</span>
+                              <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                                <div className="p-1 rounded-md bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]">
+                                  {SubIcon && <SubIcon className="w-3 h-3 shrink-0" />}
+                                </div>
+                                <span className="truncate text-[11px] font-medium">{sub.label}</span>
                               </div>
                               <span className="text-stone-400">
                                 {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
@@ -527,7 +531,7 @@ export default function MasterShell({ children }) {
                             </button>
 
                             {holidayOpen && (
-                              <div className="mt-0.5 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                              <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
                                 {sub.subItems.map((item) => {
                                   const isChildActive = location.pathname === item.href;
                                   const ItemIcon = item.icon;
@@ -536,9 +540,9 @@ export default function MasterShell({ children }) {
                                       key={item.href}
                                       type="button"
                                       onClick={() => handleNavigate(item.href)}
-                                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer ${
                                         isChildActive
-                                          ? 'bg-[#5B172E] text-white font-bold shadow-2xs'
+                                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                                           : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                                       }`}
                                     >
@@ -564,17 +568,19 @@ export default function MasterShell({ children }) {
                           key={sub.href}
                           type="button"
                           onClick={() => handleNavigate(sub.href)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                             isSubActive
-                              ? 'bg-[#5B172E] text-white font-bold shadow-2xs'
+                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                               : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                           }`}
                         >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            {SubIcon && (
-                              <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
-                            )}
-                            <span className="truncate text-[11px]">{sub.label}</span>
+                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                            <div className={`p-1 rounded-md transition-colors ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              {SubIcon && (
+                                <SubIcon className="w-3 h-3 shrink-0" />
+                              )}
+                            </div>
+                            <span className="truncate text-[11px] font-medium">{sub.label}</span>
                           </div>
                           {sub.badge && (
                             <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
@@ -596,15 +602,17 @@ export default function MasterShell({ children }) {
               <button
                 type="button"
                 onClick={() => handleNavigate('/order-to-delivery?view=settings')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${
                   isMasterSettingActive
-                    ? 'bg-[#5B172E] text-white shadow-xs'
-                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                    ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <Settings className="w-4 h-4 text-[#C5A059] shrink-0" />
-                  <span className="truncate">Master Setting</span>
+                  <div className={`p-1.5 rounded-lg ${isMasterSettingActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                    <Settings className="w-3.5 h-3.5 shrink-0" />
+                  </div>
+                  <span className="truncate font-semibold tracking-tight">Master Setting</span>
                 </div>
               </button>
 
@@ -682,7 +690,7 @@ export default function MasterShell({ children }) {
               <div className="flex flex-col">
                 <button
                   type="button"
-                  onClick={() => setOrderFlowOpen(!orderFlowOpen)}
+                  onClick={() => setOrderFlowOpen((prev) => !prev)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                     isOrderFlowActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
                   }`}
@@ -785,7 +793,7 @@ export default function MasterShell({ children }) {
               <div className="flex flex-col">
                 <button
                   type="button"
-                  onClick={() => setChecklistOpen(!checklistOpen)}
+                  onClick={() => setChecklistOpen((prev) => !prev)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                     isChecklistActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
                   }`}

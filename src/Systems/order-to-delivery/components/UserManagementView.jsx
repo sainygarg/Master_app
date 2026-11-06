@@ -29,8 +29,10 @@ import {
   Clock, 
   Briefcase, 
   Database,
-  ArrowRight
+  ArrowRight,
+  Settings
 } from 'lucide-react';
+import ChecklistSetting from '../../checklist-delegation/pages/Setting';
 import { STAGES } from '../types/stages';
 import { 
   getStoredCustomers, 
@@ -408,6 +410,19 @@ export const UserManagementView = ({
         >
           <Scissors className="w-4 h-4" />
           <span>Karigars ({karigars.length})</span>
+        </button>
+
+        {/* 8. Checklist & Delegation Settings */}
+        <button
+          onClick={() => { setActiveTab('checklist_settings'); setSearchTerm(''); }}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+            activeTab === 'checklist_settings'
+              ? 'bg-[#5B172E] text-white shadow-xs'
+              : 'bg-white text-stone-600 hover:text-stone-900 border border-[#DECDB8]'
+          }`}
+        >
+          <Settings className="w-4 h-4" />
+          <span>Checklist & Leaves Setup</span>
         </button>
 
       </div>
@@ -1192,6 +1207,15 @@ export const UserManagementView = ({
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 8. CHECKLIST & LEAVES MASTER SETTING TAB                                 */}
+      {/* ========================================================================= */}
+      {activeTab === 'checklist_settings' && (
+        <div className="bg-white rounded-2xl border border-[#E8DFD3] shadow-xs p-4 sm:p-6">
+          <ChecklistSetting embedMode={true} />
         </div>
       )}
 

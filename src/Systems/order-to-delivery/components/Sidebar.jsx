@@ -159,7 +159,7 @@ export const Sidebar = ({
             const count = stageOrders.length;
             const isSelected = currentView === 'stages' && selectedStageId === stage.id;
             const Icon = stageIcons[stage.id] || Sparkles;
-  
+            
             return (
               <div key={stage.id} className="relative group">
                 <button

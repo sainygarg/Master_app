@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { ChevronLeft, ChevronRight, Search, ArrowLeft, History, Printer, CheckCircle2, X, Upload, BellRing } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import AdminLayout from '../components/layout/AdminLayout';
@@ -651,8 +651,9 @@ function DelegationDataPage() {
     const missingRequiredImages = selectedItemsArray.filter((id) => {
       const item = delegation.find((account) => account.id === id);
       const requiresAttachment =
-        item.require_attachment &&
-        item.require_attachment.toUpperCase() === "YES";
+        item.require_attachment === true ||
+        String(item.require_attachment || '').toUpperCase() === "YES" ||
+        String(item.require_attachment || '').toLowerCase() === "true";
       return requiresAttachment && !uploadedImages[id] && !item.image;
     });
 
@@ -1936,8 +1937,9 @@ function DelegationDataPage() {
                                       size={18}
                                       className={isSelected ? "text-purple-500" : "text-gray-400"}
                                     />
-                                    {task.require_attachment?.toUpperCase() ===
-                                      "YES" && (
+                                    {(task.require_attachment === true ||
+                                      String(task.require_attachment || '').toUpperCase() === "YES" ||
+                                      String(task.require_attachment || '').toLowerCase() === "true") && (
                                         <span className="ml-1 text-[10px] text-red-500 font-bold">
                                           *
                                         </span>
@@ -2143,7 +2145,7 @@ function DelegationDataPage() {
                               ) : (
                                 <label className={`flex items-center justify-center gap-2 p-3 border-2 border-dashed rounded-xl transition-all ${isSelected ? "border-purple-200 bg-purple-50 text-purple-600" : "border-gray-100 bg-gray-50 text-gray-300"}`}>
                                   <Upload size={16} />
-                                  <span className="text-xs font-bold">{task.require_attachment?.toUpperCase() === "YES" ? "Required*" : "Upload"}</span>
+                                  <span className="text-xs font-bold">{(task.require_attachment === true || String(task.require_attachment || '').toUpperCase() === "YES" || String(task.require_attachment || '').toLowerCase() === "true") ? "Required*" : "Upload"}</span>
                                   <input type="file" className="hidden" accept="image/*" disabled={!isSelected} onChange={(e) => handleImageUpload(task.id, e)} />
                                 </label>
                               )}

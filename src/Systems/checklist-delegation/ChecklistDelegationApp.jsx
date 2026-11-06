@@ -7,6 +7,10 @@ import AdminDashboard from './pages/admin/Dashboard';
 import NotificationsPage from './pages/admin/Notifications';
 import QuickTask from './pages/QuickTask';
 import AdminAssignTask from './pages/admin/AssignTask';
+import ChecklistTask from './pages/admin/ChecklistTask';
+import MaintenanceTask from './pages/admin/MaintenanceTask';
+import RepairTask from './pages/admin/RepairTask';
+import EATask from './pages/admin/EATask';
 import DelegationPage from './pages/delegation';
 import AllTasks from './pages/admin/AllTasks';
 import CalendarPage from './pages/admin/CalendarPage';
@@ -116,6 +120,38 @@ export function ChecklistDelegationApp() {
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
               <AdminAssignTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/checklist"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
+              <ChecklistTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/maintenance"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
+              <MaintenanceTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/repair"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
+              <RepairTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ea-task"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD']}>
+              <EATask />
             </ProtectedRoute>
           }
         />

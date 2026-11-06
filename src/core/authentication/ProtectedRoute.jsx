@@ -100,7 +100,7 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
                 .from("users")
                 .select("system_access, page_access, role")
                 .eq("user_name", storedUser)
-                .single()
+                .maybeSingle()
                 .then(({ data: userProfile, error }) => {
                     if (!active || error || !userProfile) return;
 

@@ -55,7 +55,7 @@ const LoginPage = () => {
               .from('users')
               .select('Designation')
               .eq('user_name', userData.user_name || userData.username)
-              .single();
+              .maybeSingle();
             if (data) {
               designation = data.Designation || "";
             }
@@ -73,7 +73,7 @@ const LoginPage = () => {
               .from('users')
               .select('can_self_assign')
               .eq('user_name', userData.user_name || userData.username)
-              .single();
+              .maybeSingle();
             if (permissionData) {
               canSelfAssign = permissionData.can_self_assign;
             }
@@ -219,7 +219,7 @@ const LoginPage = () => {
                         if (!forgotData.username) return showToast("Please enter username", "error");
                         setIsForgotLoading(true);
                         try {
-                          const { data, error } = await supabase.from('users').select('user_name').eq('user_name', forgotData.username).single();
+                          const { data, error } = await supabase.from('users').select('user_name').eq('user_name', forgotData.username).maybeSingle();
                           if (error || !data) return showToast("User not found", "error");
 
                           if (!isWhatsAppConnected()) {

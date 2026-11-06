@@ -37,7 +37,7 @@ export default function CoreDashboard() {
       .from("users")
       .select("id, user_name, role, Designation, profile_image, email_id, can_self_assign, system_access, page_access")
       .eq("user_name", username)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data) setProfile(data);
       })

@@ -51,15 +51,16 @@ const formatPhoneNumber = (phone) => {
 const getUserPhoneNumber = async (username) => {
     try {
         console.log(`🔍 Fetching phone for user: "${username}"`);
+        // Select all possible phone columns with safe fallback (mobile, phone, number)
         const { data, error } = await supabase
             .from('users')
-            .select('number')
-            .eq('user_name', username)
+            .select('*')
+            .or(`user_name.eq."${username}",username.eq."${username}",name.eq."${username}"`)
             .limit(1);
 
         if (error) {
             console.error('Supabase User Fetch Error:', error);
-            throw error;
+            return null;
         }
 
         if (!data || data.length === 0) {
@@ -67,7 +68,8 @@ const getUserPhoneNumber = async (username) => {
             return null;
         }
 
-        return data[0]?.number || null;
+        const user = data[0];
+        return user?.mobile || user?.phone || user?.number || null;
     } catch (error) {
         console.error('Error fetching user phone:', error);
         return null;

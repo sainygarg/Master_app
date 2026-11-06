@@ -59,6 +59,8 @@ export const fetchUserDetailsApi = async () => {
 //   }
 // };
 
+import { SYSTEM_DEPARTMENTS } from "../../../../core/constants/departments";
+
 export const fetchDepartmentDataApi = async () => {
   try {
     const { data, error } = await supabase
@@ -66,24 +68,42 @@ export const fetchDepartmentDataApi = async () => {
       .select('*')
       .order('name', { ascending: true });
 
-    if (error) {
-      console.log("error when fetching departments", error);
-      return [];
+    if (!error && data && data.length > 0) {
+      return data.map(d => ({
+        id: d.id,
+        department: d.name,
+        given_by: d.given_by || ""
+      }));
     }
 
-    // Format to match old expectations if necessary, 
-    // though name is better than department field name now
-    const formatted = data.map(d => ({
+    // Try reading from Master Setting localStorage
+    try {
+      const stored = localStorage.getItem('order_flow_master_departments_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(d => ({
+            id: d.id,
+            department: d.name || d.department,
+            given_by: d.headName || d.given_by || ""
+          }));
+        }
+      }
+    } catch {}
+
+    // Fallback to SYSTEM_DEPARTMENTS
+    return SYSTEM_DEPARTMENTS.map(d => ({
       id: d.id,
       department: d.name,
-      given_by: d.given_by || ""
+      given_by: d.headName || ""
     }));
-
-    console.log("fetch successfully", formatted);
-    return formatted;
   } catch (error) {
     console.log("error from supabase", error);
-    return [];
+    return SYSTEM_DEPARTMENTS.map(d => ({
+      id: d.id,
+      department: d.name,
+      given_by: d.headName || ""
+    }));
   }
 };
 export const createUserApi = async (newUser) => {

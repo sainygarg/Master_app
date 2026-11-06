@@ -36,7 +36,7 @@ const UserLayout = ({ children }) => {
           .from("users")
           .select("profile_image")
           .eq("user_name", storedUsername)
-          .single();
+          .maybeSingle();
 
         if (data && data.profile_image) {
           setProfileImage(data.profile_image);
@@ -52,7 +52,7 @@ const UserLayout = ({ children }) => {
       syncProfileImage();
     }
 
-    console.log("UserLayout - Profile Image URL (Cached):", cachedImage);
+    
   }, [navigate, username]) // Added username to dependency to ensure it runs when set
 
   // Logout handler

@@ -28,7 +28,7 @@ export async function updateTatSetting(id, tatMinutes, isActive = true, stageKey
         updated_at: new Date().toISOString()
       }, { onConflict: 'stage_key' })
       .select()
-      .single();
+      .maybeSingle();
     if (error) throw error;
     return data;
   }
@@ -38,7 +38,7 @@ export async function updateTatSetting(id, tatMinutes, isActive = true, stageKey
     .update({ tat_minutes: tatMinutes, is_active: isActive, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
-    .single();
+    .maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -87,7 +87,7 @@ export async function startOrUpdateStage(entityId, stageKey, startedAt, tatMinut
     .from('purchase_tat_tracking')
     .upsert(payload, { onConflict: 'entity_id, stage_key' })
     .select()
-    .single();
+    .maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -154,7 +154,7 @@ export async function completeStage(entityId, stageKey, completedAt = new Date()
     .eq('entity_id', String(entityId))
     .eq('stage_key', stageKey)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error && error.code !== 'PGRST116') {
     console.error('Error completing stage:', error);

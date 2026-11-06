@@ -332,7 +332,7 @@ const Setting = ({ embedMode = false, initialTab = "leave" }) => {
       // Only mark user as on leave if it's the first shift or a direct "Mark on leave"
       // or if all tasks are being shifted at once.
       // Usually, we should probably mark as on leave on the first action.
-      const { data: currentUser } = await supabase.from('users').select('status').eq('id', leavePersonId).single();
+      const { data: currentUser } = await supabase.from('users').select('status').eq('id', leavePersonId).maybeSingle();
 
       if (currentUser?.status !== 'on_leave') {
         const { error: userUpdateError } = await supabase

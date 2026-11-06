@@ -66,7 +66,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           .from("users")
           .select("id, profile_image, role, system_access, page_access")
           .eq("user_name", storedUsername)
-          .single();
+          .maybeSingle();
 
         if (userProfile) {
           if (userProfile.profile_image) {

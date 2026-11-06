@@ -10,7 +10,7 @@ export default function AssignTask() {
   useEffect(() => {
     const role = (localStorage.getItem("role") || "").toLowerCase();
     const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
-    console.log(`📌 AssignTask Entry Guard: Role=${role}, CanSelfAssign=${canSelfAssign}`);
+    
     if (role === "user" && !canSelfAssign) {
       console.warn("🚫 AssignTask: Unauthorized 'user' role redirected to admin");
       navigate("/dashboard/admin");

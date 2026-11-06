@@ -1,23 +1,34 @@
 import supabase from "../../SupabaseClient";
+import { SYSTEM_DEPARTMENTS } from "../../../../core/constants/departments";
 
 export const fetchUniqueDepartmentDataApi = async () => {
   try {
+    // 1. Try fetching from Supabase database
     const { data, error } = await supabase
       .from('departments')
       .select('name')
       .order('name', { ascending: true });
 
-    if (error) {
-      console.error("Error fetching department data:", error);
-      return [];
+    if (!error && data && data.length > 0) {
+      return data.map(item => item.name).filter(Boolean);
     }
 
-    // Return an array of department names (strings)
-    const uniqueDepartments = data ? data.map(item => item.name) : [];
-    return uniqueDepartments;
+    // 2. Try fetching from localStorage Master Setting storage
+    try {
+      const stored = localStorage.getItem('order_flow_master_departments_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(d => d.name || d.department).filter(Boolean);
+        }
+      }
+    } catch {}
+
+    // 3. Fallback to standard atelier system departments
+    return SYSTEM_DEPARTMENTS.map(d => d.name);
   } catch (error) {
-    console.error("Error from Supabase:", error);
-    return [];
+    console.error("Error in fetchUniqueDepartmentDataApi:", error);
+    return SYSTEM_DEPARTMENTS.map(d => d.name);
   }
 };
 
@@ -26,7 +37,7 @@ export const fetchUniqueDepartmentDataApi = async () => {
 
 export const fetchUniqueGivenByDataApi = async () => {
   try {
-    console.log("🔍 API: Fetching 'Assign From' list from database...");
+    
 
     const { data, error } = await supabase
       .from('assign_from')
@@ -62,7 +73,7 @@ export const fetchUniqueGivenByDataApi = async () => {
     // Get unique values and sort
     const uniqueNames = [...new Set(extractedNames)].sort();
 
-    console.log("✅ API: Loaded Assigners:", uniqueNames);
+    
     return uniqueNames;
   } catch (error) {
     console.error("❌ API: Unexpected failure fetching assigners:", error);
@@ -72,7 +83,7 @@ export const fetchUniqueGivenByDataApi = async () => {
 
 export const fetchUniqueDoerNameDataApi = async (department) => {
   try {
-    console.log("🔍 Fetching doer data for department:", department);
+    
 
     let query = supabase
       .from("users")
@@ -153,8 +164,7 @@ export const pushAssignTaskApi = async (generatedTasks, targetTable = null) => {
       enable_reminder: task.enableReminders ? "yes" : "no",
       require_attachment: task.requireAttachment ? "yes" : "no",
       audio_url: task.audio_url || null,
-      instruction_attachment_url: task.instruction_attachment_url || null,
-      instruction_attachment_type: task.instruction_attachment_type || null,
+      ...(targetTable === 'checklist' && task.instruction_attachment_url ? { instruction_attachment_url: task.instruction_attachment_url } : {}),
       status: targetTable === 'checklist' ? null : (task.status || 'pending')
     }));
 
@@ -191,14 +201,16 @@ export const pushAssignTaskApi = async (generatedTasks, targetTable = null) => {
       enable_reminder: task.enableReminders ? "yes" : "no",
       require_attachment: task.requireAttachment ? "yes" : "no",
       audio_url: task.audio_url || null,
-      instruction_attachment_url: task.instruction_attachment_url || null,
-      instruction_attachment_type: task.instruction_attachment_type || null,
     };
 
     if (isOneTime) {
       delegationTasks.push({ ...taskData, status: task.status || 'pending' });
     } else {
-      checklistTasks.push({ ...taskData, status: null });
+      checklistTasks.push({
+        ...taskData,
+        instruction_attachment_url: task.instruction_attachment_url || null,
+        status: null
+      });
     }
   });
 

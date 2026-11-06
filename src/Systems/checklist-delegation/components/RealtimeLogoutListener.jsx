@@ -11,9 +11,7 @@ const RealtimeLogoutListener = () => {
 
   // ✅ Ask notification permission
   useEffect(() => {
-    if ("Notification" in window) {
-      Notification.requestPermission();
-    }
+    if ("Notification" in window && Notification.permission === "default") { Notification.requestPermission(); }
   }, []);
 
   // ✅ User auto-logout listener (for current user)
@@ -90,7 +88,7 @@ const RealtimeLogoutListener = () => {
           }
         }
       )
-      .subscribe((status) => console.log("✅ Subscribed to admin Realtime:", status));
+      .subscribe();
 
     return () => {
       supabase.removeChannel(adminSubscription);

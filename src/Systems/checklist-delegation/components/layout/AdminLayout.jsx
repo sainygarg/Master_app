@@ -62,11 +62,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     const storedRoleLower = (storedRole || "user").toLowerCase();
     const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
 
-    console.log(`ðŸ›¡ï¸ SECURITY GUARD DEBUG:
-      Path: "${path}"
-      Role: "${storedRoleLower}"
-      CanSelfAssign: ${canSelfAssign}
-    `);
+    
 
     // Case 1: USER role
     if (storedRoleLower === "user") {
@@ -153,7 +149,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
           .from("users")
           .select("profile_image")
           .eq("user_name", storedUsername)
-          .single();
+          .maybeSingle();
 
         if (data && data.profile_image) {
           setProfileImage(data.profile_image);
@@ -169,7 +165,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
       syncProfileImage();
     }
 
-    console.log("AdminLayout - Profile Image URL (Cached):", cachedImage);
+    
 
     // Check if this is the super admin (username = 'admin')
     const normalizedUsername = (storedUsername || "").toLowerCase();
@@ -340,7 +336,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
         }
         if (route.href === "/dashboard/assign-task") {
           const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
-          console.log(`ðŸ” Sidebar Filter: Checking ${route.label} for ${userRoleNormalized}. CanSelfAssign=${canSelfAssign}`);
+          
           if (userRoleNormalized === "user") return canSelfAssign;
         }
 

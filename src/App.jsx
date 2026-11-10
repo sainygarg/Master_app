@@ -21,8 +21,8 @@ export function App() {
     <UnifiedAuthProvider>
       <MasterShell>
         <Routes>
-          {/* Default root path redirects to Order to Delivery */}
-          <Route path="/" element={<Navigate to="/order-to-delivery" replace />} />
+          {/* Default root path redirects to Checklist Dashboard (login gate sends guests to the login page) */}
+          <Route path="/" element={<Navigate to="/dashboard/admin" replace />} />
 
           {/* System 1: Order to Delivery */}
           <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />

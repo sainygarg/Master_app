@@ -5,6 +5,28 @@
 alter table public.users
   add column if not exists allowed_checklist_pages jsonb;
 
+-- 1b) Columns the Checklist & Delegation code still reads/writes on public.users
+alter table public.users add column if not exists email_id text;
+alter table public.users add column if not exists number text;
+alter table public.users add column if not exists employee_id text;
+alter table public.users add column if not exists system_access text default 'all';
+alter table public.users add column if not exists page_access text;
+alter table public.users add column if not exists remark text;
+alter table public.users add column if not exists "Designation" text;
+
+-- 1c) Checklist login RPC. Passwords in public.users are plain text (Master Hub writes them),
+--     so compare directly. Skip this block if your existing secure_login already works with your data.
+create or replace function public.secure_login(input_username text, input_password text)
+returns setof public.users
+language sql
+security definer
+as $$
+  select * from public.users
+  where (lower(username) = lower(input_username) or lower(user_name) = lower(input_username))
+    and password = input_password
+  limit 1;
+$$;
+
 -- 2) The app uses the public anon key, so RLS must allow it (skip if RLS is off / already set).
 alter table public.users enable row level security;
 drop policy if exists "users_all" on public.users;

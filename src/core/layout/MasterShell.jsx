@@ -216,7 +216,7 @@ export default function MasterShell({ children }) {
         const stage = STAGES.find((s) => s.id === currentStageParam);
         return stage ? stage.name : 'Production Stages';
       }
-      if (currentViewParam === 'settings') return 'Master Settings';
+      if (currentViewParam === 'settings') return 'Settings';
       return 'All Orders';
     }
 
@@ -311,22 +311,6 @@ export default function MasterShell({ children }) {
                 <PanelLeftOpen className="w-5 h-5" />
               </button>
 
-              {/* 1. Order Flow Icon */}
-              <button
-                onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
-                title="Order to Delivery"
-              >
-                <Scissors className="w-5 h-5" />
-                {orders.length > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
-                    {orders.length}
-                  </span>
-                )}
-              </button>
-
               {/* 2. Checklist Icon */}
               <button
                 onClick={() => { handleNavigate('/dashboard/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
@@ -343,13 +327,29 @@ export default function MasterShell({ children }) {
                 )}
               </button>
 
+              {/* 1. Order Flow Icon */}
+              <button
+                onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
+                  isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                }`}
+                title="Order to Delivery"
+              >
+                <Scissors className="w-5 h-5" />
+                {orders.length > 0 && (
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
+                    {orders.length}
+                  </span>
+                )}
+              </button>
+
               {/* 3. Master Setting Icon */}
               <button
                 onClick={() => { handleNavigate('/order-to-delivery?view=settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
-                title="Master Setting"
+                title="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -359,129 +359,7 @@ export default function MasterShell({ children }) {
             <div className="space-y-3">
               
               {/* =========================================================================
-                  PAGE 1: ORDER FLOW (MAIN DROPDOWN WITH ALL 12 PEER SUBPAGES)
-              ========================================================================= */}
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setOrderFlowOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
-                    isOrderFlowActive
-                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
-                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <Scissors className="w-3.5 h-3.5 shrink-0" />
-                    </div>
-                    <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {orders.length > 0 && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                        {orders.length}
-                      </span>
-                    )}
-                    <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
-                      {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
-
-                {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages */}
-                {orderFlowOpen && (
-                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
-                    
-                    {/* 1. Dashboard */}
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                        isOrderFlow && currentViewParam === 'dashboard'
-                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                          <LayoutDashboard className="w-3 h-3 shrink-0" />
-                        </div>
-                        <span className="truncate text-[11px] font-medium">Dashboard</span>
-                      </div>
-                      {activeOrdersCount > 0 && (
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
-                        }`}>
-                          {activeOrdersCount}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* 2. All Orders */}
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=orders')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                        isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
-                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                          <ShoppingBag className="w-3 h-3 shrink-0" />
-                        </div>
-                        <span className="truncate text-[11px] font-medium">All Orders</span>
-                      </div>
-                      {orders.length > 0 && (
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
-                        }`}>
-                          {orders.length}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* 3 to 12. The 10 Stages */}
-                    {STAGES.map((stage) => {
-                      const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
-                      const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
-                      const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
-                      return (
-                        <button
-                          key={stage.id}
-                          type="button"
-                          onClick={() => handleNavigate(`/order-to-delivery?view=stages&stage=${stage.id}`)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                            isStageActive
-                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                              : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                            <div className={`p-1 rounded-md transition-colors ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                              <StageIcon className="w-3 h-3 shrink-0" />
-                            </div>
-                            <span className="truncate text-[11px] font-medium">{stage.name}</span>
-                          </div>
-                          {stageOrders.length > 0 && (
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isStageActive ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
-                            }`}>
-                              {stageOrders.length}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-
-                  </div>
-                )}
-              </div>
-
-              {/* =========================================================================
-                  PAGE 2: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
+                  PAGE 1: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
               ========================================================================= */}
               <div className="flex flex-col">
                 <button
@@ -609,6 +487,128 @@ export default function MasterShell({ children }) {
               </div>
 
               {/* =========================================================================
+                  PAGE 2: ORDER FLOW (MAIN DROPDOWN WITH ALL 12 PEER SUBPAGES)
+              ========================================================================= */}
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => setOrderFlowOpen((prev) => !prev)}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
+                    isOrderFlowActive
+                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Scissors className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {orders.length > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
+                        {orders.length}
+                      </span>
+                    )}
+                    <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
+                      {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages */}
+                {orderFlowOpen && (
+                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
+                    
+                    {/* 1. Dashboard */}
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
+                        isOrderFlow && currentViewParam === 'dashboard'
+                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                          <LayoutDashboard className="w-3 h-3 shrink-0" />
+                        </div>
+                        <span className="truncate text-[11px] font-medium">Dashboard</span>
+                      </div>
+                      {activeOrdersCount > 0 && (
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                          isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                        }`}>
+                          {activeOrdersCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* 2. All Orders */}
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate('/order-to-delivery?view=orders')}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
+                        isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
+                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                          <ShoppingBag className="w-3 h-3 shrink-0" />
+                        </div>
+                        <span className="truncate text-[11px] font-medium">All Orders</span>
+                      </div>
+                      {orders.length > 0 && (
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                          isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                        }`}>
+                          {orders.length}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* 3 to 12. The 10 Stages */}
+                    {STAGES.map((stage) => {
+                      const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
+                      const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
+                      const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
+                      return (
+                        <button
+                          key={stage.id}
+                          type="button"
+                          onClick={() => handleNavigate(`/order-to-delivery?view=stages&stage=${stage.id}`)}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
+                            isStageActive
+                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                              : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                            <div className={`p-1 rounded-md transition-colors ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              <StageIcon className="w-3 h-3 shrink-0" />
+                            </div>
+                            <span className="truncate text-[11px] font-medium">{stage.name}</span>
+                          </div>
+                          {stageOrders.length > 0 && (
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                              isStageActive ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                            }`}>
+                              {stageOrders.length}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+
+                  </div>
+                )}
+              </div>
+
+              {/* =========================================================================
                   PAGE 3: MASTER SETTING (MAIN PAGE)
               ========================================================================= */}
               <button
@@ -624,7 +624,7 @@ export default function MasterShell({ children }) {
                   <div className={`p-1.5 rounded-lg ${isMasterSettingActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
                     <Settings className="w-3.5 h-3.5 shrink-0" />
                   </div>
-                  <span className="truncate font-semibold tracking-tight">Master Setting</span>
+                  <span className="truncate font-semibold tracking-tight">Settings</span>
                 </div>
               </button>
 
@@ -698,6 +698,97 @@ export default function MasterShell({ children }) {
             {/* Mobile Navigation List */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               
+              {/* 2. Checklist & Delegation in Mobile */}
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => setChecklistOpen((prev) => !prev)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                    isChecklistActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <ClipboardCheck className="w-4 h-4 text-[#C5A059]" />
+                    <span>Checklist & Delegation</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {totalChecklistPending > 0 && (
+                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
+                        {totalChecklistPending}
+                      </span>
+                    )}
+                    <span className="p-0.5 rounded text-stone-500">
+                      {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    </span>
+                  </div>
+                </button>
+
+                {checklistOpen && (
+                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                    {checklistSubpages.map((sub) => {
+                      const SubIcon = sub.icon;
+                      if (sub.isSubmenu) {
+                        return (
+                          <div key={sub.label} className="flex flex-col">
+                            <button
+                              type="button"
+                              onClick={() => setHolidayOpen(!holidayOpen)}
+                              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-[#F3ECE2]"
+                            >
+                              <div className="flex items-center gap-2">
+                                {SubIcon && <SubIcon className="w-3.5 h-3.5" />}
+                                <span>{sub.label}</span>
+                              </div>
+                              {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            </button>
+                            {holidayOpen && (
+                              <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                                {sub.subItems.map((item) => (
+                                  <button
+                                    key={item.href}
+                                    type="button"
+                                    onClick={() => handleNavigate(item.href)}
+                                    className={`w-full px-2 py-1 text-left text-[11px] rounded ${
+                                      location.pathname === item.href ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600'
+                                    }`}
+                                  >
+                                    {item.label}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      const isSubActive = location.pathname === sub.href;
+                      return (
+                        <button
+                          key={sub.href}
+                          type="button"
+                          onClick={() => handleNavigate(sub.href)}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
+                            isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-1">
+                            {SubIcon && (
+                              <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
+                            )}
+                            <span className="truncate text-[11px]">{sub.label}</span>
+                          </div>
+                          {sub.badge && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
+                              {sub.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* 1. Order Flow in Mobile */}
               <div className="flex flex-col">
                 <button
@@ -801,97 +892,6 @@ export default function MasterShell({ children }) {
                 )}
               </div>
 
-              {/* 2. Checklist & Delegation in Mobile */}
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setChecklistOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isChecklistActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <ClipboardCheck className="w-4 h-4 text-[#C5A059]" />
-                    <span>Checklist & Delegation</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {totalChecklistPending > 0 && (
-                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
-                        {totalChecklistPending}
-                      </span>
-                    )}
-                    <span className="p-0.5 rounded text-stone-500">
-                      {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
-
-                {checklistOpen && (
-                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                    {checklistSubpages.map((sub) => {
-                      const SubIcon = sub.icon;
-                      if (sub.isSubmenu) {
-                        return (
-                          <div key={sub.label} className="flex flex-col">
-                            <button
-                              type="button"
-                              onClick={() => setHolidayOpen(!holidayOpen)}
-                              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-[#F3ECE2]"
-                            >
-                              <div className="flex items-center gap-2">
-                                {SubIcon && <SubIcon className="w-3.5 h-3.5" />}
-                                <span>{sub.label}</span>
-                              </div>
-                              {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            </button>
-                            {holidayOpen && (
-                              <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                                {sub.subItems.map((item) => (
-                                  <button
-                                    key={item.href}
-                                    type="button"
-                                    onClick={() => handleNavigate(item.href)}
-                                    className={`w-full px-2 py-1 text-left text-[11px] rounded ${
-                                      location.pathname === item.href ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600'
-                                    }`}
-                                  >
-                                    {item.label}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      const isSubActive = location.pathname === sub.href;
-                      return (
-                        <button
-                          key={sub.href}
-                          type="button"
-                          onClick={() => handleNavigate(sub.href)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                            isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            {SubIcon && (
-                              <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
-                            )}
-                            <span className="truncate text-[11px]">{sub.label}</span>
-                          </div>
-                          {sub.badge && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
-                              {sub.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
               {/* 3. Master Setting in Mobile */}
               <button
                 type="button"
@@ -902,7 +902,7 @@ export default function MasterShell({ children }) {
               >
                 <div className="flex items-center gap-2.5">
                   <Settings className="w-4 h-4 text-[#C5A059]" />
-                  <span>Master Setting</span>
+                  <span>Settings</span>
                 </div>
               </button>
 

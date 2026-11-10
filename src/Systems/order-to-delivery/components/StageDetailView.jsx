@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PackageCheck,
   Scissors,
@@ -28,6 +28,8 @@ import {
 import { STAGES } from '../types/stages';
 import { StageUpdateModal } from './StageUpdateModal';
 import { CustomerPhoneDisplay } from '../utils/privacy';
+import { fetchMasters } from '../utils/masterStorage';
+import { getStagePlannedTime, getStageActualTime, formatPlanned, formatDelay } from '../utils/stageTiming';
 
 export const StageDetailView = ({
   orders = [],
@@ -41,6 +43,12 @@ export const StageDetailView = ({
 }) => {
   const currentStage = STAGES.find(s => s.id === selectedStageId) || STAGES[0];
   const currentStageIndex = STAGES.findIndex(s => s.id === selectedStageId);
+
+  // Stage TAT master (used to compute the Planned date)
+  const [tatConfig, setTatConfig] = useState([]);
+  useEffect(() => {
+    fetchMasters('tat').then(setTatConfig).catch(() => setTatConfig([]));
+  }, []);
 
   // Sub-tabs: 'pending' vs 'history'
   const [stageTab, setStageTab] = useState('pending'); // 'pending' | 'history'
@@ -158,6 +166,7 @@ export const StageDetailView = ({
                       <th className="py-3.5 px-4 min-w-[170px]">Order ID & Client</th>
                       <th className="py-3.5 px-4 min-w-[190px]">Design & Size</th>
                       <th className="py-3.5 px-4 min-w-[140px]">Target Dates</th>
+                      <th className="py-3.5 px-4 min-w-[170px]">Planned Date</th>
 
                       {/* DEDICATED COLUMN HEADERS FOR DISPLAYING EACH STAGE FIELD */}
                       {currentStage.fields.map((field) => (
@@ -261,6 +270,24 @@ export const StageDetailView = ({
                               }`}>
                               {daysToDelivery > 0 ? `${daysToDelivery} days left` : 'Due'}
                             </span>
+                          </td>
+
+                          {/* Planned Date (stage entry + Stage TAT) */}
+                          <td className="py-3 px-4 align-middle whitespace-nowrap">
+                            {(() => {
+                              const planned = getStagePlannedTime(order, selectedStageId, tatConfig);
+                              const overdue = planned && planned.getTime() < Date.now();
+                              return (
+                                <>
+                                  <div className="text-[11px] font-semibold text-stone-800">{formatPlanned(planned)}</div>
+                                  {overdue && (
+                                    <span className="inline-block mt-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-100 text-rose-700">
+                                      Overdue
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </td>
 
                           {/* PURE DISPLAY COLUMNS (NO INLINE FORM INPUTS) */}
@@ -481,6 +508,9 @@ export const StageDetailView = ({
                       <th className="py-3.5 px-4 min-w-[170px]">Order ID & Client</th>
                       <th className="py-3.5 px-4 min-w-[180px]">Design & Size</th>
                       <th className="py-3.5 px-4 min-w-[150px]">Current Status</th>
+                      <th className="py-3.5 px-4 min-w-[170px]">Planned</th>
+                      <th className="py-3.5 px-4 min-w-[170px]">Actual</th>
+                      <th className="py-3.5 px-4 min-w-[130px]">Time Delay</th>
 
                       {/* DEDICATED COLUMNS FOR STAGE PARAMETERS */}
                       {currentStage.fields.map((field) => (
@@ -554,6 +584,30 @@ export const StageDetailView = ({
                             </div>
                           </td>
 
+                          {/* Planned / Actual / Time Delay */}
+                          {(() => {
+                            const planned = getStagePlannedTime(order, selectedStageId, tatConfig);
+                            const actual = getStageActualTime(order, selectedStageId);
+                            const delay = formatDelay(planned, actual);
+                            return (
+                              <>
+                                <td className="py-3 px-4 align-middle whitespace-nowrap text-[11px] text-stone-800">{formatPlanned(planned)}</td>
+                                <td className="py-3 px-4 align-middle whitespace-nowrap text-[11px] text-stone-800">{formatPlanned(actual)}</td>
+                                <td className="py-3 px-4 align-middle whitespace-nowrap">
+                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    delay.label === '—'
+                                      ? 'text-stone-400'
+                                      : delay.late
+                                        ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                                        : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                  }`}>
+                                    {delay.label}
+                                  </span>
+                                </td>
+                              </>
+                            );
+                          })()}
+
                           {/* STAGE DATA VALUES */}
                           {currentStage.fields.map((field) => (
                             <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle">
@@ -601,6 +655,20 @@ export const StageDetailView = ({
                       <span className="text-stone-700 font-medium truncate max-w-[200px]">{order.designName}</span>
                       <span className="text-stone-500 font-bold">Size: {order.size}</span>
                     </div>
+
+                    {/* Planned / Actual / Time Delay */}
+                    {(() => {
+                      const planned = getStagePlannedTime(order, selectedStageId, tatConfig);
+                      const actual = getStageActualTime(order, selectedStageId);
+                      const delay = formatDelay(planned, actual);
+                      return (
+                        <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EAE2D5] space-y-1 text-[11px]">
+                          <div className="flex justify-between"><span className="text-stone-500">Planned:</span><span className="font-medium text-stone-800">{formatPlanned(planned)}</span></div>
+                          <div className="flex justify-between"><span className="text-stone-500">Actual:</span><span className="font-medium text-stone-800">{formatPlanned(actual)}</span></div>
+                          <div className="flex justify-between"><span className="text-stone-500">Time Delay:</span><span className={`font-bold ${delay.late ? 'text-rose-700' : 'text-emerald-700'}`}>{delay.label}</span></div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Past Stage Values */}
                     <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EAE2D5] space-y-1 text-xs">

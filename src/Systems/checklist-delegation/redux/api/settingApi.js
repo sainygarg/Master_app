@@ -108,24 +108,16 @@ export const fetchDepartmentDataApi = async () => {
 };
 export const createUserApi = async (newUser) => {
   try {
-    // Step 1: Get the current highest ID
-    const { data: maxIdData, error: maxIdError } = await supabase
-      .from("users")
-      .select("id")
-      .order("id", { ascending: false })
-      .limit(1);
-
-    if (maxIdError) {
-      console.error("Error fetching last ID:", maxIdError);
-      return;
-    }
-
-    const lastId = maxIdData?.[0]?.id || 0;
-    const newId = lastId + 1;
+    // users.id is a text key shared with the Master Hub (USR-xx). Checklist-created users get a CHK- id.
+    const newId = `CHK-${Date.now().toString().slice(-8)}`;
 
     // Step 2: Insert user with new ID
     const insertData = {
       id: newId,
+      username: newUser.username,
+      name: newUser.name || newUser.username,
+      email: newUser.email,
+      phone: newUser.phone,
       user_name: newUser.username,
       password: newUser.password,
       email_id: newUser.email,

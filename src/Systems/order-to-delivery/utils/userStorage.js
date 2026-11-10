@@ -47,10 +47,14 @@ const fromRow = (r) => ({
 const toRow = (u) => ({
   id: u.id,
   username: u.username,
+  user_name: u.username, // checklist system reads/filters on user_name
   password: u.password,
   name: u.name,
   email: u.email || '',
+  email_id: u.email || '',
   phone: u.phone || '',
+  mobile: u.phone || '',
+  number: u.phone || '',
   role: u.role,
   is_admin: !!u.isAdmin,
   status: u.status,

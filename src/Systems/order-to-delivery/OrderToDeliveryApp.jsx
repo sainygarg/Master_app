@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { LoginPage } from './components/LoginPage';
 import { DashboardView } from './components/DashboardView';
@@ -82,6 +82,7 @@ export function App() {
 
   // Deep-link from the other system's sidebar: /order-to-delivery?view=stages&stage=<id>
   const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const view = params.get('view');
@@ -158,6 +159,7 @@ export function App() {
     localStorage.setItem('role', (user.role || 'user').toLowerCase());
     localStorage.setItem('can_self_assign', 'true');
     showToast(`Welcome back, ${user.name}! (${user.role} role)`, 'success');
+    navigate('/dashboard/admin', { replace: true }); // Checklist Dashboard is the default landing page
     try {
       window.dispatchEvent(new Event('unified-auth-changed'));
     } catch {}

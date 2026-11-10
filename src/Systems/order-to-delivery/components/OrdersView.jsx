@@ -115,19 +115,8 @@ export const OrdersView = ({
       {/* ORDERS TABLE FORMAT (1ST COLUMN = ACTIONS AS REQUESTED)   */}
       {/* ========================================================= */}
       <div className="bg-white rounded-2xl border border-[#E8DFD3] shadow-xs overflow-hidden">
-        {filteredOrders.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
-            <div className="w-14 h-14 rounded-full bg-[#FAF5EE] text-[#9B783E] flex items-center justify-center mx-auto">
-              <ShoppingBag className="w-7 h-7" />
-            </div>
-            <h3 className="font-serif text-lg font-bold text-[#431021]">
-              No Orders Found
-            </h3>
-            <p className="text-xs text-stone-500 max-w-sm mx-auto">
-              No orders matched your search or stage filter. Click "+ Create New Order" above to place an order.
-            </p>
-          </div>
-        ) : (
+        {(
+
           <>
             {/* DESKTOP SPREADSHEET TABLE */}
             <div className="hidden md:block overflow-x-auto">
@@ -300,12 +289,27 @@ export const OrdersView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No Orders Found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">No orders matched your search or stage filter. Click "+ Create New Order" above to place an order.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
 
           {/* MOBILE ORDER CARDS (< md) */}
           <div className="md:hidden divide-y divide-[#EFE7DC]">
+            {filteredOrders.length === 0 && (
+              <div className="p-10 text-center">
+                <div className="font-serif text-base font-bold text-[#431021]">No Orders Found</div>
+                <p className="text-xs text-stone-500 mt-1">No orders matched your search or stage filter. Click "+ Create New Order" above to place an order.</p>
+              </div>
+            )}
             {filteredOrders.map((order) => {
               const currentStg = STAGES[order.currentStageIndex] || STAGES[0];
               const daysLeft = Math.ceil(

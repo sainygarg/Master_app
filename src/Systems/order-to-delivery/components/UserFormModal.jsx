@@ -295,6 +295,61 @@ export const UserFormModal = ({
             </div>
           </div>
 
+          {/* Section 2: ORDER FLOW PAGE PERMISSIONS */}
+          <div className="bg-white p-5 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3">
+              <div>
+                <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-[#9B783E]" />
+                  <span>Order Flow Pages</span>
+                </h3>
+                <p className="text-[11px] text-stone-500 mt-0.5">Control which Order-to-Delivery pages this staff member can open.</p>
+              </div>
+              {!isAdmin && (
+                <div className="flex items-center gap-2 text-[11px]">
+                  <button type="button" onClick={handleSelectAllPages} className="text-[#5B172E] font-bold hover:underline">
+                    Select All
+                  </button>
+                  <span className="text-stone-300">•</span>
+                  <button type="button" onClick={handleDeselectAllPages} className="text-stone-500 font-medium hover:underline">
+                    Deselect All
+                  </button>
+                </div>
+              )}
+            </div>
+            {isAdmin ? (
+              <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-[#FAF5EE] border border-amber-200 text-xs text-amber-900 flex items-center gap-2.5 shadow-2xs">
+                <ShieldCheck className="w-5 h-5 text-[#9B783E] shrink-0" />
+                <span><strong>All Order Flow Pages:</strong> Admins automatically access every page, including Master Hub.</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {ALL_PAGE_IDS.map((p) => {
+                  const isChecked = allowedPages.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => togglePage(p.id)}
+                      className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all ${
+                        isChecked
+                          ? 'bg-[#FAF5EE] border-[#C5A059] text-stone-900 shadow-2xs ring-1 ring-[#C5A059]/30'
+                          : 'bg-white border-[#E8DFD3] text-stone-500 hover:bg-[#FAF8F5] hover:border-stone-400'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border transition-all ${
+                        isChecked ? 'bg-[#5B172E] text-white border-[#5B172E]' : 'bg-white border-stone-300'
+                      }`}>
+                        {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                      </div>
+                      <span className="truncate text-xs font-semibold text-stone-700">{p.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Section 2b: CHECKLIST & DELEGATION SUB-PAGE PERMISSIONS */}
           <div className="bg-white p-5 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3">

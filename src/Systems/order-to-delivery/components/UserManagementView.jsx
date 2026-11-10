@@ -622,6 +622,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredUsers.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -712,6 +721,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredVendors.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -807,6 +825,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredCustomers.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -905,6 +932,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredDepartments.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1021,6 +1057,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredTAT.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1121,6 +1166,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredTransporters.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1209,6 +1263,15 @@ export const UserManagementView = ({
                     </tr>
                   );
                 })}
+              
+                {filteredKarigars.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -137,19 +137,8 @@ export const StageDetailView = ({
       {/* TABLE FOR DESKTOP (MD+) / CARDS FOR MOBILE PHONES (< MD)  */}
       {/* ========================================================= */}
       {stageTab === 'pending' && (
-        pendingOrders.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-[#DECDB8] p-12 text-center">
-            <div className="w-14 h-14 rounded-full bg-[#FAF5EE] text-[#9B783E] flex items-center justify-center mx-auto mb-3">
-              <PackageCheck className="w-7 h-7" />
-            </div>
-            <h3 className="font-serif text-lg font-bold text-[#431021]">
-              No Orders Currently Pending in {currentStage.name}
-            </h3>
-            <p className="text-xs text-stone-500 max-w-md mx-auto mt-1 mb-4">
-              All orders in this stage have been cleared! You can review past orders under the <strong>History</strong> tab.
-            </p>
-          </div>
-        ) : (
+        (
+
           <>
             {/* DESKTOP SPREADSHEET TABLE (HIDDEN ON PHONES < md) */}
             <div className="hidden md:block bg-white rounded-2xl border border-[#E8DFD3] shadow-xs overflow-hidden">
@@ -323,13 +312,23 @@ export const StageDetailView = ({
                         </tr>
                       );
                     })}
-                  </tbody>
+                  
+                {pendingOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No Orders Currently Pending</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">All orders in this stage have been cleared! You can review past orders under the History tab.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
                 </table>
               </div>
             </div>
 
             {/* MOBILE ATELIER CARDS (SPECIALLY OPTIMIZED FOR PHONES < md) */}
             <div className="md:hidden space-y-3.5">
+              {pendingOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Orders Currently Pending in this stage.</div>)}
               {pendingOrders.map((order) => {
                 const daysToDelivery = Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
                 const stageVals = order.stageData?.[selectedStageId] || {};
@@ -466,19 +465,8 @@ export const StageDetailView = ({
       {/* 2. HISTORY TAB                                            */}
       {/* ========================================================= */}
       {stageTab === 'history' && (
-        historyOrders.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-[#DECDB8] p-12 text-center">
-            <div className="w-14 h-14 rounded-full bg-[#FAF5EE] text-[#9B783E] flex items-center justify-center mx-auto mb-3">
-              <HistoryIcon className="w-7 h-7" />
-            </div>
-            <h3 className="font-serif text-lg font-bold text-[#431021]">
-              No Historical Orders for {currentStage.name}
-            </h3>
-            <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">
-              Orders that pass through and advance from this stage will be permanently preserved in this history log.
-            </p>
-          </div>
-        ) : (
+        (
+
           <>
             {/* History Read-Only Notice Bar */}
             <div className="bg-[#FAF8F5] border border-[#DECDB8] px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-stone-600 shadow-2xs">
@@ -620,13 +608,23 @@ export const StageDetailView = ({
                         </tr>
                       );
                     })}
-                  </tbody>
+                  
+                {historyOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No Historical Orders</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Orders that advance from this stage will be preserved in this history log.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
                 </table>
               </div>
             </div>
 
             {/* MOBILE HISTORY CARDS (< md) */}
             <div className="md:hidden space-y-3">
+              {historyOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Historical Orders for this stage yet.</div>)}
               {historyOrders.map((order) => {
                 const stageVals = order.stageData?.[selectedStageId] || {};
 

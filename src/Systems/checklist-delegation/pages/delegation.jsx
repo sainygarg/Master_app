@@ -1205,7 +1205,16 @@ function DelegationDataPage() {
                       <td style="text-transform: uppercase">${task.department || '—'}</td>
                     </tr>
                   `}).join('')}
-                </tbody>
+                
+                {tasks.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                      <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
               </table>
             </div>
           `).join('')}

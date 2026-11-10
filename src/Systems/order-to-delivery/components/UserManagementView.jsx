@@ -431,7 +431,7 @@ export const UserManagementView = ({
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
                   
                   {/* 1ST COLUMN: STRICTLY ACTIONS */}
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
 
@@ -453,7 +453,7 @@ export const UserManagementView = ({
                     <tr key={user.id} className="hover:bg-[#FCFAF7] transition-colors">
                       
                       {/* 1ST COLUMN: ACTIONS */}
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirmingDelete ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -646,7 +646,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Vendor Name & ID</th>
@@ -661,7 +661,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === v.id;
                   return (
                     <tr key={v.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -745,7 +745,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Customer Name & ID</th>
@@ -761,7 +761,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === cust.id;
                   return (
                     <tr key={cust.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -849,7 +849,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[200px]">Department Name & ID</th>
@@ -866,7 +866,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === dept.id;
                   return (
                     <tr key={dept.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -956,7 +956,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[200px]">Workflow Stage</th>
@@ -974,7 +974,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === tat.id;
                   return (
                     <tr key={tat.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -1081,7 +1081,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Company Name & ID</th>
@@ -1096,7 +1096,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === trn.id;
                   return (
                     <tr key={trn.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>
@@ -1190,7 +1190,7 @@ export const UserManagementView = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[150px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Artisan Master & ID</th>
@@ -1205,7 +1205,7 @@ export const UserManagementView = ({
                   const isConfirming = deleteConfirmId === k.id;
                   return (
                     <tr key={k.id} className="hover:bg-[#FCFAF7] transition-colors">
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>

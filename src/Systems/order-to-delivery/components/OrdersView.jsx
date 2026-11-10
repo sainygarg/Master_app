@@ -125,7 +125,7 @@ export const OrdersView = ({
                 <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
                   
                   {/* 1ST COLUMN: STRICTLY ACTIONS AS REQUESTED */}
-                  <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[170px]">
+                  <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[170px]">
                     ⚡ Actions
                   </th>
 
@@ -149,7 +149,7 @@ export const OrdersView = ({
                     <tr key={order.id} className="hover:bg-[#FCFAF7] transition-colors">
                       
                       {/* 1ST COLUMN: ACTIONS WITH BUTTONS */}
-                      <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                      <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirmingDelete ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
                             <span className="text-[11px] text-rose-600 font-bold">Delete?</span>

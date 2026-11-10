@@ -148,7 +148,7 @@ export const StageDetailView = ({
                     <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
 
                       {/* 1ST COLUMN: ALL ACTION BUTTONS IN ONE ROW */}
-                      <th className="py-3.5 px-3 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[135px]">
+                      <th className="py-3.5 px-3 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[135px]">
                         ⚡ Actions
                       </th>
 
@@ -175,7 +175,7 @@ export const StageDetailView = ({
                         <tr key={order.id} className="hover:bg-[#FCFAF7] transition-colors">
 
                           {/* 1ST COLUMN: ALL ACTION BUTTONS IN ONE ROW */}
-                          <td className="py-2.5 px-3 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle whitespace-nowrap">
+                          <td className="py-2.5 px-3 bg-white border-r border-[#DECDB8] align-middle whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
                               {/* Update Button */}
                               <button
@@ -489,7 +489,7 @@ export const StageDetailView = ({
                     <tr className="bg-[#FAF7F2] border-b border-[#E8DFD3] text-[11px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap">
 
                       {/* 1ST COLUMN: STRICTLY ACTIONS */}
-                      <th className="py-3.5 px-3 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[75px]">
+                      <th className="py-3.5 px-3 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[75px]">
                         ⚡ Actions
                       </th>
 
@@ -518,7 +518,7 @@ export const StageDetailView = ({
                         <tr key={order.id} className="hover:bg-[#FCFAF7] transition-colors">
 
                           {/* 1ST COLUMN: ACTIONS (READ ONLY FOR HISTORY) */}
-                          <td className="py-2.5 px-3 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle whitespace-nowrap">
+                          <td className="py-2.5 px-3 bg-white border-r border-[#DECDB8] align-middle whitespace-nowrap">
                             <button
                               onClick={() => onViewOrderDetails(order, true)}
                               className="p-1.5 rounded-lg text-stone-600 hover:text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] shadow-2xs transition-all flex items-center justify-center"

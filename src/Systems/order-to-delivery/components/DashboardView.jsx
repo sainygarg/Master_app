@@ -385,7 +385,7 @@ export const DashboardView = ({
                 <thead>
                   <tr className="bg-[#FAF7F2] border-b text-[11px] font-bold text-stone-600 uppercase whitespace-nowrap">
                     {/* 1ST COLUMN: ACTIONS AS REQUESTED */}
-                    <th className="py-3.5 px-4 bg-[#F5EFE6] border-r border-[#DECDB8] sticky left-0 z-10 text-[#431021] font-extrabold shadow-xs min-w-[160px]">
+                    <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[160px]">
                       ⚡ Actions
                     </th>
                     <th className="py-3.5 px-4 min-w-[140px]">Order ID</th>
@@ -401,7 +401,7 @@ export const DashboardView = ({
                     return (
                       <tr key={order.id} className="hover:bg-[#FCFAF7] transition-colors">
                         {/* 1ST COLUMN: ACTIONS BUTTONS */}
-                        <td className="py-3 px-4 bg-[#FBF9F5] border-r border-[#DECDB8] sticky left-0 z-10 shadow-xs align-middle">
+                        <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                           <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => onViewOrderDetails(order)}

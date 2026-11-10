@@ -51,11 +51,17 @@ export function UnifiedAuthProvider({ children }) {
   const login = (userData) => {
     setUser(userData);
     syncToLocalStorage(userData);
+    try {
+      window.dispatchEvent(new Event('unified-auth-changed'));
+    } catch {}
   };
 
   const logout = () => {
     setUser(null);
     syncToLocalStorage(null);
+    try {
+      window.dispatchEvent(new Event('unified-auth-changed'));
+    } catch {}
   };
 
   useEffect(() => {
@@ -63,6 +69,41 @@ export function UnifiedAuthProvider({ children }) {
       syncToLocalStorage(user);
     }
   }, [user]);
+
+  useEffect(() => {
+    const handleStorageOrAuthChange = () => {
+      try {
+        const stored = localStorage.getItem(MASTER_AUTH_KEY);
+        if (stored) {
+          setUser(JSON.parse(stored));
+          return;
+        }
+        const chName = localStorage.getItem('user-name');
+        const chRole = localStorage.getItem('role');
+        if (chName) {
+          setUser({
+            id: chName.toLowerCase(),
+            name: chName,
+            username: chName.toLowerCase(),
+            role: chRole ? (chRole.charAt(0).toUpperCase() + chRole.slice(1)) : 'User',
+            allowedPages: ['orders', 'stages'],
+            allowedStages: [],
+          });
+          return;
+        }
+        setUser(null);
+      } catch (e) {
+        console.error('Failed to parse auth user in listener:', e);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageOrAuthChange);
+    window.addEventListener('unified-auth-changed', handleStorageOrAuthChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageOrAuthChange);
+      window.removeEventListener('unified-auth-changed', handleStorageOrAuthChange);
+    };
+  }, []);
 
   return (
     <UnifiedAuthContext.Provider

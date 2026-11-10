@@ -12,13 +12,16 @@ import { OrderFormModal } from './components/OrderFormModal';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
 import { MeasurementsModal } from './components/MeasurementsModal';
 import { STAGES } from './types/stages';
-import { getStoredOrders, saveOrdersToStorage, generateNextOrderId } from './utils/storage';
-import { 
-  getStoredUsers, 
-  saveUsersToStorage, 
+import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId } from './utils/storage';
+import {
+  fetchUsers,
+  createUser,
+  updateUser,
+  deleteUser,
   generateNextUserId,
   canUserAccessPage,
-  canUserAccessStage
+  canUserAccessStage,
+  isApexAdmin
 } from './utils/userStorage';
 import { 
   Sparkles, 
@@ -36,7 +39,21 @@ const AUTH_USER_KEY = 'sainy_couture_auth_user_v3';
 
 export function App() {
   // Users State (Strictly Admin & User accounts)
-  const [users, setUsers] = useState(() => getStoredUsers());
+  const [users, setUsers] = useState([]);
+
+  const loadUsers = async () => {
+    try {
+      setUsers(await fetchUsers());
+    } catch (e) {
+      console.error('Failed to load users from database', e);
+      showToast('Failed to load users from database: ' + e.message, 'error');
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -54,7 +71,7 @@ export function App() {
   });
 
   // Orders State
-  const [orders, setOrders] = useState(() => getStoredOrders());
+  const [orders, setOrders] = useState([]);
 
   // Sidebar Hide / Unhide State (Defaults to hidden on phones for full width)
   const [isSidebarHidden, setIsSidebarHidden] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
@@ -89,15 +106,31 @@ export function App() {
   // Toast
   const [toast, setToast] = useState(null);
 
-  // Sync Orders to localStorage
-  useEffect(() => {
-    saveOrdersToStorage(orders);
-  }, [orders]);
+  // Load orders from the database
+  const loadOrders = async () => {
+    try {
+      setOrders(await fetchOrders());
+    } catch (e) {
+      console.error("Failed to load orders", e);
+      showToast("Failed to load orders from database: " + e.message, "error");
+    }
+  };
 
-  // Sync Users to localStorage
   useEffect(() => {
-    saveUsersToStorage(users);
-  }, [users]);
+    loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist an order; on failure tell the user and resync from the DB
+  const persistOrder = async (order) => {
+    try {
+      await saveOrder(order);
+    } catch (e) {
+      console.error("Failed to save order", e);
+      showToast("Could not save order to database: " + e.message, "error");
+      loadOrders();
+    }
+  };
 
   // Sync Auth User to localStorage
   useEffect(() => {
@@ -116,17 +149,18 @@ export function App() {
   // Login Handler
   const handleLogin = (user) => {
     setCurrentUser(user);
-    if (user.role === 'Admin') {
-      setCurrentView('dashboard');
-    } else {
-      setCurrentView('orders');
-    }
+    const view = isApexAdmin(user) ? 'dashboard' : 'orders';
+    setCurrentView(view);
     // Cross-system credential bridge
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
     localStorage.setItem('user-name', user.name || user.username);
     localStorage.setItem('user_name', user.name || user.username);
     localStorage.setItem('role', (user.role || 'user').toLowerCase());
     localStorage.setItem('can_self_assign', 'true');
     showToast(`Welcome back, ${user.name}! (${user.role} role)`, 'success');
+    try {
+      window.dispatchEvent(new Event('unified-auth-changed'));
+    } catch {}
   };
 
   // Logout Handler
@@ -138,15 +172,18 @@ export function App() {
     localStorage.removeItem('role');
     localStorage.removeItem('can_self_assign');
     showToast('Signed out successfully.', 'info');
+    try {
+      window.dispatchEvent(new Event('unified-auth-changed'));
+    } catch {}
   };
 
   // =========================================================================
   // DATA ISOLATION PER ROLE (AS REQUESTED):
   // "ager main entry kar raha hu toh mere me wo entry show karega lekin dusre me nhi"
   // If User: ONLY see entries created by this user!
-  // If Admin: see ALL entries across the system!
+  // If Admin / Superadmin: see ALL entries across the system!
   // =========================================================================
-  const scopedOrders = currentUser?.role === 'Admin'
+  const scopedOrders = isApexAdmin(currentUser)
     ? orders
     : orders.filter((o) => o.createdByUserId === currentUser?.id || o.createdByUserId === currentUser?.username);
 
@@ -167,14 +204,30 @@ export function App() {
   const nextUserId = generateNextUserId(users);
 
   // Create Order Handler (Tags entry with currentUser.id)
-  const handleCreateOrder = (newOrder) => {
-    const orderWithCreator = {
+  const handleCreateOrder = async (newOrder) => {
+    let orderWithCreator = {
       ...newOrder,
       createdByUserId: currentUser.id,
       createdByName: currentUser.name
     };
 
-    setOrders((prev) => [orderWithCreator, ...prev]);
+    try {
+      try {
+        await insertOrder(orderWithCreator);
+      } catch (e) {
+        if (e.code !== '23505') throw e;
+        // ID taken by another session: regenerate from the latest DB state and retry once
+        const fresh = await fetchOrders();
+        orderWithCreator = { ...orderWithCreator, id: generateNextOrderId(fresh) };
+        await insertOrder(orderWithCreator);
+      }
+      setOrders((prev) => [orderWithCreator, ...prev]);
+      newOrder = orderWithCreator;
+    } catch (e) {
+      console.error('Failed to create order', e);
+      showToast('Could not save order to database: ' + e.message, 'error');
+      return;
+    }
 
     confetti({
       particleCount: 80,
@@ -191,21 +244,20 @@ export function App() {
 
   // Update stage fields
   const handleUpdateStageData = (orderId, stageId, fieldsData) => {
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id !== orderId) return order;
-        return {
-          ...order,
-          stageData: {
-            ...order.stageData,
-            [stageId]: {
-              ...(order.stageData?.[stageId] || {}),
-              ...fieldsData
-            }
-          }
-        };
-      })
-    );
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) return;
+    const updated = {
+      ...target,
+      stageData: {
+        ...target.stageData,
+        [stageId]: {
+          ...(target.stageData?.[stageId] || {}),
+          ...fieldsData
+        }
+      }
+    };
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+    persistOrder(updated);
     showToast(`Data saved for Order ${orderId}.`, 'info');
   };
 
@@ -251,6 +303,7 @@ export function App() {
     });
 
     setOrders(updatedOrders);
+    persistOrder(updatedOrders.find((o) => o.id === orderId));
 
     if (selectedOrderForDetails && selectedOrderForDetails.id === orderId) {
       const updatedItem = updatedOrders.find((o) => o.id === orderId);
@@ -269,15 +322,12 @@ export function App() {
   };
 
   const handleSaveMeasurements = (orderId, newMeasurements) => {
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id !== orderId) return order;
-        return {
-          ...order,
-          measurements: newMeasurements
-        };
-      })
-    );
+    const target = orders.find((o) => o.id === orderId);
+    if (target) {
+      const updated = { ...target, measurements: newMeasurements };
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      persistOrder(updated);
+    }
 
     if (selectedOrderForDetails && selectedOrderForDetails.id === orderId) {
       setSelectedOrderForDetails((prev) => ({
@@ -289,25 +339,43 @@ export function App() {
     showToast(`Measurements updated for ${orderId}.`, 'success');
   };
 
-  const handleDeleteOrder = (orderId) => {
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
-    showToast(`Order ${orderId} deleted.`, 'info');
+  const handleDeleteOrder = async (orderId) => {
+    try {
+      await removeOrder(orderId);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      showToast(`Order ${orderId} deleted.`, 'info');
+    } catch (e) {
+      showToast('Could not delete order from database: ' + e.message, 'error');
+    }
   };
 
   // User Management
-  const handleSaveUser = (userData) => {
-    if (editingUser) {
-      setUsers((prev) => prev.map((u) => (u.id === userData.id ? userData : u)));
-      showToast(`User ${userData.name} updated!`, 'success');
-    } else {
-      setUsers((prev) => [...prev, userData]);
-      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-      showToast(`New ${userData.role} account created!`, 'success');
+  // Returns true on success so the modal can close only after the DB confirms.
+  const handleSaveUser = async (userData) => {
+    try {
+      if (editingUser) {
+        const saved = await updateUser(userData);
+        setUsers((prev) => prev.map((u) => (u.id === saved.id ? saved : u)));
+        showToast(`User ${saved.name} updated!`, 'success');
+      } else {
+        // Re-read from DB so the generated ID can't collide with another session's insert
+        const fresh = await fetchUsers();
+        const saved = await createUser({ ...userData, id: generateNextUserId(fresh) });
+        setUsers([...fresh, saved]);
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        showToast(`New ${saved.role} account created!`, 'success');
+      }
+      setEditingUser(null);
+      return true;
+    } catch (e) {
+      console.error('Failed to save user', e);
+      const msg = e.code === '23505' ? 'That username already exists.' : e.message;
+      showToast('Could not save user to database: ' + msg, 'error');
+      return false;
     }
-    setEditingUser(null);
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     const userToDelete = users.find((u) => u.id === userId);
     if (!userToDelete) return;
 
@@ -316,13 +384,18 @@ export function App() {
       return;
     }
 
-    setUsers((prev) => prev.filter((u) => u.id !== userId));
-    showToast(`User ${userToDelete.name} deleted.`, 'info');
+    try {
+      await deleteUser(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      showToast(`User ${userToDelete.name} deleted.`, 'info');
+    } catch (e) {
+      showToast('Could not delete user from database: ' + e.message, 'error');
+    }
   };
 
   // IF NOT AUTHENTICATED: RENDER LOGIN SCREEN (WITH HIDE/UNHIDE PASSWORD)
   if (!currentUser) {
-    return <LoginPage onLogin={handleLogin} users={users} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   const currentSelectedStage = STAGES.find((s) => s.id === selectedStageId) || STAGES[0];

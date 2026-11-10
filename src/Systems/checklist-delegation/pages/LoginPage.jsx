@@ -94,6 +94,10 @@ const LoginPage = () => {
 
         console.log("Stored email:", userData.email_id || userData.email); // Debug log
 
+        try {
+          window.dispatchEvent(new Event('unified-auth-changed'));
+        } catch {}
+
         showToast(`Welcome back, ${userData.user_name || userData.username}!`, "success");
         navigate("/dashboard/admin");
       } else if (error) {

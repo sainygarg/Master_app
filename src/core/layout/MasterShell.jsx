@@ -34,8 +34,9 @@ import {
   Truck
 } from 'lucide-react';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
+import { canUserAccessChecklistPage } from '../../Systems/order-to-delivery/utils/userStorage';
 import { STAGES } from '../../Systems/order-to-delivery/types/stages';
-import { getStoredOrders } from '../../Systems/order-to-delivery/utils/storage';
+import { fetchOrders } from '../../Systems/order-to-delivery/utils/storage';
 import { useChecklistDelegationPendingCounts } from '../../Systems/checklist-delegation/hooks/usePendingCounts';
 
 // Mark Master System as active so embedded layouts (AdminLayout, UserLayout, OrderToDeliveryApp)
@@ -138,12 +139,13 @@ export default function MasterShell({ children }) {
   }, [location.pathname, location.search]);
 
   // Read orders for dynamic badge counts
-  const orders = useMemo(() => {
-    try {
-      return getStoredOrders();
-    } catch {
-      return [];
-    }
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchOrders()
+      .then((o) => { if (!cancelled) setOrders(o); })
+      .catch(() => { if (!cancelled) setOrders([]); });
+    return () => { cancelled = true; };
   }, [location.pathname, location.search]);
 
   const activeOrdersCount = useMemo(() => {
@@ -159,7 +161,7 @@ export default function MasterShell({ children }) {
 
   // Exact Checklist Subpages matching user-uploaded screenshot
   const checklistSubpages = useMemo(() => {
-    return [
+    const all = [
       { label: 'Dashboard', href: '/dashboard/admin', icon: Database },
       { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
       { label: 'Quick Task', href: '/dashboard/quick-task', icon: Zap },
@@ -194,7 +196,17 @@ export default function MasterShell({ children }) {
       },
       { label: 'Training Video', href: '/dashboard/training-video', icon: Video },
     ];
-  }, [pendingCounts]);
+    // Hide pages this user has not been granted in Master Hub > Users & RBAC
+    return all
+      .map((item) =>
+        item.subItems
+          ? { ...item, subItems: item.subItems.filter((s) => canUserAccessChecklistPage(user, s.href)) }
+          : item
+      )
+      .filter((item) =>
+        item.subItems ? item.subItems.length > 0 : canUserAccessChecklistPage(user, item.href)
+      );
+  }, [pendingCounts, user]);
 
   // Current page title computation for header breadcrumb
   const pageTitle = useMemo(() => {

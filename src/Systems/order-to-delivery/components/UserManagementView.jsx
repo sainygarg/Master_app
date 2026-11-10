@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User,
   Users, 
@@ -34,20 +34,8 @@ import {
 } from 'lucide-react';
 import ChecklistSetting from '../../checklist-delegation/pages/Setting';
 import { STAGES } from '../types/stages';
-import { 
-  getStoredCustomers, 
-  saveCustomersToStorage,
-  getStoredVendors, 
-  saveVendorsToStorage,
-  getStoredTransporters, 
-  saveTransportersToStorage,
-  getStoredKarigars, 
-  saveKarigarsToStorage,
-  getStoredDepartments,
-  saveDepartmentsToStorage,
-  getStoredTATConfig,
-  saveTATConfigToStorage
-} from '../utils/masterStorage';
+import { fetchMasters, saveMaster, deleteMaster } from '../utils/masterStorage';
+import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS } from '../utils/userStorage';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
 
@@ -68,12 +56,12 @@ export const UserManagementView = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // Master Data States
-  const [customers, setCustomers] = useState(() => getStoredCustomers());
-  const [vendors, setVendors] = useState(() => getStoredVendors());
-  const [departments, setDepartments] = useState(() => getStoredDepartments());
-  const [tatConfig, setTATConfig] = useState(() => getStoredTATConfig());
-  const [transporters, setTransporters] = useState(() => getStoredTransporters());
-  const [karigars, setKarigars] = useState(() => getStoredKarigars());
+  const [customers, setCustomers] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [tatConfig, setTATConfig] = useState([]);
+  const [transporters, setTransporters] = useState([]);
+  const [karigars, setKarigars] = useState([]);
 
   // Master Entry Modal State
   const [isMasterModalOpen, setIsMasterModalOpen] = useState(false);
@@ -155,65 +143,55 @@ export const UserManagementView = ({
     setIsMasterModalOpen(true);
   };
 
-  const handleSubmitMaster = (itemData) => {
-    if (masterModalType === 'customer') {
-      const exists = customers.some(c => c.id === itemData.id);
-      const updated = exists ? customers.map(c => c.id === itemData.id ? itemData : c) : [itemData, ...customers];
-      setCustomers(updated);
-      saveCustomersToStorage(updated);
-    } else if (masterModalType === 'vendor') {
-      const exists = vendors.some(v => v.id === itemData.id);
-      const updated = exists ? vendors.map(v => v.id === itemData.id ? itemData : v) : [itemData, ...vendors];
-      setVendors(updated);
-      saveVendorsToStorage(updated);
-    } else if (masterModalType === 'department') {
-      const exists = departments.some(d => d.id === itemData.id);
-      const updated = exists ? departments.map(d => d.id === itemData.id ? itemData : d) : [itemData, ...departments];
-      setDepartments(updated);
-      saveDepartmentsToStorage(updated);
-    } else if (masterModalType === 'tat') {
-      const exists = tatConfig.some(t => t.id === itemData.id);
-      const updated = exists ? tatConfig.map(t => t.id === itemData.id ? itemData : t) : [...tatConfig, itemData];
-      setTATConfig(updated);
-      saveTATConfigToStorage(updated);
-    } else if (masterModalType === 'transporter') {
-      const exists = transporters.some(t => t.id === itemData.id);
-      const updated = exists ? transporters.map(t => t.id === itemData.id ? itemData : t) : [itemData, ...transporters];
-      setTransporters(updated);
-      saveTransportersToStorage(updated);
-    } else if (masterModalType === 'karigar') {
-      const exists = karigars.some(k => k.id === itemData.id);
-      const updated = exists ? karigars.map(k => k.id === itemData.id ? itemData : k) : [itemData, ...karigars];
-      setKarigars(updated);
-      saveKarigarsToStorage(updated);
+  const MASTER_KINDS = {
+    customer: { items: customers, set: setCustomers, append: false },
+    vendor: { items: vendors, set: setVendors, append: false },
+    department: { items: departments, set: setDepartments, append: false },
+    tat: { items: tatConfig, set: setTATConfig, append: true },
+    transporter: { items: transporters, set: setTransporters, append: false },
+    karigar: { items: karigars, set: setKarigars, append: false }
+  };
+
+  // Load all master data from the database
+  useEffect(() => {
+    Object.entries(MASTER_KINDS).forEach(([kind, { set }]) => {
+      fetchMasters(kind)
+        .then(set)
+        .catch((err) => {
+          console.error(`Failed to load ${kind} master data`, err);
+          window.alert(`Failed to load ${kind} data from database: ${err.message}`);
+        });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Saves to the database first; local state is updated only after the DB confirms.
+  const handleSubmitMaster = async (itemData) => {
+    const cfg = MASTER_KINDS[masterModalType];
+    if (!cfg) return;
+    try {
+      await saveMaster(masterModalType, itemData);
+      const exists = cfg.items.some((i) => i.id === itemData.id);
+      cfg.set(
+        exists
+          ? cfg.items.map((i) => (i.id === itemData.id ? itemData : i))
+          : cfg.append ? [...cfg.items, itemData] : [itemData, ...cfg.items]
+      );
+    } catch (err) {
+      console.error('Failed to save master entry', err);
+      window.alert('Could not save to database: ' + err.message);
     }
   };
 
-  const handleDeleteMaster = (type, id) => {
-    if (type === 'customer') {
-      const updated = customers.filter(c => c.id !== id);
-      setCustomers(updated);
-      saveCustomersToStorage(updated);
-    } else if (type === 'vendor') {
-      const updated = vendors.filter(v => v.id !== id);
-      setVendors(updated);
-      saveVendorsToStorage(updated);
-    } else if (type === 'department') {
-      const updated = departments.filter(d => d.id !== id);
-      setDepartments(updated);
-      saveDepartmentsToStorage(updated);
-    } else if (type === 'tat') {
-      const updated = tatConfig.filter(t => t.id !== id);
-      setTATConfig(updated);
-      saveTATConfigToStorage(updated);
-    } else if (type === 'transporter') {
-      const updated = transporters.filter(t => t.id !== id);
-      setTransporters(updated);
-      saveTransportersToStorage(updated);
-    } else if (type === 'karigar') {
-      const updated = karigars.filter(k => k.id !== id);
-      setKarigars(updated);
-      saveKarigarsToStorage(updated);
+  const handleDeleteMaster = async (type, id) => {
+    const cfg = MASTER_KINDS[type];
+    if (!cfg) return;
+    try {
+      await deleteMaster(type, id);
+      cfg.set(cfg.items.filter((i) => i.id !== id));
+    } catch (err) {
+      console.error('Failed to delete master entry', err);
+      window.alert('Could not delete from database: ' + err.message);
     }
     setDeleteConfirmId(null);
   };
@@ -460,8 +438,9 @@ export const UserManagementView = ({
                   <th className="py-3.5 px-4 min-w-[200px]">User & Name</th>
                   <th className="py-3.5 px-4 min-w-[110px]">Role</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Contact Info</th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Page Permissions</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">Stage Access</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">Order Flow Pages</th>
+                  <th className="py-3.5 px-4 min-w-[200px]">Checklist Pages</th>
+                  <th className="py-3.5 px-4 min-w-[170px]">Stage Access</th>
                   <th className="py-3.5 px-4 min-w-[120px]">Account Status</th>
                 </tr>
               </thead>
@@ -547,7 +526,7 @@ export const UserManagementView = ({
                       {/* Role */}
                       <td className="py-3 px-4 align-middle">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                          user.role === 'Admin'
+                          isApexAdmin(user)
                             ? 'bg-[#5B172E] text-white shadow-2xs'
                             : 'bg-[#FAF5EE] text-[#9B783E] border border-[#DECDB8]'
                         }`}>
@@ -564,14 +543,14 @@ export const UserManagementView = ({
                         <span className="text-[10px] text-stone-400 block truncate max-w-[140px]">{user.email}</span>
                       </td>
 
-                      {/* Page Permissions */}
+                      {/* Order Flow Page Permissions */}
                       <td className="py-3 px-4 align-middle">
-                        {user.role === 'Admin' ? (
+                        {isApexAdmin(user) ? (
                           <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-800 text-[10px] font-bold border border-rose-200">
                             Full Atelier Access (All Pages)
                           </span>
                         ) : (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          <div className="flex flex-wrap gap-1 max-w-[180px]">
                             {(user.allowedPages || []).map((p) => (
                               <span key={p} className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-stone-100 text-stone-700 border border-stone-200 capitalize">
                                 {p === 'settings' ? 'Master' : p}
@@ -581,9 +560,35 @@ export const UserManagementView = ({
                         )}
                       </td>
 
+                      {/* Checklist Page Permissions */}
+                      <td className="py-3 px-4 align-middle">
+                        {isApexAdmin(user) ? (
+                          <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-800 text-[10px] font-bold border border-purple-200">
+                            Apex Authority (All 11 Subpages)
+                          </span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {(user.allowedChecklistPages || []).length === ALL_CHECKLIST_PAGE_IDS.length ? (
+                              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                All Checklist Pages ({ALL_CHECKLIST_PAGE_IDS.length})
+                              </span>
+                            ) : (
+                              (user.allowedChecklistPages || []).map((href) => {
+                                const found = ALL_CHECKLIST_PAGE_IDS.find((p) => p.id === href);
+                                return (
+                                  <span key={href} className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
+                                    {found ? found.label : href}
+                                  </span>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+                      </td>
+
                       {/* Stage Access */}
                       <td className="py-3 px-4 align-middle">
-                        {user.role === 'Admin' ? (
+                        {isApexAdmin(user) ? (
                           <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">
                             All 10 Stages Accessible
                           </span>

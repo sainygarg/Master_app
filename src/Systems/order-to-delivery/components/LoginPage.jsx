@@ -3,77 +3,44 @@ import {
   Eye, 
   EyeOff, 
   Lock, 
-  User, 
-  Sparkles, 
+  User,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2
+  ShieldCheck
 } from 'lucide-react';
-import { INITIAL_USERS } from '../data/initialUsers';
+import { loginUser } from '../utils/userStorage';
 
-export const LoginPage = ({ onLogin, users = [] }) => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+export const LoginPage = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Fallback to INITIAL_USERS if users prop doesn't have accounts
-  const allAccounts = (users && users.length > 0) ? users : INITIAL_USERS;
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const cleanUser = username.trim().toLowerCase();
-    const cleanPass = password.trim();
-
-    if (!cleanUser) {
+    if (!username.trim()) {
       setError('Please enter your username.');
       return;
     }
-    if (!cleanPass) {
+    if (!password.trim()) {
       setError('Please enter your password.');
       return;
     }
 
-    // Match against username, email, name, or role
-    const foundUser = allAccounts.find(
-      (u) =>
-        u.username?.toLowerCase() === cleanUser ||
-        u.email?.toLowerCase() === cleanUser ||
-        u.name?.toLowerCase() === cleanUser ||
-        (cleanUser === 'admin' && (u.role === 'Admin' || u.isAdmin))
-    ) || INITIAL_USERS.find(
-      (u) =>
-        u.username?.toLowerCase() === cleanUser ||
-        u.email?.toLowerCase() === cleanUser
-    );
-
-    if (!foundUser) {
-      setError('User not found. Click one of the 1-click login buttons below.');
-      return;
-    }
-
-    // Check password
-    if (foundUser.password !== cleanPass) {
-      setError('Incorrect password. Default password is "admin123" for Admin and "user123" for Users.');
-      return;
-    }
-
-    onLogin(foundUser);
-  };
-
-  const handleQuickLogin = (demoUsername, demoPassword) => {
-    setUsername(demoUsername);
-    setPassword(demoPassword);
-    setError('');
-
-    const foundUser =
-      allAccounts.find((u) => u.username?.toLowerCase() === demoUsername.toLowerCase()) ||
-      INITIAL_USERS.find((u) => u.username?.toLowerCase() === demoUsername.toLowerCase());
-
-    if (foundUser) {
-      onLogin(foundUser);
+    setLoading(true);
+    try {
+      const { user, error: loginError } = await loginUser(username, password.trim());
+      if (loginError) {
+        setError(loginError);
+        return;
+      }
+      onLogin(user);
+    } catch (err) {
+      setError('Could not reach the database: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,7 +94,7 @@ export const LoginPage = ({ onLogin, users = [] }) => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. admin or priya"
+                placeholder="Username or email"
                 className="w-full pl-9 pr-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 text-stone-900 font-medium"
               />
             </div>
@@ -167,82 +134,18 @@ export const LoginPage = ({ onLogin, users = [] }) => {
           {/* Submit CTA */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full mt-2 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Sign In to Atelier</span>
+            <span>{loading ? "Signing in..." : "Sign In to Atelier"}</span>
             <ArrowRight className="w-4 h-4 text-[#F3ECE2]" />
           </button>
         </form>
 
-        {/* 1-Click Demo Accounts Selector */}
-        <div className="pt-4 border-t border-[#F0E6D8] space-y-2.5">
-          <div className="text-[11px] font-bold text-[#9B783E] uppercase tracking-wider flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>1-Click Instant Logins:</span>
-            </span>
-            <span className="text-[10px] text-stone-400 font-normal">Click to test</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {/* Admin Pill */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('admin', 'admin123')}
-              className="p-2.5 bg-[#FAF2E6] hover:bg-[#F3E7D3] border border-[#DECDB8] rounded-xl text-left transition-all cursor-pointer"
-            >
-              <div className="font-bold text-[#5B172E] flex items-center justify-between">
-                <span>👑 Admin</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-[#5B172E] text-white rounded">All Data</span>
-              </div>
-              <div className="text-[10px] text-stone-500 mt-0.5 font-mono">admin / admin123</div>
-            </button>
-
-            {/* User 1 Pill (Priya) */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('priya', 'user123')}
-              className="p-2.5 bg-white hover:bg-stone-50 border border-[#DECDB8] rounded-xl text-left transition-all cursor-pointer"
-            >
-              <div className="font-bold text-purple-900 flex items-center justify-between">
-                <span>👤 Priya</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-purple-100 text-purple-800 rounded">User</span>
-              </div>
-              <div className="text-[10px] text-stone-500 mt-0.5 font-mono">priya / user123</div>
-            </button>
-
-            {/* User 2 Pill (Ananya) */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('ananya', 'user123')}
-              className="p-2.5 bg-white hover:bg-stone-50 border border-[#DECDB8] rounded-xl text-left transition-all cursor-pointer"
-            >
-              <div className="font-bold text-emerald-900 flex items-center justify-between">
-                <span>👤 Ananya</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded">User</span>
-              </div>
-              <div className="text-[10px] text-stone-500 mt-0.5 font-mono">ananya / user123</div>
-            </button>
-
-            {/* User 3 Pill (Kavita) */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('kavita', 'user123')}
-              className="p-2.5 bg-white hover:bg-stone-50 border border-[#DECDB8] rounded-xl text-left transition-all cursor-pointer"
-            >
-              <div className="font-bold text-amber-900 flex items-center justify-between">
-                <span>👤 Kavita</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded">User</span>
-              </div>
-              <div className="text-[10px] text-stone-500 mt-0.5 font-mono">kavita / user123</div>
-            </button>
-          </div>
-        </div>
-
         {/* Footer Guarantee */}
         <div className="text-center text-[11px] text-stone-400 pt-2 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-[#9B783E]" />
-          <span>Local Storage Persistence • Strict User Isolation</span>
+          <span>Database-backed accounts • Strict User Isolation</span>
         </div>
 
       </div>

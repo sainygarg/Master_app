@@ -3,6 +3,15 @@ import { Calendar as _CalendarIcon, ChevronLeft, ChevronRight, Loader2, ShieldAl
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
 
+// ISO week number
+const isoWeek = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+};
+
 const WorkingDayCalendarPage = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [holidays, setHolidays] = useState([]);
@@ -181,9 +190,9 @@ const WorkingDayCalendarPage = () => {
             day: i,
             dayName: getDayInHindi(englishDayName),
             isHoliday: !!holiday,
-            isWorking: !!workingDay,
+            isWorking: !holiday && new Date(year, month, i).getDay() !== 0, // only Sunday is a weekly off
             holidayName: holiday?.holiday_name,
-            weekNum: workingDay?.week_num,
+            weekNum: workingDay?.week_num || isoWeek(new Date(year, month, i)),
             taskCount
         });
     }
@@ -233,7 +242,7 @@ const WorkingDayCalendarPage = () => {
                             Schedule for {monthName} {year}
                         </h2>
                         <span className="text-xs font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 uppercase">
-                            {workingDays.length} Working Days
+                            {allDaysInMonth.filter((d) => d.isWorking).length} Working Days
                         </span>
                     </div>
 

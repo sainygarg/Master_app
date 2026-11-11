@@ -601,7 +601,7 @@ export default function MaintenanceTask() {
 
         const workingDaySet = new Set(workingData?.map(d => d.working_date) || []);
         const isHoliday = (d) => holidays.includes(getLocalDateString(d));
-        const isWorkingDay = (d) => workingDaySet.has(getLocalDateString(d));
+        const isWorkingDay = (d) => d.getDay() !== 0; // only Sunday is a weekly off
         const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
 
         if (freq === 'daily' || freq === 'alternate-day') {
@@ -661,7 +661,7 @@ export default function MaintenanceTask() {
 
                     const dateObj = new Date(t.startDate);
                     const isSunday = dateObj.getDay() === 0;
-                    const isWorking = isW ? true : (!isSunday);
+                    const isWorking = !isSunday;
 
                     if (isH || !isWorking) {
                         return { success: false, message: `Task ${i + 1}: The selected date (${dateStr}) is a ${isH ? 'holiday' : 'non-working day'}. Please select a different working day.` };

@@ -35,6 +35,17 @@ export default function AssignTask() {
       ring: "hover:ring-purple-200"
     },
     {
+      id: "delegation",
+      label: "Delegation Tasks",
+      subLabel: "Assign & Follow-up",
+      icon: Users,
+      path: "/checklist/assign-delegation",
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+      border: "hover:border-purple-500",
+      ring: "hover:ring-purple-200"
+    },
+    {
       id: "maintenance",
       label: "Maintenance Schedule",
       subLabel: "Preventive Care",
@@ -69,13 +80,17 @@ export default function AssignTask() {
     }
   ];
 
+  // Hidden from the UI only (definitions, pages and routes are kept). Remove an id here to show the card again.
+  const HIDDEN_MODULE_IDS = ["maintenance", "repair", "ea"];
+
   const modules = allModules.filter(mod => {
+    if (HIDDEN_MODULE_IDS.includes(mod.id)) return false;
     if (role === "user") {
       // Users can only access checklist for self-assignment
-      return mod.id === "checklist";
+      return mod.id === "checklist" || mod.id === "delegation";
     }
     if (role === "hod") {
-      if (mod.id === "checklist") return true;
+      if (mod.id === "checklist" || mod.id === "delegation") return true;
       if (mod.id === "repair" && isMachineOperator) return true;
       return false;
     }

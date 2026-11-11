@@ -27,13 +27,13 @@ const FREQUENCY_OPTIONS = [
     "Fortnight", "Monthly", "Quarterly", "Half Yearly", "Yearly"
 ];
 
-const defaultTask = () => ({
+const defaultTask = (frequency = "One Time (No Recurrence)") => ({
     id: Date.now() + Math.random(),
     department: "",
     givenBy: "",
     doer: "",
     description: "",
-    frequency: "One Time (No Recurrence)",
+    frequency,
     duration: "",
     enableReminders: true,
     requireAttachment: false,
@@ -63,7 +63,7 @@ const getYouTubeId = (url) => {
 
 
 // Single Task Card
-function TaskCard({ task, index, total, department, doerName, givenBy, _dispatch, onUpdate, onRemove }) {
+function TaskCard({ task, index, total, department, doerName, givenBy, frequencyOptions = FREQUENCY_OPTIONS, _dispatch, onUpdate, onRemove }) {
     const handleChange = (e) => {
         onUpdate(task.id, { [e.target.name]: e.target.value });
     };
@@ -373,7 +373,7 @@ function TaskCard({ task, index, total, department, doerName, givenBy, _dispatch
                             disabled={task.frequencyLocked}
                             className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-purple-500 outline-none transition-all text-xs ${task.frequencyLocked ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
-                            {FREQUENCY_OPTIONS.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+                            {frequencyOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
                         </select>
                     </div>
 
@@ -427,7 +427,12 @@ function TaskCard({ task, index, total, department, doerName, givenBy, _dispatch
     );
 }
 
-export default function ChecklistTask() {
+export default function ChecklistTask({ mode = "checklist" }) {
+    // Same assignment form for both modules. Delegation saves to the delegation table and has no one-time frequency.
+    const isDelegation = mode === "delegation";
+    const ONE_TIME = "One Time (No Recurrence)";
+    const frequencyOptions = isDelegation ? [ONE_TIME] : FREQUENCY_OPTIONS.filter((o) => o !== ONE_TIME);
+    const initialFrequency = isDelegation ? ONE_TIME : "Daily";
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { showToast } = useMagicToast();
@@ -439,7 +444,8 @@ export default function ChecklistTask() {
     // Per-task list
     const [tasks, setTasks] = useState([
         {
-            ...defaultTask(),
+            ...defaultTask(initialFrequency),
+            frequencyLocked: isDelegation,
             givenBy: (localStorage.getItem("role")?.toUpperCase() === "HOD" || localStorage.getItem("role")?.toLowerCase() === "user" || (localStorage.getItem("role")?.toLowerCase() === "admin" && localStorage.getItem("user-name")?.toLowerCase() !== "admin")) ? localStorage.getItem("user-name") : ""
         }
     ]);
@@ -462,6 +468,12 @@ export default function ChecklistTask() {
         const dateParam = params.get('date');
         const typeParam = params.get('type');
 
+        // Checklist has no One Time frequency; one-time tasks belong to Delegation
+        if (typeParam === 'delegation' && !isDelegation) {
+            navigate('/checklist/assign-delegation' + window.location.search, { replace: true });
+            return;
+        }
+
         if (dateParam) {
             // Use T00:00:00 to ensure date is parsed as local time correctly
             const parsedDate = new Date(dateParam + 'T00:00:00');
@@ -471,9 +483,7 @@ export default function ChecklistTask() {
                     newTasks[0] = {
                         ...newTasks[0],
                         date: isNaN(parsedDate.getTime()) ? null : parsedDate,
-                        frequency: typeParam === 'delegation' ? "One Time (No Recurrence)" : newTasks[0].frequency,
                         dateLocked: true,
-                        frequencyLocked: typeParam === 'delegation' // Lock frequency only for delegation (one-time)
                     };
                 }
                 return newTasks;
@@ -485,7 +495,8 @@ export default function ChecklistTask() {
     const addTask = () => setTasks(prev => {
         const lastTask = prev[prev.length - 1];
         return [...prev, {
-            ...defaultTask(),
+            ...defaultTask(initialFrequency),
+            frequencyLocked: isDelegation,
             department: lastTask?.department || "",
             givenBy: (localStorage.getItem("role")?.toUpperCase() === "HOD" || localStorage.getItem("role")?.toLowerCase() === "user" || (localStorage.getItem("role")?.toLowerCase() === "admin" && localStorage.getItem("user-name")?.toLowerCase() !== "admin")) ? localStorage.getItem("user-name") : (lastTask?.givenBy || ""),
             doer: lastTask?.doer || ""
@@ -536,10 +547,7 @@ export default function ChecklistTask() {
         const hasCalendarEntries = workingDaySet.size > 0;
         const isHoliday = (d) => holidays.includes(getLocalDateString(d));
         // If working_day_calender has records, check it; otherwise treat non-Sundays and non-holidays as working days
-        const isWorkingDay = (d) => {
-            if (hasCalendarEntries) return workingDaySet.has(getLocalDateString(d));
-            return d.getDay() !== 0; // Monday-Saturday are working days by default
-        };
+        const isWorkingDay = (d) => d.getDay() !== 0; // only Sunday is a weekly off
         const toLocalISO = (d) => `${getLocalDateString(d)}T${time}:00`;
         const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
 
@@ -624,7 +632,7 @@ export default function ChecklistTask() {
                     // If working_day_calender has explicit entry or is unseeded (default non-Sunday is working day)
                     const dateObj = new Date(t.date);
                     const isSunday = dateObj.getDay() === 0;
-                    const isWorking = isW ? true : (!isSunday);
+                    const isWorking = !isSunday;
 
                     if (isH || !isWorking) {
                         return { success: false, message: `Task ${i + 1}: The selected date (${dateStr}) is a ${isH ? 'holiday' : 'non-working day'}. Please select a different working day.` };
@@ -707,7 +715,7 @@ export default function ChecklistTask() {
 
                 const dateObj = new Date(t.date);
                 const isSunday = dateObj.getDay() === 0;
-                const isWorking = isW ? true : (!isSunday);
+                const isWorking = !isSunday;
 
                 if (isH || !isWorking) {
                     alert(`Task ${i + 1}: The selected date (${dateStr}) is a ${isH ? 'holiday' : 'non-working day'}. Please select a different working day.`);
@@ -826,7 +834,7 @@ export default function ChecklistTask() {
 
             for (let i = 0; i < allTasksToSubmit.length; i += CHUNK_SIZE) {
                 const chunk = allTasksToSubmit.slice(i, i + CHUNK_SIZE);
-                const result = await dispatch(assignTaskInTable({ tasks: chunk, table: null }));
+                const result = await dispatch(assignTaskInTable({ tasks: chunk, table: isDelegation ? "delegation" : null }));
                 if (result.error) throw new Error(result.error.message || "Failed to assign tasks in chunk " + (Math.floor(i / CHUNK_SIZE) + 1));
                 if (result.payload) {
                     // Normalize results if it's nested
@@ -880,7 +888,7 @@ export default function ChecklistTask() {
                                 frequency: frequencyLabel,
                                 enableReminders: t.enable_reminder === 'yes' || t.enable_reminder === true,
                                 requireAttachment: t.require_attachment === 'yes' || t.require_attachment === true,
-                                taskType: isOneTime ? 'delegation' : 'checklist'
+                                taskType: (isDelegation || isOneTime) ? 'delegation' : 'checklist'
                             });
                         }
                     }
@@ -890,7 +898,7 @@ export default function ChecklistTask() {
             }
 
             showToast(`Successfully assigned ${allTasksToSubmit.length} task(s)!`, 'success');
-            setTasks([defaultTask()]);
+            setTasks([{ ...defaultTask(initialFrequency), frequencyLocked: isDelegation }]);
             setShowPreviewModal(false);
             setTimeout(() => navigate('/checklist/admin'), 2000);
         } catch (e) {
@@ -911,7 +919,7 @@ export default function ChecklistTask() {
                             <ClipboardList size={20} />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black text-gray-900">Checklist Task Assignment</h1>
+                            <h1 className="text-xl font-black text-gray-900">{isDelegation ? "Delegation Task Assignment" : "Checklist Task Assignment"}</h1>
                             <p className="text-sm text-gray-500 mt-0.5">Assign one or multiple checklist tasks at once</p>
                         </div>
                     </div>
@@ -951,6 +959,7 @@ export default function ChecklistTask() {
                             department={department}
                             doerName={doerName}
                             givenBy={givenBy}
+                            frequencyOptions={frequencyOptions}
                             dispatch={dispatch}
                             onUpdate={updateTask}
                             onRemove={removeTask}

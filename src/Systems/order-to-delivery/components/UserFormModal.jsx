@@ -400,6 +400,32 @@ export const UserFormModal = ({
             </div>
           </div>
 
+          {/* Settings (Master Hub) access: off unless explicitly granted. Admins always have it. */}
+          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
+            <div>
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#9B783E]" />
+                <span>Settings / Master Hub Access</span>
+              </h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Users, vendors, customers, departments, TAT and checklist settings. Hidden from anyone not granted access.
+              </p>
+            </div>
+            {isAdmin ? (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                Admins always have Settings access.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <PermissionRow
+                  label="Allow access to Settings"
+                  checked={allowedPages.includes('settings')}
+                  onToggle={() => togglePage('settings')}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Section 2: CHECKLIST & DELEGATION SUB-PAGE PERMISSIONS (collapsible, toggles) */}
           <PermissionSection
             icon={<CheckSquare className="w-4 h-4 text-[#9B783E]" />}

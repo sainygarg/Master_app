@@ -23,7 +23,7 @@ import TrainingVideo from './pages/admin/TrainingVideo';
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
 import RealtimeLogoutListener from './components/RealtimeLogoutListener';
-import { ALL_CHECKLIST_PAGE_IDS, canUserAccessChecklistPage } from '../order-to-delivery/utils/userStorage';
+import { ALL_CHECKLIST_PAGE_IDS, canUserAccessChecklistPage, canUserAccessPage } from '../order-to-delivery/utils/userStorage';
 
 
 // Blocks direct URL access to checklist pages the user was not granted in Master Hub
@@ -32,8 +32,14 @@ const checkPageAccess = (path) => {
     const raw = localStorage.getItem('sainy_couture_auth_user_v3');
     if (!raw) return null;
     const masterUser = JSON.parse(raw);
-    const isListed = ALL_CHECKLIST_PAGE_IDS.some((p) => p.id === path);
-    if (!isListed || canUserAccessChecklistPage(masterUser, path)) return null;
+    // Sub-pages of "Assign Task" use that page's permission
+    const PERMISSION_ALIASES = {
+      '/checklist/checklist': '/checklist/assign-task',
+      '/checklist/assign-delegation': '/checklist/assign-task',
+    };
+    const permissionPath = PERMISSION_ALIASES[path] || path;
+    const isListed = ALL_CHECKLIST_PAGE_IDS.some((p) => p.id === permissionPath);
+    if (!isListed || canUserAccessChecklistPage(masterUser, permissionPath)) return null;
     const firstAllowed = ALL_CHECKLIST_PAGE_IDS.find((p) => canUserAccessChecklistPage(masterUser, p.id));
     return <Navigate to={firstAllowed ? firstAllowed.id : '/order-to-delivery'} replace />;
   } catch {
@@ -78,6 +84,19 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   return children;
+};
+
+// Settings (Master Hub) is only for users who were granted it; everyone else is sent back
+const SettingsGate = () => {
+  let masterUser = null;
+  try {
+    masterUser = JSON.parse(localStorage.getItem('sainy_couture_auth_user_v3') || 'null');
+  } catch {
+    masterUser = null;
+  }
+  return canUserAccessPage(masterUser, 'settings')
+    ? <Navigate to="/order-to-delivery/settings" replace />
+    : <Navigate to="/checklist/admin" replace />;
 };
 
 const SuperAdminRoute = ({ children }) => {
@@ -150,6 +169,14 @@ export function ChecklistDelegationApp() {
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
               <ChecklistTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/checklist/assign-delegation"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
+              <ChecklistTask mode="delegation" />
             </ProtectedRoute>
           }
         />
@@ -239,7 +266,7 @@ export function ChecklistDelegationApp() {
         {/* 10. Settings - Redirected to Unified Master Setting */}
         <Route
           path="/checklist/setting"
-          element={<Navigate to="/order-to-delivery/settings" replace />}
+          element={<SettingsGate />}
         />
 
         {/* 11. Training Video */}

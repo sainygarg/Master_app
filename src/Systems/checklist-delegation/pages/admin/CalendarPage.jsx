@@ -350,7 +350,7 @@ const CalendarPage = () => {
     const handleAssignTask = (type) => {
         if (!selectedDate) return;
         if (type === 'delegation') {
-            navigate(`/checklist/checklist?date=${selectedDate}&type=delegation`);
+            navigate(`/checklist/assign-delegation?date=${selectedDate}`);
         } else if (type === 'ea') {
             navigate(`/checklist/ea-task?date=${selectedDate}`);
         }
@@ -429,7 +429,7 @@ const CalendarPage = () => {
         const dayTasks = filteredTasks.filter(t => t.date === dayDate);
         const isToday = new Date().toISOString().split('T')[0] === dayDate;
         const isHoliday = !!holiday;
-        const isOffDay = !isHoliday && !workingDay;
+        const isOffDay = !isHoliday && new Date(dayDate + 'T00:00:00').getDay() === 0; // only Sunday is a weekly off
 
         days.push(
             <div
@@ -621,7 +621,7 @@ const CalendarPage = () => {
                                 const dayTasksTotal = filteredTasks.filter(t => t.date === dayDate);
                                 const isToday = new Date().toISOString().split('T')[0] === dayDate;
                                 const isHoliday = !!holiday;
-                                const isOffDay = !isHoliday && !workingDay;
+                                const isOffDay = !isHoliday && new Date(dayDate + 'T00:00:00').getDay() === 0; // only Sunday is a weekly off
 
                                 if (dayTasksTotal.length === 0 && isOffDay && !isHoliday && !isToday) return null;
 

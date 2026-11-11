@@ -697,7 +697,8 @@ export default function QuickTask() {
                   { id: 'checklist', label: 'Checklist' },
                   { id: 'delegation', label: 'Delegation' },
                   { id: 'maintenance', label: 'Maintenance' }
-                ].map(tab => (
+                  // Maintenance tab is hidden from the UI only; its data logic and table below are kept
+                ].filter(tab => tab.id !== 'maintenance').map(tab => (
                   <button
                     key={tab.id}
                     className={`flex-1 sm:flex-none px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === tab.id

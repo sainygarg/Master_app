@@ -44,56 +44,35 @@ export const MasterEntryModal = ({
           phone: '',
           email: '',
           city: '',
-          address: '',
-          category: 'VIP Bridal',
-          notes: ''
         });
       } else if (type === 'vendor') {
         setFormData({
           id: nextId || `VND-${Date.now().toString().slice(-3)}`,
           name: '',
-          category: 'Pure Silk & Chanderi Fabrics',
           contactPerson: '',
           phone: '',
-          city: '',
           address: '',
           gstNo: '',
-          rating: '⭐⭐⭐⭐⭐ Top Tier',
-          terms: '15 Days Credit'
         });
       } else if (type === 'transporter') {
         setFormData({
           id: nextId || `TRN-${Date.now().toString().slice(-3)}`,
           name: '',
-          serviceType: 'Priority Air Courier (Express 24-48h)',
           contactPerson: '',
-          phone: '',
-          hubCity: '',
-          operatingRoutes: 'Domestic Metros & Tier 1 Cities',
-          trackingUrl: '',
-          avgTransitTime: '24-48 Hours'
+          phone: ''
         });
       } else if (type === 'karigar') {
         setFormData({
           id: nextId || `KRG-${Date.now().toString().slice(-3)}`,
           name: '',
-          specialization: 'Senior Stitching Master (Blouses & Bodice Fitting)',
-          unit: 'Central Atelier - Tailoring Floor 1',
           phone: '',
-          skillGrade: 'Grade A+ (Master Artisan)',
-          status: 'Active (On Duty)',
-          dailyCapacity: '1 Garment / Day'
+          status: 'Active (On Duty)'
         });
       } else if (type === 'department') {
         setFormData({
           id: nextId || `DEPT-${Date.now().toString().slice(-3)}`,
           name: '',
           code: '',
-          headName: '',
-          contactEmail: '',
-          staffCount: 1,
-          status: 'Active',
-          description: ''
         });
       } else if (type === 'tat') {
         setFormData({
@@ -284,50 +263,6 @@ export const MasterEntryModal = ({
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Client Category
-                  </label>
-                  <select
-                    value={formData.category || 'VIP Bridal'}
-                    onChange={(e) => handleChange('category', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="VIP Bridal">VIP Bridal</option>
-                    <option value="Couture Trousseau">Couture Trousseau</option>
-                    <option value="High Net Bespoke">High Net Bespoke</option>
-                    <option value="Wedding Guest Luxury">Wedding Guest Luxury</option>
-                    <option value="Royal Heritage">Royal Heritage</option>
-                    <option value="Contemporary Heritage">Contemporary Heritage</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Full Delivery Address
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address || ''}
-                    onChange={(e) => handleChange('address', e.target.value)}
-                    placeholder="Apartment, Street, Landmark, Pincode"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Client Taste & Style Notes
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.notes || ''}
-                    onChange={(e) => handleChange('notes', e.target.value)}
-                    placeholder="Specific necklines, embroidery density preferences, lining fabric..."
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
               </>
             )}
 
@@ -347,32 +282,6 @@ export const MasterEntryModal = ({
                   />
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Supply Category / Items
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.category || ''}
-                    onChange={(e) => handleChange('category', e.target.value)}
-                    placeholder="e.g. Pure Silk, Zari, Organza, Can-Can, Thread"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    City / Market Location
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.city || ''}
-                    onChange={(e) => handleChange('city', e.target.value)}
-                    placeholder="e.g. Varanasi, Surat, Delhi"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
                 <div>
                   <label className="block font-semibold text-stone-700 mb-1">
                     GST Number
@@ -382,34 +291,6 @@ export const MasterEntryModal = ({
                     value={formData.gstNo || ''}
                     onChange={(e) => handleChange('gstNo', e.target.value)}
                     placeholder="07AAAAA0000A1Z5"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Vendor Quality Rating
-                  </label>
-                  <select
-                    value={formData.rating || '⭐⭐⭐⭐⭐ Top Tier'}
-                    onChange={(e) => handleChange('rating', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="⭐⭐⭐⭐⭐ Top Tier">⭐⭐⭐⭐⭐ Top Tier</option>
-                    <option value="⭐⭐⭐⭐ Premium">⭐⭐⭐⭐ Premium</option>
-                    <option value="⭐⭐⭐ Standard">⭐⭐⭐ Standard</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Payment Terms
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.terms || ''}
-                    onChange={(e) => handleChange('terms', e.target.value)}
-                    placeholder="e.g. 15 Days Credit, Advance 50%"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>
@@ -441,73 +322,6 @@ export const MasterEntryModal = ({
                     value={formData.code || ''}
                     onChange={(e) => handleChange('code', e.target.value)}
                     placeholder="e.g. BST, MDV, TKC"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Head of Department / In-Charge <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.headName || ''}
-                    onChange={(e) => handleChange('headName', e.target.value)}
-                    placeholder="e.g. Master Harish, Priya Sharma"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Official Email
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.contactEmail || ''}
-                    onChange={(e) => handleChange('contactEmail', e.target.value)}
-                    placeholder="dept@sainygarg.com"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Active Staff Count
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.staffCount || 1}
-                    onChange={(e) => handleChange('staffCount', parseInt(e.target.value, 10) || 1)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status || 'Active'}
-                    onChange={(e) => handleChange('status', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Under Expansion">Under Expansion</option>
-                    <option value="On Shift">On Shift</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Operational Scope & Responsibility
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.description || ''}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    placeholder="Core tasks handled by this department..."
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>
@@ -641,19 +455,6 @@ export const MasterEntryModal = ({
               <>
                 <div>
                   <label className="block font-semibold text-stone-700 mb-1">
-                    Courier / Service Type
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.serviceType || ''}
-                    onChange={(e) => handleChange('serviceType', e.target.value)}
-                    placeholder="e.g. Priority Air, Express Road"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
                     Contact Person / Representative
                   </label>
                   <input
@@ -661,124 +462,6 @@ export const MasterEntryModal = ({
                     value={formData.contactPerson || ''}
                     onChange={(e) => handleChange('contactPerson', e.target.value)}
                     placeholder="e.g. Vikram Batra"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Hub Base City
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.hubCity || ''}
-                    onChange={(e) => handleChange('hubCity', e.target.value)}
-                    placeholder="e.g. Delhi-NCR (Aerocity)"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Avg Transit SLA
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.avgTransitTime || ''}
-                    onChange={(e) => handleChange('avgTransitTime', e.target.value)}
-                    placeholder="e.g. 24-48 Hours"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Tracking Portal URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.trackingUrl || ''}
-                    onChange={(e) => handleChange('trackingUrl', e.target.value)}
-                    placeholder="https://www.bluedart.com/tracking"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Operating Routes & Coverage
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.operatingRoutes || ''}
-                    onChange={(e) => handleChange('operatingRoutes', e.target.value)}
-                    placeholder="e.g. Domestic Metros, Delhi-NCR, Pan-India"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* TYPE SPECIFIC FIELDS: KARIGAR */}
-            {type === 'karigar' && (
-              <>
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Artisan Craft Specialization
-                  </label>
-                  <select
-                    value={formData.specialization || 'Senior Stitching Master (Blouses & Bodice Fitting)'}
-                    onChange={(e) => handleChange('specialization', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="Senior Stitching Master (Blouses & Bodice Fitting)">Senior Stitching Master (Blouses & Bodice Fitting)</option>
-                    <option value="Adda Zardozi, Marodi & Antique Dabka Ustad">Adda Zardozi, Marodi & Antique Dabka Ustad</option>
-                    <option value="Women Master 1 (Lehenga Panel Flare & Cancan Tailoring)">Women Master 1 (Lehenga Panel Flare & Cancan Tailoring)</option>
-                    <option value="Precision Khaka Tracing & Base Fabric Master Cutter">Precision Khaka Tracing & Base Fabric Master Cutter</option>
-                    <option value="First QC Tape Inspector & Dart Correction Specialist">First QC Tape Inspector & Dart Correction Specialist</option>
-                    <option value="Steam Pressing, Hooks, Dori Latkans & Final Packaging">Steam Pressing, Hooks, Dori Latkans & Final Packaging</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Workshop Unit / Location
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.unit || ''}
-                    onChange={(e) => handleChange('unit', e.target.value)}
-                    placeholder="e.g. Central Atelier - Floor 1"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Skill Grade / Level
-                  </label>
-                  <select
-                    value={formData.skillGrade || 'Grade A+ (Master Artisan)'}
-                    onChange={(e) => handleChange('skillGrade', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="Ustad Karigar (30 Yrs Exp)">Ustad Karigar (30 Yrs Exp)</option>
-                    <option value="Grade A+ (Master Artisan)">Grade A+ (Master Artisan)</option>
-                    <option value="Grade A (Senior Artisan)">Grade A (Senior Artisan)</option>
-                    <option value="Grade B (Skilled Artisan)">Grade B (Skilled Artisan)</option>
-                    <option value="Senior QC Inspector">Senior QC Inspector</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Daily Capacity / Output Remark
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.dailyCapacity || ''}
-                    onChange={(e) => handleChange('dailyCapacity', e.target.value)}
-                    placeholder="e.g. 2 Blouses or 1 Lehenga / Day"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>

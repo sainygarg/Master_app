@@ -114,7 +114,7 @@ export default function QuickTask() {
     const role = localStorage.getItem("role")?.toLowerCase();
     if (role === "hod") {
       showToast("Access Denied: HODs cannot access Quick Task management.", "error");
-      navigate("/dashboard");
+      navigate("/checklist");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);

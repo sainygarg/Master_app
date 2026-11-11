@@ -13,7 +13,7 @@ export default function AssignTask() {
     
     if (role === "user" && !canSelfAssign) {
       console.warn("🚫 AssignTask: Unauthorized 'user' role redirected to admin");
-      navigate("/dashboard/admin");
+      navigate("/checklist/admin");
     }
   }, [navigate]);
 
@@ -28,7 +28,7 @@ export default function AssignTask() {
       label: "Checklist Operations",
       subLabel: "Daily Routine Tasks",
       icon: ClipboardList,
-      path: "/dashboard/checklist",
+      path: "/checklist/checklist",
       color: "text-purple-600",
       bg: "bg-purple-50",
       border: "hover:border-purple-500",
@@ -39,7 +39,7 @@ export default function AssignTask() {
       label: "Maintenance Schedule",
       subLabel: "Preventive Care",
       icon: Wrench,
-      path: "/dashboard/maintenance",
+      path: "/checklist/maintenance",
       color: "text-purple-600",
       bg: "bg-purple-50",
       border: "hover:border-purple-500",
@@ -50,7 +50,7 @@ export default function AssignTask() {
       label: "Repair Tickets",
       subLabel: "Issue Resolution",
       icon: Hammer,
-      path: "/dashboard/repair",
+      path: "/checklist/repair",
       color: "text-purple-600",
       bg: "bg-purple-50",
       border: "hover:border-purple-500",
@@ -61,7 +61,7 @@ export default function AssignTask() {
       label: "EA Tasks",
       subLabel: "Executive Assistant",
       icon: Users,
-      path: "/dashboard/ea-task",
+      path: "/checklist/ea-task",
       color: "text-purple-600",
       bg: "bg-purple-50",
       border: "hover:border-purple-500",

@@ -540,7 +540,7 @@ export default function EATask() {
             showToast(`${tasksToInsert.length} EA Task(s) assigned successfully!`, 'success');
             setTasks([defaultTask()]);
             fetchUniqueDoers();
-            setTimeout(() => navigate("/dashboard/assign-task"), 2000);
+            setTimeout(() => navigate("/checklist/assign-task"), 2000);
         } catch (err) {
             console.error("Error creating EA tasks:", err);
             showToast("Failed to assign tasks: " + err.message, 'error');
@@ -619,7 +619,7 @@ export default function EATask() {
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            onClick={() => navigate('/dashboard/assign-task')}
+                            onClick={() => navigate('/checklist/assign-task')}
                             className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                         >
                             <X className="w-4 h-4" /> Cancel

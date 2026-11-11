@@ -589,17 +589,8 @@ export default function TaskNavigationTabs({
 
 
         {/* Task List / Table Rendering */}
-        {displayedTasks.length === 0 && !isLoadingMore ? (
-          <div className="text-center p-12 bg-white rounded-xl border border-dashed border-gray-300">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-gray-50 rounded-full">
-                <Filter className="h-8 w-8 text-gray-300" />
-              </div>
-            </div>
-            <p className="text-gray-500 font-medium">No tasks found for {taskView} view.</p>
-            <p className="text-sm text-gray-400 mt-1">Try adjusting your filters or search query.</p>
-          </div>
-        ) : (
+        (
+
           <div>
             {/* Desktop Table View */}
             <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -850,7 +841,10 @@ export default function TaskNavigationTabs({
                         </td>
                       </tr>
                     ))}
-                  </tbody>
+                  {displayedTasks.length === 0 && (
+<tr><td colSpan={8} className="px-4 py-12 text-center bg-white"><div className="text-sm font-bold text-gray-800">No tasks found</div><p className="text-xs text-gray-500 mt-1">Try adjusting your filters or search query.</p></td></tr>
+)}
+</tbody>
                 </table>
               </div>
             </div>

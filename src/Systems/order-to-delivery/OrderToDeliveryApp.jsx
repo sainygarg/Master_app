@@ -92,6 +92,20 @@ export function App() {
       if (stage) setSelectedStageId(stage);
     }
   }, [location.search]);
+
+  // If the current view is not permitted for this user, move them to one they can open
+  useEffect(() => {
+    if (!currentUser) return;
+    const allowed = {
+      dashboard: canUserAccessPage(currentUser, 'dashboard'),
+      orders: canUserAccessPage(currentUser, 'orders'),
+      stages: STAGES.some((s) => canUserAccessStage(currentUser, s.id)),
+      settings: canUserAccessPage(currentUser, 'settings')
+    };
+    if (allowed[currentView]) return;
+    const next = ['orders', 'dashboard', 'stages', 'settings'].find((v) => allowed[v]);
+    if (next) setCurrentView(next);
+  }, [currentUser, currentView]);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewFormat, setViewFormat] = useState('table'); // 'table' | 'cards'
 
@@ -159,7 +173,7 @@ export function App() {
     localStorage.setItem('role', (user.role || 'user').toLowerCase());
     localStorage.setItem('can_self_assign', 'true');
     showToast(`Welcome back, ${user.name}! (${user.role} role)`, 'success');
-    navigate('/dashboard/admin', { replace: true }); // Checklist Dashboard is the default landing page
+    navigate('/checklist/admin', { replace: true }); // Checklist Dashboard is the default landing page
     try {
       window.dispatchEvent(new Event('unified-auth-changed'));
     } catch {}

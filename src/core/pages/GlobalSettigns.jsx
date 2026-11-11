@@ -474,14 +474,17 @@ export default function GlobalSettings() {
 
       if (isNewUser) {
         // Find highest existing ID to increment
-        const { data: maxIdData, error: maxIdError } = await supabase
+        // users.id is text (USR-01, CHK-02...). Take the highest numeric suffix and issue the next USR-NN.
+        const { data: idRows, error: maxIdError } = await supabase
           .from("users")
-          .select("id")
-          .order("id", { ascending: false })
-          .limit(1);
+          .select("id");
 
         if (maxIdError) throw maxIdError;
-        const nextId = (maxIdData?.[0]?.id || 0) + 1;
+        const highest = (idRows || []).reduce((max, r) => {
+          const m = String(r.id ?? "").match(/(\d+)$/);
+          return m ? Math.max(max, parseInt(m[1], 10)) : max;
+        }, 0);
+        const nextId = `USR-${String(highest + 1).padStart(2, "0")}`;
 
         // Auto-generate employee id if empty
         const empIdRaw = userForm.employee_id ? String(userForm.employee_id).trim() : "";
@@ -537,19 +540,19 @@ export default function GlobalSettings() {
           localStorage.setItem("allowed-systems", JSON.stringify(slugs));
 
           const allPurchaseRoutes = [
-            "/dashboard/purchase", "/dashboard/purchase/dashboard", "/dashboard/purchase/indent",
-            "/dashboard/purchase/approval", "/dashboard/purchase/pocreate", "/dashboard/purchase/polist",
-            "/dashboard/purchase/delivery", "/dashboard/purchase/receiving",
-            "/dashboard/purchase/payment-approval", "/dashboard/purchase/payment"
+            "/checklist/purchase", "/checklist/purchase/dashboard", "/checklist/purchase/indent",
+            "/checklist/purchase/approval", "/checklist/purchase/pocreate", "/checklist/purchase/polist",
+            "/checklist/purchase/delivery", "/checklist/purchase/receiving",
+            "/checklist/purchase/payment-approval", "/checklist/purchase/payment"
           ];
           const allInventoryRoutes = [
-            "/dashboard/inventory", "/dashboard/inventory/dashboard", "/dashboard/inventory/stock",
-            "/dashboard/inventory/transactions", "/dashboard/inventory/reorder", "/dashboard/inventory/indent",
-            "/dashboard/inventory/settings"
+            "/checklist/inventory", "/checklist/inventory/dashboard", "/checklist/inventory/stock",
+            "/checklist/inventory/transactions", "/checklist/inventory/reorder", "/checklist/inventory/indent",
+            "/checklist/inventory/settings"
           ];
           const allNewPeteRoutes = [
-            "/dashboard/newpete", "/dashboard/newpete-add-case", "/dashboard/newpete-expenses",
-            "/dashboard/newpete-ledger", "/dashboard/newpete-settings"
+            "/checklist/newpete", "/checklist/newpete-add-case", "/checklist/newpete-expenses",
+            "/checklist/newpete-ledger", "/checklist/newpete-settings"
           ];
 
           // Calculate allowed page paths
@@ -559,52 +562,52 @@ export default function GlobalSettings() {
             const isLegacyAdmin = roleLower === "admin" || roleLower === "super admin" || roleLower === "superadmin" || currentLoggedName.toLowerCase() === "admin";
             if (isLegacyAdmin) {
               allowedRts = [
-                "/dashboard/admin", "/dashboard/notifications", "/dashboard/quick-task",
-                "/dashboard/assign-task", "/dashboard/checklist", "/dashboard/maintenance",
-                "/dashboard/repair", "/dashboard/ea-task", "/dashboard/calendar",
-                "/dashboard/task", "/dashboard/training-video", "/dashboard/bulk-import",
-                "/dashboard/holiday-list", "/dashboard/working-day-calendar",
-                "/dashboard/data", "/dashboard/admin-data", "/dashboard/delegation",
-                "/dashboard/delegation-data", "/dashboard/admin-approval",
-                "/dashboard/mis-report", "/dashboard/setting", "/dashboard/global-settings",
-                "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-                "/dashboard/whatsapp-history",
+                "/checklist/admin", "/checklist/notifications", "/checklist/quick-task",
+                "/checklist/assign-task", "/checklist/checklist", "/checklist/maintenance",
+                "/checklist/repair", "/checklist/ea-task", "/checklist/calendar",
+                "/checklist/task", "/checklist/training-video", "/checklist/bulk-import",
+                "/checklist/holiday-list", "/checklist/working-day-calendar",
+                "/checklist/data", "/checklist/admin-data", "/checklist/delegation",
+                "/checklist/delegation-data", "/checklist/admin-approval",
+                "/checklist/mis-report", "/checklist/setting", "/checklist/global-settings",
+                "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+                "/checklist/whatsapp-history",
                 ...allPurchaseRoutes,
                 ...allInventoryRoutes,
                 ...allNewPeteRoutes,
-                "/dashboard/greetings-birthdays", "/dashboard/greetings-festival-scheduler"
+                "/checklist/greetings-birthdays", "/checklist/greetings-festival-scheduler"
               ];
             } else if (roleLower === "hod") {
               allowedRts = [
-                "/dashboard/admin", "/dashboard/notifications", "/dashboard/assign-task",
-                "/dashboard/delegation", "/dashboard/task", "/dashboard/calendar",
-                "/dashboard/training-video", "/dashboard/bulk-import", "/dashboard/delegation-data",
-                "/dashboard/admin-approval",
-                "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-                "/dashboard/whatsapp-history",
+                "/checklist/admin", "/checklist/notifications", "/checklist/assign-task",
+                "/checklist/delegation", "/checklist/task", "/checklist/calendar",
+                "/checklist/training-video", "/checklist/bulk-import", "/checklist/delegation-data",
+                "/checklist/admin-approval",
+                "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+                "/checklist/whatsapp-history",
                 ...allPurchaseRoutes,
                 ...allInventoryRoutes,
                 ...allNewPeteRoutes
               ];
             } else {
               allowedRts = [
-                "/dashboard/admin", "/dashboard/notifications", "/dashboard/delegation",
-                "/dashboard/task", "/dashboard/calendar", "/dashboard/training-video",
-                "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-                "/dashboard/whatsapp-history",
+                "/checklist/admin", "/checklist/notifications", "/checklist/delegation",
+                "/checklist/task", "/checklist/calendar", "/checklist/training-video",
+                "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+                "/checklist/whatsapp-history",
                 ...allPurchaseRoutes,
                 ...allInventoryRoutes,
                 ...allNewPeteRoutes
               ];
             }
           } else if (payload.page_access === "none") {
-            allowedRts = ["/dashboard", "/dashboard/notifications"];
+            allowedRts = ["/checklist", "/checklist/notifications"];
           } else if (payload.page_access) {
             allowedRts = payload.page_access.split(",").map(p => p.trim()).filter(Boolean);
-            if (!allowedRts.includes("/dashboard")) allowedRts.push("/dashboard");
-            if (!allowedRts.includes("/dashboard/notifications")) allowedRts.push("/dashboard/notifications");
+            if (!allowedRts.includes("/checklist")) allowedRts.push("/checklist");
+            if (!allowedRts.includes("/checklist/notifications")) allowedRts.push("/checklist/notifications");
           } else {
-            allowedRts = ["/dashboard", "/dashboard/notifications"];
+            allowedRts = ["/checklist", "/checklist/notifications"];
           }
           localStorage.setItem("allowed-pages", JSON.stringify(allowedRts));
           window.dispatchEvent(new Event("permissions-updated"));

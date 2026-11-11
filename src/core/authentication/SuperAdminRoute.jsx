@@ -7,7 +7,7 @@ const SuperAdminRoute = ({ children }) => {
     const isSuperAdmin = localStorage.getItem("is-super-admin") === "true" || username === "admin" || role === "admin";
 
     if (!isSuperAdmin) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/checklist" replace />;
     }
 
     return children;

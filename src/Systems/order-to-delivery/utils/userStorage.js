@@ -11,17 +11,17 @@ export const ALL_PAGE_IDS = [
 
 // Checklist & Delegation sub pages (route href is the permission id)
 export const ALL_CHECKLIST_PAGE_IDS = [
-  { id: '/dashboard/admin', label: 'Checklist Dashboard' },
-  { id: '/dashboard/notifications', label: 'Notifications' },
-  { id: '/dashboard/quick-task', label: 'Quick Task' },
-  { id: '/dashboard/assign-task', label: 'Assign Task' },
-  { id: '/dashboard/delegation', label: 'Delegation' },
-  { id: '/dashboard/task', label: 'Task' },
-  { id: '/dashboard/calendar', label: 'Calendar' },
-  { id: '/dashboard/holiday-list', label: 'Holiday List' },
-  { id: '/dashboard/working-day-calendar', label: 'Working Day Calendar' },
-  { id: '/dashboard/admin-approval', label: 'Admin Approval' },
-  { id: '/dashboard/training-video', label: 'Training Video' }
+  { id: '/checklist/admin', label: 'Checklist Dashboard' },
+  { id: '/checklist/notifications', label: 'Notifications' },
+  { id: '/checklist/quick-task', label: 'Quick Task' },
+  { id: '/checklist/assign-task', label: 'Assign Task' },
+  { id: '/checklist/delegation', label: 'Delegation' },
+  { id: '/checklist/task', label: 'Task' },
+  { id: '/checklist/calendar', label: 'Calendar' },
+  { id: '/checklist/holiday-list', label: 'Holiday List' },
+  { id: '/checklist/working-day-calendar', label: 'Working Day Calendar' },
+  { id: '/checklist/admin-approval', label: 'Admin Approval' },
+  { id: '/checklist/training-video', label: 'Training Video' }
 ];
 
 // DB row (snake_case) <-> app user (camelCase)
@@ -32,14 +32,16 @@ const fromRow = (r) => ({
   name: r.name,
   email: r.email || '',
   phone: r.phone || '',
+  designation: r.Designation || '',
   role: r.role,
   isAdmin: !!r.is_admin,
   status: r.status,
   allowedPages: r.allowed_pages || [],
   allowedStages: r.allowed_stages || [],
   // null/undefined (legacy rows) => no restriction recorded => all checklist pages
+  // legacy ids were saved as /dashboard/...; the routes now live under /checklist/...
   allowedChecklistPages: Array.isArray(r.allowed_checklist_pages)
-    ? r.allowed_checklist_pages
+    ? r.allowed_checklist_pages.map((h) => String(h).replace('/dashboard/', '/checklist/'))
     : ALL_CHECKLIST_PAGE_IDS.map((p) => p.id),
   avatarColor: r.avatar_color || 'bg-[#5B172E]'
 });
@@ -55,6 +57,7 @@ const toRow = (u) => ({
   phone: u.phone || '',
   mobile: u.phone || '',
   number: u.phone || '',
+  Designation: u.designation || null,
   role: u.role,
   is_admin: !!u.isAdmin,
   status: u.status,
@@ -164,7 +167,8 @@ export const canUserAccessChecklistPage = (user, href) => {
   if (isApexAdmin(user)) return true;
   if (!user) return false;
   if (!Array.isArray(user.allowedChecklistPages)) return true; // legacy/fallback sessions
-  return user.allowedChecklistPages.includes(href);
+  const norm = (h) => String(h).replace('/dashboard/', '/checklist/'); // tolerate sessions saved before the route rename
+  return user.allowedChecklistPages.some((h) => norm(h) === href);
 };
 
 export const canUserAccessStage = (user, stageId) => {

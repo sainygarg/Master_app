@@ -394,7 +394,7 @@ export default function RepairTask() {
 
             showToast(`${tasks.length} Repair Request(s) submitted successfully!`, 'success');
             setTasks([defaultTask()]);
-            setTimeout(() => navigate('/dashboard/assign-task'), 2000);
+            setTimeout(() => navigate('/checklist/assign-task'), 2000);
         } catch (error) {
             console.error("Submission failed:", error);
             showToast("Failed to submit requests: " + error.message, 'error');
@@ -464,7 +464,7 @@ export default function RepairTask() {
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            onClick={() => navigate('/dashboard/assign-task')}
+                            onClick={() => navigate('/checklist/assign-task')}
                             className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                         >
                             <X className="w-4 h-4" /> Cancel

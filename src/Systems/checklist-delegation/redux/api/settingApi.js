@@ -59,53 +59,7 @@ export const fetchUserDetailsApi = async () => {
 //   }
 // };
 
-import { SYSTEM_DEPARTMENTS } from "../../../../core/constants/departments";
-
-export const fetchDepartmentDataApi = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('departments')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (!error && data && data.length > 0) {
-      return data.map(d => ({
-        id: d.id,
-        department: d.name,
-        given_by: d.given_by || ""
-      }));
-    }
-
-    // Try reading from Master Setting localStorage
-    try {
-      const stored = localStorage.getItem('order_flow_master_departments_v1');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(d => ({
-            id: d.id,
-            department: d.name || d.department,
-            given_by: d.headName || d.given_by || ""
-          }));
-        }
-      }
-    } catch {}
-
-    // Fallback to SYSTEM_DEPARTMENTS
-    return SYSTEM_DEPARTMENTS.map(d => ({
-      id: d.id,
-      department: d.name,
-      given_by: d.headName || ""
-    }));
-  } catch (error) {
-    console.log("error from supabase", error);
-    return SYSTEM_DEPARTMENTS.map(d => ({
-      id: d.id,
-      department: d.name,
-      given_by: d.headName || ""
-    }));
-  }
-};
+import { fetchDepartmentRows } from "../../../../core/services/departmentService";export const fetchDepartmentDataApi = async () => {  try {    const rows = await fetchDepartmentRows();    return rows.map((d) => ({ id: d.id, department: d.name, given_by: d.given_by || "" }));  } catch (error) {    console.error("Error loading departments from database", error);    return [];  }};
 export const createUserApi = async (newUser) => {
   try {
     // users.id is a text key shared with the Master Hub (USR-xx). Checklist-created users get a CHK- id.

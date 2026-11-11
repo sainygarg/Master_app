@@ -6,12 +6,17 @@ import MasterShell from './core/layout/MasterShell';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
 
-// The checklist app declares absolute routes (/dashboard/...), so it must be
-// mounted at the router root; a "/dashboard/*" parent would strip the prefix and
-// make every page fall through to its "/dashboard/*" redirect (blank page).
-const CHECKLIST_PREFIXES = ['/dashboard'];
+// The checklist app declares absolute routes (/checklist/...), so it must be
+// mounted at the router root; a "/checklist/*" parent would strip the prefix and
+// make every page fall through to its "/checklist/*" redirect (blank page).
+// Old URL prefix, redirected to /checklist so existing bookmarks keep working
+const LEGACY_PREFIX = "/dashboard";
+const CHECKLIST_PREFIXES = ['/checklist'];
 function ChecklistGate() {
   const { pathname } = useLocation();
+  if (pathname === LEGACY_PREFIX || pathname.startsWith(LEGACY_PREFIX + "/")) {
+    return <Navigate to={pathname.replace(LEGACY_PREFIX, "/checklist")} replace />;
+  }
   const isChecklist = CHECKLIST_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
   return isChecklist ? <ChecklistDelegationApp /> : <Navigate to="/order-to-delivery" replace />;
 }
@@ -22,7 +27,7 @@ export function App() {
       <MasterShell>
         <Routes>
           {/* Default root path redirects to Checklist Dashboard (login gate sends guests to the login page) */}
-          <Route path="/" element={<Navigate to="/dashboard/admin" replace />} />
+          <Route path="/" element={<Navigate to="/checklist/admin" replace />} />
 
           {/* System 1: Order to Delivery */}
           <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />

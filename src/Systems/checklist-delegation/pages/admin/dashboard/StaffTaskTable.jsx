@@ -208,25 +208,8 @@ export default function StaffTasksTable({
         </div>
       </div>
 
-      {staffMembers.length === 0 && !isLoadingMore ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-12 text-center flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
-          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M15 11h-8" /></svg>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800">No Activity Found</h3>
-            <p className="text-gray-500 max-w-xs mx-auto mt-1">No tasks were assigned or processed for the selected criteria in {getDisplayMonth()}.</p>
-          </div>
-          {dashboardStaffFilter !== "all" && (
-            <button
-              onClick={() => { }} // This should ideally trigger the parent to reset filter
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors shadow-md"
-            >
-              Reset Filters
-            </button>
-          )}
-        </div>
-      ) : (
+      (
+
         <div className="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden relative group">
           <div className="staff-table-container overflow-auto" style={{ maxHeight: "550px" }}>
             <table className="min-w-full divide-y divide-gray-100">
@@ -317,7 +300,10 @@ export default function StaffTasksTable({
                     </tr>
                   );
                 })}
-              </tbody>
+              {staffMembers.length === 0 && (
+<tr><td colSpan={7} className="px-4 py-12 text-center bg-white"><div className="text-sm font-bold text-gray-800">No Activity Found</div><p className="text-xs text-gray-500 mt-1">No tasks were assigned or processed for the selected criteria.</p></td></tr>
+)}
+</tbody>
             </table>
 
             {isLoadingMore && (

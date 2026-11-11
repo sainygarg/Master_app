@@ -69,7 +69,7 @@ export const markAsReadApi = async (notificationId, userId) => {
     const { error } = await supabase
       .from("user_notifications")
       .upsert({
-        user_id: parseInt(userId),
+        user_id: String(userId),
         notification_id: notificationId,
         is_read: true
       }, { onConflict: 'user_id, notification_id' });
@@ -91,7 +91,7 @@ export const createNotificationApi = async (notificationData) => {
           title: notificationData.title,
           message: notificationData.message,
           role_target: notificationData.roleTarget || "all",
-          created_by: notificationData.createdBy ? parseInt(notificationData.createdBy) : null,
+          created_by: notificationData.createdBy ? String(notificationData.createdBy) : null,
         },
       ])
       .select();

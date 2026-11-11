@@ -8,6 +8,8 @@ import { fetchUniqueGivenByDataApi, fetchUniqueDoerNameDataApi } from '../../../
 import RenderDescription, { MediaViewer } from "../../../../components/RenderDescription"
 import AudioPlayer from "../../../../components/AudioPlayer"
 
+const DEPT_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#14B8A6", "#EC4899", "#64748B"];
+
 const isAudioUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
   return url.startsWith('http') && (
@@ -159,6 +161,7 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
             "Quarterly": 0, "Half-yearly": 0, "Yearly": 0
         };
         const monthlyCost = {};
+        const deptCost = {};
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -201,7 +204,9 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
             const month = date.toLocaleString('default', { month: 'short' });
             monthlyCost[month] = (monthlyCost[month] || 0) + cost;
 
-            // Department Cost Logic
+            // Department cost (from real task data)
+            const deptName = (task.department || "Unassigned").trim() || "Unassigned";
+            deptCost[deptName] = (deptCost[deptName] || 0) + cost;
         });
 
         const freqData = Object.keys(freqCounts).map(key => ({ name: key, count: freqCounts[key] }));
@@ -218,7 +223,7 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
             totalCost,
             freqData,
             costData,
-            deptCostData: [], // distinct department data needed if available
+            deptCostData: Object.keys(deptCost).filter((k) => deptCost[k] > 0).map((k, i) => ({ name: k, value: deptCost[k], color: DEPT_COLORS[i % DEPT_COLORS.length] })),
             completedCount,
             pendingCount,
             overdueCount
@@ -228,12 +233,7 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
     // Use passed chartData or calculated or defaults
     const costData = processedData.costData;
 
-    const deptCostData = [
-        { name: "Logistics", value: 400, color: "#3B82F6" },
-        { name: "Packaging", value: 300, color: "#10B981" },
-        { name: "SMS", value: 300, color: "#F59E0B" },
-        { name: "Mill", value: 200, color: "#EF4444" },
-    ]
+    const deptCostData = processedData.deptCostData;
 
     const frequencyData = processedData.freqData;
 

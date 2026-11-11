@@ -804,7 +804,7 @@ export default function MaintenanceTask() {
             showToast(`${allTasksToSubmit.length} Maintenance Task(s) assigned successfully!`, 'success');
             setTasks([defaultTask()]);
             setShowPreviewModal(false);
-            setTimeout(() => navigate('/dashboard/admin'), 2200);
+            setTimeout(() => navigate('/checklist/admin'), 2200);
         } catch (error) {
             console.error(error);
             showToast("Error assigning tasks: " + error.message, 'error');
@@ -827,7 +827,7 @@ export default function MaintenanceTask() {
                             <p className="text-sm text-gray-500 mt-0.5">Assign one or multiple maintenance tasks at once</p>
                         </div>
                     </div>
-                    <button onClick={() => navigate('/dashboard/assign-task')} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
+                    <button onClick={() => navigate('/checklist/assign-task')} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -885,7 +885,7 @@ export default function MaintenanceTask() {
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <button type="button" onClick={() => navigate('/dashboard/assign-task')} className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => navigate('/checklist/assign-task')} className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
                             <X className="w-4 h-4" /> Cancel
                         </button>
                         <button

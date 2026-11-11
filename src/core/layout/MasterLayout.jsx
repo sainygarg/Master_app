@@ -103,72 +103,72 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
 
           // Define potential routes based on role
           const allPurchaseRoutes = [
-            "/dashboard/purchase", "/dashboard/purchase/dashboard", "/dashboard/purchase/indent",
-            "/dashboard/purchase/approval", "/dashboard/purchase/pocreate", "/dashboard/purchase/polist",
-            "/dashboard/purchase/delivery", "/dashboard/purchase/receiving",
-            "/dashboard/purchase/payment-approval", "/dashboard/purchase/payment"
+            "/checklist/purchase", "/checklist/purchase/dashboard", "/checklist/purchase/indent",
+            "/checklist/purchase/approval", "/checklist/purchase/pocreate", "/checklist/purchase/polist",
+            "/checklist/purchase/delivery", "/checklist/purchase/receiving",
+            "/checklist/purchase/payment-approval", "/checklist/purchase/payment"
           ];
           const allInventoryRoutes = [
-            "/dashboard/inventory", "/dashboard/inventory/dashboard", "/dashboard/inventory/stock",
-            "/dashboard/inventory/transactions", "/dashboard/inventory/reorder", "/dashboard/inventory/indent",
-            "/dashboard/inventory/settings"
+            "/checklist/inventory", "/checklist/inventory/dashboard", "/checklist/inventory/stock",
+            "/checklist/inventory/transactions", "/checklist/inventory/reorder", "/checklist/inventory/indent",
+            "/checklist/inventory/settings"
           ];
           const allNewPeteRoutes = [
-            "/dashboard/newpete", "/dashboard/newpete-add-case", "/dashboard/newpete-expenses",
-            "/dashboard/newpete-ledger", "/dashboard/newpete-settings"
+            "/checklist/newpete", "/checklist/newpete-add-case", "/checklist/newpete-expenses",
+            "/checklist/newpete-ledger", "/checklist/newpete-settings"
           ];
 
           let potentialRoutes = [];
           if (isLegacyAdmin) {
             potentialRoutes = [
-              "/dashboard/admin", "/dashboard/notifications", "/dashboard/quick-task",
-              "/dashboard/assign-task", "/dashboard/checklist", "/dashboard/maintenance",
-              "/dashboard/repair", "/dashboard/ea-task", "/dashboard/calendar",
-              "/dashboard/task", "/dashboard/training-video", "/dashboard/bulk-import",
-              "/dashboard/holiday-list", "/dashboard/working-day-calendar",
-              "/dashboard/data", "/dashboard/admin-data", "/dashboard/delegation",
-              "/dashboard/delegation-data", "/dashboard/admin-approval",
-              "/dashboard/mis-report", "/dashboard/setting", "/dashboard/global-settings",
-              "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-              "/dashboard/whatsapp-history",
-              "/dashboard/hr-dashboard", "/dashboard/hr-indent", "/dashboard/hr-find-enquiry",
-              "/dashboard/hr-call-tracker", "/dashboard/hr-after-joining-work", "/dashboard/hr-leaving",
-              "/dashboard/hr-after-leaving-work", "/dashboard/hr-employee", 
-              "/dashboard/hr-leave-management", "/dashboard/hr-attendance",
-              "/dashboard/hr-attendancedaily", "/dashboard/hr-report", "/dashboard/hr-payroll",
-              "/dashboard/hr-salary-config", "/dashboard/hr-advance", "/dashboard/hr-puttha", "/dashboard/hr-misreport",
+              "/checklist/admin", "/checklist/notifications", "/checklist/quick-task",
+              "/checklist/assign-task", "/checklist/checklist", "/checklist/maintenance",
+              "/checklist/repair", "/checklist/ea-task", "/checklist/calendar",
+              "/checklist/task", "/checklist/training-video", "/checklist/bulk-import",
+              "/checklist/holiday-list", "/checklist/working-day-calendar",
+              "/checklist/data", "/checklist/admin-data", "/checklist/delegation",
+              "/checklist/delegation-data", "/checklist/admin-approval",
+              "/checklist/mis-report", "/checklist/setting", "/checklist/global-settings",
+              "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+              "/checklist/whatsapp-history",
+              "/checklist/hr-dashboard", "/checklist/hr-indent", "/checklist/hr-find-enquiry",
+              "/checklist/hr-call-tracker", "/checklist/hr-after-joining-work", "/checklist/hr-leaving",
+              "/checklist/hr-after-leaving-work", "/checklist/hr-employee", 
+              "/checklist/hr-leave-management", "/checklist/hr-attendance",
+              "/checklist/hr-attendancedaily", "/checklist/hr-report", "/checklist/hr-payroll",
+              "/checklist/hr-salary-config", "/checklist/hr-advance", "/checklist/hr-puttha", "/checklist/hr-misreport",
               ...allPurchaseRoutes,
               ...allInventoryRoutes,
               ...allNewPeteRoutes,
-              "/dashboard/greetings-birthdays", "/dashboard/greetings-festival-scheduler"
+              "/checklist/greetings-birthdays", "/checklist/greetings-festival-scheduler"
             ];
           } else if (roleLower === "hod") {
             potentialRoutes = [
-              "/dashboard/admin", "/dashboard/notifications", "/dashboard/assign-task",
-              "/dashboard/delegation", "/dashboard/task", "/dashboard/calendar",
-              "/dashboard/training-video", "/dashboard/bulk-import", "/dashboard/delegation-data",
-              "/dashboard/admin-approval",
-              "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-              "/dashboard/whatsapp-history",
-              "/dashboard/hr-dashboard", "/dashboard/hr-indent", "/dashboard/hr-find-enquiry",
-              "/dashboard/hr-call-tracker", "/dashboard/hr-after-joining-work", "/dashboard/hr-leaving",
-              "/dashboard/hr-after-leaving-work", "/dashboard/hr-employee",
-              "/dashboard/hr-leave-management", "/dashboard/hr-attendance",
-              "/dashboard/hr-attendancedaily", "/dashboard/hr-report", "/dashboard/hr-payroll", 
-              "/dashboard/hr-salary-config", "/dashboard/hr-advance", "/dashboard/hr-puttha", "/dashboard/hr-misreport",
+              "/checklist/admin", "/checklist/notifications", "/checklist/assign-task",
+              "/checklist/delegation", "/checklist/task", "/checklist/calendar",
+              "/checklist/training-video", "/checklist/bulk-import", "/checklist/delegation-data",
+              "/checklist/admin-approval",
+              "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+              "/checklist/whatsapp-history",
+              "/checklist/hr-dashboard", "/checklist/hr-indent", "/checklist/hr-find-enquiry",
+              "/checklist/hr-call-tracker", "/checklist/hr-after-joining-work", "/checklist/hr-leaving",
+              "/checklist/hr-after-leaving-work", "/checklist/hr-employee",
+              "/checklist/hr-leave-management", "/checklist/hr-attendance",
+              "/checklist/hr-attendancedaily", "/checklist/hr-report", "/checklist/hr-payroll", 
+              "/checklist/hr-salary-config", "/checklist/hr-advance", "/checklist/hr-puttha", "/checklist/hr-misreport",
               ...allPurchaseRoutes,
               ...allInventoryRoutes,
               ...allNewPeteRoutes
             ];
           } else {
             potentialRoutes = [
-              "/dashboard/admin", "/dashboard/notifications", "/dashboard/delegation",
-              "/dashboard/task", "/dashboard/calendar", "/dashboard/training-video",
-              "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-              "/dashboard/whatsapp-history",
-              "/dashboard/hr-dashboard", "/dashboard/hr-my-profile", "/dashboard/hr-my-attendance",
-              "/dashboard/hr-leave-request", "/dashboard/hr-my-salary", "/dashboard/hr-company-calendar",
-              "/dashboard/hr-advance", "/dashboard/hr-puttha",
+              "/checklist/admin", "/checklist/notifications", "/checklist/delegation",
+              "/checklist/task", "/checklist/calendar", "/checklist/training-video",
+              "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+              "/checklist/whatsapp-history",
+              "/checklist/hr-dashboard", "/checklist/hr-my-profile", "/checklist/hr-my-attendance",
+              "/checklist/hr-leave-request", "/checklist/hr-my-salary", "/checklist/hr-company-calendar",
+              "/checklist/hr-advance", "/checklist/hr-puttha",
               ...allPurchaseRoutes,
               ...allInventoryRoutes,
               ...allNewPeteRoutes
@@ -180,37 +180,37 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           if (userProfile.page_access === "all") {
             finalAllowedPages = potentialRoutes;
           } else if (userProfile.page_access === "none") {
-            finalAllowedPages = ["/dashboard", "/dashboard/notifications"];
+            finalAllowedPages = ["/checklist", "/checklist/notifications"];
           } else if (userProfile.page_access) {
             finalAllowedPages = userProfile.page_access.split(",").map(p => p.trim()).filter(Boolean);
             // Always ensure the home dashboards and notifications are allowed for security
-            if (!finalAllowedPages.includes("/dashboard")) finalAllowedPages.push("/dashboard");
-            if (!finalAllowedPages.includes("/dashboard/notifications")) finalAllowedPages.push("/dashboard/notifications");
+            if (!finalAllowedPages.includes("/checklist")) finalAllowedPages.push("/checklist");
+            if (!finalAllowedPages.includes("/checklist/notifications")) finalAllowedPages.push("/checklist/notifications");
           } else {
             // Fallback: Filter potential routes based on allowed systems
             finalAllowedPages = potentialRoutes.filter(route => {
-              if (route.startsWith("/dashboard/mis-")) {
+              if (route.startsWith("/checklist/mis-")) {
                 return systemSlugs.includes("mis-summary");
               }
-              if (route.startsWith("/dashboard/hr-")) {
+              if (route.startsWith("/checklist/hr-")) {
                 return systemSlugs.includes("hr-fms");
               }
-              if (route === "/dashboard/whatsapp-history") {
+              if (route === "/checklist/whatsapp-history") {
                 return systemSlugs.includes("whatsapp-management");
               }
-              if (route.startsWith("/dashboard/purchase")) {
+              if (route.startsWith("/checklist/purchase")) {
                 return systemSlugs.includes("purchase");
               }
-              if (route.startsWith("/dashboard/inventory")) {
+              if (route.startsWith("/checklist/inventory")) {
                 return systemSlugs.includes("inventory");
               }
-              if (route.startsWith("/dashboard/newpete")) {
+              if (route.startsWith("/checklist/newpete")) {
                 return systemSlugs.includes("newpete");
               }
-              if (route.startsWith("/dashboard/greetings")) {
+              if (route.startsWith("/checklist/greetings")) {
                 return systemSlugs.includes("greetings");
               }
-              if (route === "/dashboard" || route === "/dashboard/setting" || route === "/dashboard/global-settings") {
+              if (route === "/checklist" || route === "/checklist/setting" || route === "/checklist/global-settings") {
                 return true;
               }
               // Default to checklist-delegation routes
@@ -236,60 +236,60 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
         localStorage.setItem("allowed-systems", JSON.stringify(sysList));
 
         const allPurchaseRoutes = [
-          "/dashboard/purchase", "/dashboard/purchase/dashboard", "/dashboard/purchase/indent",
-          "/dashboard/purchase/approval", "/dashboard/purchase/pocreate", "/dashboard/purchase/polist",
-          "/dashboard/purchase/delivery", "/dashboard/purchase/receiving",
-          "/dashboard/purchase/payment-approval", "/dashboard/purchase/payment"
+          "/checklist/purchase", "/checklist/purchase/dashboard", "/checklist/purchase/indent",
+          "/checklist/purchase/approval", "/checklist/purchase/pocreate", "/checklist/purchase/polist",
+          "/checklist/purchase/delivery", "/checklist/purchase/receiving",
+          "/checklist/purchase/payment-approval", "/checklist/purchase/payment"
         ];
         const allInventoryRoutes = [
-          "/dashboard/inventory", "/dashboard/inventory/dashboard", "/dashboard/inventory/stock",
-          "/dashboard/inventory/transactions", "/dashboard/inventory/reorder", "/dashboard/inventory/indent",
-          "/dashboard/inventory/settings"
+          "/checklist/inventory", "/checklist/inventory/dashboard", "/checklist/inventory/stock",
+          "/checklist/inventory/transactions", "/checklist/inventory/reorder", "/checklist/inventory/indent",
+          "/checklist/inventory/settings"
         ];
         const allNewPeteRoutes = [
-          "/dashboard/newpete", "/dashboard/newpete-add-case", "/dashboard/newpete-expenses",
-          "/dashboard/newpete-ledger", "/dashboard/newpete-settings"
+          "/checklist/newpete", "/checklist/newpete-add-case", "/checklist/newpete-expenses",
+          "/checklist/newpete-ledger", "/checklist/newpete-settings"
         ];
 
         if (isLegacyAdmin) {
           const allRts = [
-            "/dashboard/admin", "/dashboard/notifications", "/dashboard/quick-task",
-            "/dashboard/assign-task", "/dashboard/checklist", "/dashboard/maintenance",
-            "/dashboard/repair", "/dashboard/ea-task", "/dashboard/calendar",
-            "/dashboard/task", "/dashboard/training-video", "/dashboard/bulk-import",
-            "/dashboard/holiday-list", "/dashboard/working-day-calendar",
-            "/dashboard/data", "/dashboard/admin-data", "/dashboard/delegation",
-            "/dashboard/delegation-data", "/dashboard/admin-approval",
-            "/dashboard/mis-report", "/dashboard/setting", "/dashboard/global-settings",
-            "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-            "/dashboard/whatsapp-history",
-            "/dashboard/hr-dashboard", "/dashboard/hr-indent", "/dashboard/hr-find-enquiry",
-            "/dashboard/hr-call-tracker", "/dashboard/hr-after-joining-work", "/dashboard/hr-leaving",
-            "/dashboard/hr-after-leaving-work", "/dashboard/hr-employee", 
-            "/dashboard/hr-leave-management", "/dashboard/hr-attendance",
-            "/dashboard/hr-attendancedaily", "/dashboard/hr-report", "/dashboard/hr-payroll", 
-            "/dashboard/hr-salary-config", "/dashboard/hr-advance", "/dashboard/hr-puttha", "/dashboard/hr-misreport",
+            "/checklist/admin", "/checklist/notifications", "/checklist/quick-task",
+            "/checklist/assign-task", "/checklist/checklist", "/checklist/maintenance",
+            "/checklist/repair", "/checklist/ea-task", "/checklist/calendar",
+            "/checklist/task", "/checklist/training-video", "/checklist/bulk-import",
+            "/checklist/holiday-list", "/checklist/working-day-calendar",
+            "/checklist/data", "/checklist/admin-data", "/checklist/delegation",
+            "/checklist/delegation-data", "/checklist/admin-approval",
+            "/checklist/mis-report", "/checklist/setting", "/checklist/global-settings",
+            "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+            "/checklist/whatsapp-history",
+            "/checklist/hr-dashboard", "/checklist/hr-indent", "/checklist/hr-find-enquiry",
+            "/checklist/hr-call-tracker", "/checklist/hr-after-joining-work", "/checklist/hr-leaving",
+            "/checklist/hr-after-leaving-work", "/checklist/hr-employee", 
+            "/checklist/hr-leave-management", "/checklist/hr-attendance",
+            "/checklist/hr-attendancedaily", "/checklist/hr-report", "/checklist/hr-payroll", 
+            "/checklist/hr-salary-config", "/checklist/hr-advance", "/checklist/hr-puttha", "/checklist/hr-misreport",
             ...allPurchaseRoutes,
             ...allInventoryRoutes,
             ...allNewPeteRoutes,
-            "/dashboard/greetings-birthdays", "/dashboard/greetings-festival-scheduler"
+            "/checklist/greetings-birthdays", "/checklist/greetings-festival-scheduler"
           ];
           setAllowedPages(allRts);
           localStorage.setItem("allowed-pages", JSON.stringify(allRts));
         } else if (roleLower === "hod") {
           const hodRts = [
-            "/dashboard/admin", "/dashboard/notifications", "/dashboard/assign-task",
-            "/dashboard/delegation", "/dashboard/task", "/dashboard/calendar",
-            "/dashboard/training-video", "/dashboard/bulk-import", "/dashboard/delegation-data",
-            "/dashboard/admin-approval",
-            "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-            "/dashboard/whatsapp-history",
-            "/dashboard/hr-dashboard", "/dashboard/hr-indent", "/dashboard/hr-find-enquiry",
-            "/dashboard/hr-call-tracker", "/dashboard/hr-after-joining-work", "/dashboard/hr-leaving",
-            "/dashboard/hr-after-leaving-work", "/dashboard/hr-employee",
-            "/dashboard/hr-leave-management", "/dashboard/hr-attendance",
-            "/dashboard/hr-attendancedaily", "/dashboard/hr-report", "/dashboard/hr-payroll", 
-            "/dashboard/hr-salary-config", "/dashboard/hr-advance", "/dashboard/hr-puttha", "/dashboard/hr-misreport",
+            "/checklist/admin", "/checklist/notifications", "/checklist/assign-task",
+            "/checklist/delegation", "/checklist/task", "/checklist/calendar",
+            "/checklist/training-video", "/checklist/bulk-import", "/checklist/delegation-data",
+            "/checklist/admin-approval",
+            "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+            "/checklist/whatsapp-history",
+            "/checklist/hr-dashboard", "/checklist/hr-indent", "/checklist/hr-find-enquiry",
+            "/checklist/hr-call-tracker", "/checklist/hr-after-joining-work", "/checklist/hr-leaving",
+            "/checklist/hr-after-leaving-work", "/checklist/hr-employee",
+            "/checklist/hr-leave-management", "/checklist/hr-attendance",
+            "/checklist/hr-attendancedaily", "/checklist/hr-report", "/checklist/hr-payroll", 
+            "/checklist/hr-salary-config", "/checklist/hr-advance", "/checklist/hr-puttha", "/checklist/hr-misreport",
             ...allPurchaseRoutes,
             ...allInventoryRoutes,
             ...allNewPeteRoutes
@@ -298,13 +298,13 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
           localStorage.setItem("allowed-pages", JSON.stringify(hodRts));
         } else {
           const userRts = [
-            "/dashboard/admin", "/dashboard/notifications", "/dashboard/delegation",
-            "/dashboard/task", "/dashboard/calendar", "/dashboard/training-video",
-            "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-            "/dashboard/whatsapp-history",
-            "/dashboard/hr-dashboard", "/dashboard/hr-my-profile", "/dashboard/hr-my-attendance",
-            "/dashboard/hr-leave-request", "/dashboard/hr-my-salary", "/dashboard/hr-company-calendar",
-            "/dashboard/hr-advance", "/dashboard/hr-puttha",
+            "/checklist/admin", "/checklist/notifications", "/checklist/delegation",
+            "/checklist/task", "/checklist/calendar", "/checklist/training-video",
+            "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+            "/checklist/whatsapp-history",
+            "/checklist/hr-dashboard", "/checklist/hr-my-profile", "/checklist/hr-my-attendance",
+            "/checklist/hr-leave-request", "/checklist/hr-my-salary", "/checklist/hr-company-calendar",
+            "/checklist/hr-advance", "/checklist/hr-puttha",
             ...allPurchaseRoutes,
             ...allInventoryRoutes,
             ...allNewPeteRoutes
@@ -384,7 +384,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
   const activeSystemInfo = useMemo(() => {
     const currentPath = location.pathname;
 
-    if (currentPath === "/dashboard") {
+    if (currentPath === "/checklist") {
       return { title: "Sainy Couture", subtitle: "Sainy Master Suite" };
     }
 
@@ -428,7 +428,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
         }
 
         // Special dynamic guard for assign-task
-        if (item.href === "/dashboard/assign-task" && roleNormalized === "user" && !canSelfAssign) {
+        if (item.href === "/checklist/assign-task" && roleNormalized === "user" && !canSelfAssign) {
           return false;
         }
 
@@ -564,7 +564,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
         return item.subItems[0].href;
       }
     }
-    return "/dashboard";
+    return "/checklist";
   };
 
   const isSystemActive = (sys) => {
@@ -596,7 +596,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
         </button>
 
         <div className={`flex h-16 items-center border-b border-[#E8DFD3] bg-[#FAF6F0] ${isSidebarCollapsed ? "justify-center px-2" : "justify-between px-4"}`}>
-          <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-[#431021] min-w-0" title="Sainy Couture">
+          <Link to="/checklist" className="flex items-center gap-2.5 font-bold text-[#431021] min-w-0" title="Sainy Couture">
             <div className="w-8 h-8 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs shrink-0">
               SG
             </div>
@@ -622,10 +622,10 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
               {/* Home Icon */}
               <li className="relative group/nav">
                 <Link
-                  to="/dashboard"
+                  to="/checklist"
                   title="Platform Dashboard"
                   className={`flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all ${
-                    location.pathname === "/dashboard"
+                    location.pathname === "/checklist"
                       ? "bg-[#173254] text-white shadow-sm"
                       : "text-slate-600 hover:bg-slate-100 hover:text-[#173254]"
                   }`}
@@ -641,10 +641,10 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
               {isSuperAdmin && (
                 <li className="relative group/nav">
                   <Link
-                    to="/dashboard/global-settings"
+                    to="/checklist/global-settings"
                     title="Global Settings"
                     className={`flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all ${
-                      location.pathname === "/dashboard/global-settings"
+                      location.pathname === "/checklist/global-settings"
                         ? "bg-[#173254] text-white shadow-sm"
                         : "text-slate-600 hover:bg-slate-100 hover:text-[#173254]"
                     }`}
@@ -703,8 +703,8 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
               {/* Core Home Navigation */}
               <li>
                 <Link
-                  to="/dashboard"
-                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/dashboard"
+                  to="/checklist"
+                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/checklist"
                       ? "bg-[#173254] text-white font-bold shadow-sm"
                       : "text-slate-700 hover:bg-slate-100"
                     }`}
@@ -718,8 +718,8 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
               {isSuperAdmin && (
                 <li>
                   <Link
-                    to="/dashboard/global-settings"
-                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/dashboard/global-settings"
+                    to="/checklist/global-settings"
+                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/checklist/global-settings"
                         ? "bg-[#173254] text-white font-bold shadow-sm"
                         : "text-slate-700 hover:bg-slate-100"
                       }`}
@@ -993,7 +993,7 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
             <div className="fixed inset-0 bg-black/35 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
             <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-2xl flex flex-col">
               <div className="flex h-16 items-center justify-between border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
-                <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-[#431021]" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link to="/checklist" className="flex items-center gap-2.5 font-bold text-[#431021]" onClick={() => setIsMobileMenuOpen(false)}>
                   <div className="w-8 h-8 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs shrink-0">
                     SG
                   </div>
@@ -1008,9 +1008,9 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
                 <ul className="space-y-1">
                   <li>
                     <Link
-                      to="/dashboard"
+                      to="/checklist"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/dashboard"
+                      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/checklist"
                           ? "bg-[#173254] text-white font-bold shadow-sm"
                           : "text-slate-700 hover:bg-slate-100"
                         }`}
@@ -1024,9 +1024,9 @@ export default function MasterLayout({ darkMode, toggleDarkMode, _showLayout = t
                   {isSuperAdmin && (
                     <li>
                       <Link
-                        to="/dashboard/global-settings"
+                        to="/checklist/global-settings"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/dashboard/global-settings"
+                        className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${location.pathname === "/checklist/global-settings"
                             ? "bg-[#173254] text-white font-bold shadow-sm"
                             : "text-slate-700 hover:bg-slate-100"
                           }`}

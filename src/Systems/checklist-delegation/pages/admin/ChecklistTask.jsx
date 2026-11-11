@@ -892,7 +892,7 @@ export default function ChecklistTask() {
             showToast(`Successfully assigned ${allTasksToSubmit.length} task(s)!`, 'success');
             setTasks([defaultTask()]);
             setShowPreviewModal(false);
-            setTimeout(() => navigate('/dashboard/admin'), 2000);
+            setTimeout(() => navigate('/checklist/admin'), 2000);
         } catch (e) {
             console.error("Submission error", e);
             showToast(`Failed to assign tasks: ${e.message || "Unknown error"}`, 'error');
@@ -917,13 +917,13 @@ export default function ChecklistTask() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => navigate('/dashboard/bulk-import')}
+                            onClick={() => navigate('/checklist/bulk-import')}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-purple-200 text-purple-700 font-bold rounded-xl shadow-sm hover:bg-purple-50 transition-all text-sm"
                         >
                             <Database size={16} />
                             Bulk Import
                         </button>
-                        <button onClick={() => navigate('/dashboard/assign-task')} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
+                        <button onClick={() => navigate('/checklist/assign-task')} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -983,7 +983,7 @@ export default function ChecklistTask() {
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            onClick={() => navigate('/dashboard/assign-task')}
+                            onClick={() => navigate('/checklist/assign-task')}
                             className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                         >
                             <X className="w-4 h-4" /> Cancel

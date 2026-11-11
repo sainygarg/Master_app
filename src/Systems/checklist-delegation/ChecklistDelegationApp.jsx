@@ -23,7 +23,23 @@ import TrainingVideo from './pages/admin/TrainingVideo';
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
 import RealtimeLogoutListener from './components/RealtimeLogoutListener';
+import { ALL_CHECKLIST_PAGE_IDS, canUserAccessChecklistPage } from '../order-to-delivery/utils/userStorage';
 
+
+// Blocks direct URL access to checklist pages the user was not granted in Master Hub
+const checkPageAccess = (path) => {
+  try {
+    const raw = localStorage.getItem('sainy_couture_auth_user_v3');
+    if (!raw) return null;
+    const masterUser = JSON.parse(raw);
+    const isListed = ALL_CHECKLIST_PAGE_IDS.some((p) => p.id === path);
+    if (!isListed || canUserAccessChecklistPage(masterUser, path)) return null;
+    const firstAllowed = ALL_CHECKLIST_PAGE_IDS.find((p) => canUserAccessChecklistPage(masterUser, p.id));
+    return <Navigate to={firstAllowed ? firstAllowed.id : '/order-to-delivery'} replace />;
+  } catch {
+    return null;
+  }
+};
 // --- Auth Wrapper ---
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const username = (
@@ -39,12 +55,15 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const masterAuth = localStorage.getItem('sainy_couture_auth_user_v3');
   const hasAuth = !!username || !!masterAuth;
 
+  const denied = checkPageAccess(path);
+  if (denied) return denied;
+
   if (!hasAuth) {
     return <Navigate to="/order-to-delivery" replace />;
   }
 
   // Special Case: Allow 'user' role for assign-task if canSelfAssign is enabled
-  if (path.startsWith('/dashboard/assign-task')) {
+  if (path.startsWith('/checklist/assign-task')) {
     if (role === 'user' && canSelfAssign) {
       return children;
     }
@@ -55,7 +74,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     if (role === 'admin' || role === 'hod') {
       return children;
     }
-    return <Navigate to="/dashboard/admin" replace />;
+    return <Navigate to="/checklist/admin" replace />;
   }
 
   return children;
@@ -69,8 +88,11 @@ const SuperAdminRoute = ({ children }) => {
   ).toLowerCase();
   const role = (localStorage.getItem('role') || '').toLowerCase();
 
+  const denied = checkPageAccess(window.location.pathname);
+  if (denied) return denied;
+
   if (role !== 'admin' && username !== 'admin') {
-    return <Navigate to="/dashboard/admin" replace />;
+    return <Navigate to="/checklist/admin" replace />;
   }
 
   return children;
@@ -82,11 +104,11 @@ export function ChecklistDelegationApp() {
       <RealtimeLogoutListener />
       <Routes>
         {/* --- Main Dashboard Redirect --- */}
-        <Route path="/dashboard" element={<Navigate to="/dashboard/admin" replace />} />
+        <Route path="/checklist" element={<Navigate to="/checklist/admin" replace />} />
 
         {/* 1. Dashboard */}
         <Route
-          path="/dashboard/admin"
+          path="/checklist/admin"
           element={
             <ProtectedRoute>
               <AdminDashboard />
@@ -96,7 +118,7 @@ export function ChecklistDelegationApp() {
 
         {/* 2. Notifications */}
         <Route
-          path="/dashboard/notifications"
+          path="/checklist/notifications"
           element={
             <ProtectedRoute>
               <NotificationsPage />
@@ -106,7 +128,7 @@ export function ChecklistDelegationApp() {
 
         {/* 3. Quick Task */}
         <Route
-          path="/dashboard/quick-task"
+          path="/checklist/quick-task"
           element={
             <ProtectedRoute>
               <QuickTask />
@@ -116,7 +138,7 @@ export function ChecklistDelegationApp() {
 
         {/* 4. Assign Task */}
         <Route
-          path="/dashboard/assign-task"
+          path="/checklist/assign-task"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
               <AdminAssignTask />
@@ -124,7 +146,7 @@ export function ChecklistDelegationApp() {
           }
         />
         <Route
-          path="/dashboard/checklist"
+          path="/checklist/checklist"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
               <ChecklistTask />
@@ -132,7 +154,7 @@ export function ChecklistDelegationApp() {
           }
         />
         <Route
-          path="/dashboard/maintenance"
+          path="/checklist/maintenance"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD']}>
               <MaintenanceTask />
@@ -140,7 +162,7 @@ export function ChecklistDelegationApp() {
           }
         />
         <Route
-          path="/dashboard/repair"
+          path="/checklist/repair"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD']}>
               <RepairTask />
@@ -148,7 +170,7 @@ export function ChecklistDelegationApp() {
           }
         />
         <Route
-          path="/dashboard/ea-task"
+          path="/checklist/ea-task"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD']}>
               <EATask />
@@ -158,7 +180,7 @@ export function ChecklistDelegationApp() {
 
         {/* 5. Delegation */}
         <Route
-          path="/dashboard/delegation"
+          path="/checklist/delegation"
           element={
             <ProtectedRoute>
               <DelegationPage />
@@ -168,7 +190,7 @@ export function ChecklistDelegationApp() {
 
         {/* 6. Task */}
         <Route
-          path="/dashboard/task"
+          path="/checklist/task"
           element={
             <ProtectedRoute>
               <AllTasks />
@@ -178,7 +200,7 @@ export function ChecklistDelegationApp() {
 
         {/* 7. Calendar */}
         <Route
-          path="/dashboard/calendar"
+          path="/checklist/calendar"
           element={
             <ProtectedRoute>
               <CalendarPage />
@@ -188,7 +210,7 @@ export function ChecklistDelegationApp() {
 
         {/* 8. Holiday Subpages */}
         <Route
-          path="/dashboard/holiday-list"
+          path="/checklist/holiday-list"
           element={
             <SuperAdminRoute>
               <HolidayListPage />
@@ -196,7 +218,7 @@ export function ChecklistDelegationApp() {
           }
         />
         <Route
-          path="/dashboard/working-day-calendar"
+          path="/checklist/working-day-calendar"
           element={
             <ProtectedRoute>
               <WorkingDayCalendarPage />
@@ -206,7 +228,7 @@ export function ChecklistDelegationApp() {
 
         {/* 9. Admin Approval */}
         <Route
-          path="/dashboard/admin-approval"
+          path="/checklist/admin-approval"
           element={
             <ProtectedRoute allowedRoles={['admin', 'HOD']}>
               <AdminApprovalPage />
@@ -216,13 +238,13 @@ export function ChecklistDelegationApp() {
 
         {/* 10. Settings - Redirected to Unified Master Setting */}
         <Route
-          path="/dashboard/setting"
+          path="/checklist/setting"
           element={<Navigate to="/order-to-delivery?view=settings" replace />}
         />
 
         {/* 11. Training Video */}
         <Route
-          path="/dashboard/training-video"
+          path="/checklist/training-video"
           element={
             <ProtectedRoute>
               <TrainingVideo />
@@ -231,7 +253,7 @@ export function ChecklistDelegationApp() {
         />
 
         {/* Fallback for any other dashboard routes */}
-        <Route path="/dashboard/*" element={<Navigate to="/dashboard/admin" replace />} />
+        <Route path="/checklist/*" element={<Navigate to="/checklist/admin" replace />} />
       </Routes>
     </MagicToastProvider>
   );

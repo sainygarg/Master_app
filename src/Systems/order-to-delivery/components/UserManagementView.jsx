@@ -82,8 +82,7 @@ export const UserManagementView = ({
     c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.phone?.includes(searchTerm) ||
     c.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    c.id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Filtered Vendors
@@ -91,17 +90,13 @@ export const UserManagementView = ({
     v.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.phone?.includes(searchTerm) ||
-    v.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    v.address?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Filtered Departments
   const filteredDepartments = departments.filter((d) =>
     d.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.headName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    d.code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Filtered TAT Config
@@ -115,19 +110,14 @@ export const UserManagementView = ({
   // Filtered Transporters
   const filteredTransporters = transporters.filter((t) =>
     t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.serviceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.phone?.includes(searchTerm) ||
-    t.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.operatingRoutes?.toLowerCase().includes(searchTerm.toLowerCase())
+    t.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Filtered Karigars
   const filteredKarigars = karigars.filter((k) =>
     k.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    k.specialization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    k.unit?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    k.phone?.includes(searchTerm) ||
-    k.skillGrade?.toLowerCase().includes(searchTerm.toLowerCase())
+    k.phone?.includes(searchTerm)
   );
 
   // Modal Handlers
@@ -309,7 +299,7 @@ export const UserManagementView = ({
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Users & RBAC ({users.length})</span>
+          <span>Users ({users.length})</span>
         </button>
 
         {/* 2. Vendors */}
@@ -650,10 +640,8 @@ export const UserManagementView = ({
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Vendor Name & ID</th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Supply Category</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Contact Person & Phone</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">City & Address</th>
-                  <th className="py-3.5 px-4 min-w-[140px]">Rating / Terms</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">Address</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
@@ -702,21 +690,11 @@ export const UserManagementView = ({
                         <span className="text-[10px] font-mono text-[#9B783E]">{v.id}</span>
                       </td>
                       <td className="py-3 px-4 align-middle">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                          {v.category}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
                         <div className="font-semibold text-stone-800 text-xs">{v.contactPerson}</div>
                         <span className="text-[11px] text-stone-500 font-medium">{v.phone}</span>
                       </td>
                       <td className="py-3 px-4 align-middle">
-                        <div className="font-bold text-stone-800 text-xs">{v.city}</div>
                         <span className="text-[10px] text-stone-400 truncate block max-w-[180px]">{v.address}</span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <div className="text-[11px] font-semibold text-stone-800">{v.rating}</div>
-                        <span className="text-[10px] text-stone-500">{v.terms}</span>
                       </td>
                     </tr>
                   );
@@ -724,7 +702,7 @@ export const UserManagementView = ({
               
                 {filteredVendors.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={4} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>
@@ -750,10 +728,8 @@ export const UserManagementView = ({
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Customer Name & ID</th>
                   <th className="py-3.5 px-4 min-w-[140px]">Mobile / Contact</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">City & Address</th>
-                  <th className="py-3.5 px-4 min-w-[130px]">Category</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">City</th>
                   <th className="py-3.5 px-4 min-w-[100px]">Total Orders</th>
-                  <th className="py-3.5 px-4 min-w-[220px]">Preferences / Style Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
@@ -807,20 +783,9 @@ export const UserManagementView = ({
                       </td>
                       <td className="py-3 px-4 align-middle">
                         <div className="font-bold text-stone-800 text-xs">{cust.city}</div>
-                        <span className="text-[10px] text-stone-400 truncate block max-w-[180px]">{cust.address}</span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#9B783E] border border-[#DECDB8]">
-                          {cust.category}
-                        </span>
                       </td>
                       <td className="py-3 px-4 align-middle font-bold text-stone-800">
                         {cust.ordersCount || 1} Orders
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <span className="text-[11px] text-stone-600 line-clamp-2" title={cust.notes}>
-                          {cust.notes || '—'}
-                        </span>
                       </td>
                     </tr>
                   );
@@ -828,7 +793,7 @@ export const UserManagementView = ({
               
                 {filteredCustomers.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={5} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>
@@ -854,11 +819,6 @@ export const UserManagementView = ({
                   </th>
                   <th className="py-3.5 px-4 min-w-[200px]">Department Name & ID</th>
                   <th className="py-3.5 px-4 min-w-[100px]">Dept Code</th>
-                  <th className="py-3.5 px-4 min-w-[160px]">In-Charge / Lead</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">Official Email</th>
-                  <th className="py-3.5 px-4 min-w-[110px]">Staff Count</th>
-                  <th className="py-3.5 px-4 min-w-[100px]">Status</th>
-                  <th className="py-3.5 px-4 min-w-[220px]">Responsibilities / Scope</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
@@ -911,31 +871,13 @@ export const UserManagementView = ({
                           {dept.code}
                         </span>
                       </td>
-                      <td className="py-3 px-4 align-middle font-bold text-stone-800">
-                        {dept.headName}
-                      </td>
-                      <td className="py-3 px-4 align-middle text-stone-600 font-medium">
-                        {dept.contactEmail}
-                      </td>
-                      <td className="py-3 px-4 align-middle font-bold text-stone-800">
-                        {dept.staffCount} Staff
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          <Check className="w-2.5 h-2.5 text-emerald-600" />
-                          <span>{dept.status || 'Active'}</span>
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle text-[11px] text-stone-600 line-clamp-2" title={dept.description}>
-                        {dept.description || '—'}
-                      </td>
                     </tr>
                   );
                 })}
               
                 {filteredDepartments.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>
@@ -1085,10 +1027,7 @@ export const UserManagementView = ({
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Company Name & ID</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">Service Type</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Contact Person & Phone</th>
-                  <th className="py-3.5 px-4 min-w-[160px]">Hub City & Routes</th>
-                  <th className="py-3.5 px-4 min-w-[140px]">Transit SLA / Portal</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
@@ -1137,31 +1076,8 @@ export const UserManagementView = ({
                         <span className="text-[10px] font-mono text-[#9B783E]">{trn.id}</span>
                       </td>
                       <td className="py-3 px-4 align-middle">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                          {trn.serviceType}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
                         <div className="font-semibold text-stone-800 text-xs">{trn.contactPerson}</div>
                         <span className="text-[11px] text-stone-500 font-medium">{trn.phone}</span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <div className="font-bold text-stone-800 text-xs">{trn.hubCity}</div>
-                        <span className="text-[10px] text-stone-400 truncate block max-w-[160px]">{trn.operatingRoutes}</span>
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <div className="text-[11px] font-bold text-stone-800">{trn.avgTransitTime}</div>
-                        {trn.trackingUrl && (
-                          <a
-                            href={trn.trackingUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[10px] text-[#5B172E] hover:underline"
-                          >
-                            <span>Tracking URL</span>
-                            <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        )}
                       </td>
                     </tr>
                   );
@@ -1169,7 +1085,7 @@ export const UserManagementView = ({
               
                 {filteredTransporters.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>
@@ -1194,10 +1110,7 @@ export const UserManagementView = ({
                     ⚡ Actions
                   </th>
                   <th className="py-3.5 px-4 min-w-[180px]">Artisan Master & ID</th>
-                  <th className="py-3.5 px-4 min-w-[220px]">Artisan Craft Specialization</th>
-                  <th className="py-3.5 px-4 min-w-[160px]">Unit / Workshop Floor</th>
                   <th className="py-3.5 px-4 min-w-[140px]">Contact Mobile</th>
-                  <th className="py-3.5 px-4 min-w-[160px]">Skill Grade / Daily Output</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
@@ -1245,20 +1158,8 @@ export const UserManagementView = ({
                         <div className="font-bold text-stone-900 text-xs">{k.name}</div>
                         <span className="text-[10px] font-mono text-[#9B783E]">{k.id}</span>
                       </td>
-                      <td className="py-3 px-4 align-middle">
-                        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                          {k.specialization}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle text-stone-700 font-medium">
-                        {k.unit}
-                      </td>
                       <td className="py-3 px-4 align-middle font-medium text-stone-600">
                         {k.phone}
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <div className="font-bold text-stone-800 text-[11px]">{k.skillGrade}</div>
-                        <span className="text-[10px] text-stone-500">{k.dailyCapacity}</span>
                       </td>
                     </tr>
                   );
@@ -1266,7 +1167,7 @@ export const UserManagementView = ({
               
                 {filteredKarigars.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>

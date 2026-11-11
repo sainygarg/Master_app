@@ -1,39 +1,14 @@
 import supabase from "../../SupabaseClient";
-import { SYSTEM_DEPARTMENTS } from "../../../../core/constants/departments";
+import { fetchDepartmentNames } from "../../../../core/services/departmentService";
 
 export const fetchUniqueDepartmentDataApi = async () => {
   try {
-    // 1. Try fetching from Supabase database
-    const { data, error } = await supabase
-      .from('departments')
-      .select('name')
-      .order('name', { ascending: true });
-
-    if (!error && data && data.length > 0) {
-      return data.map(item => item.name).filter(Boolean);
-    }
-
-    // 2. Try fetching from localStorage Master Setting storage
-    try {
-      const stored = localStorage.getItem('order_flow_master_departments_v1');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(d => d.name || d.department).filter(Boolean);
-        }
-      }
-    } catch {}
-
-    // 3. Fallback to standard atelier system departments
-    return SYSTEM_DEPARTMENTS.map(d => d.name);
+    return await fetchDepartmentNames();
   } catch (error) {
     console.error("Error in fetchUniqueDepartmentDataApi:", error);
-    return SYSTEM_DEPARTMENTS.map(d => d.name);
+    return [];
   }
 };
-
-
-
 
 export const fetchUniqueGivenByDataApi = async () => {
   try {

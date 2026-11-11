@@ -1,4 +1,5 @@
 import supabase from "../../SupabaseClient";
+import { fetchDepartmentNames } from "../../../../core/services/departmentService";
 
 /**
  * Fetch dashboard data with proper server-side filtering and pagination
@@ -653,40 +654,9 @@ export const getTotalUsersCountApi = async (departmentFilter = null) => {
 
 export const getUniqueDepartmentsApi = async () => {
   try {
-    let rawDepts = [];
 
-    // 1. Try Supabase 'departments' table
-    try {
-      const { data, error } = await supabase
-        .from('departments')
-        .select('name')
-        .not('name', 'is', null)
-        .not('name', 'eq', '')
-        .order('name', { ascending: true });
-
-      if (!error && data && data.length > 0) {
-        rawDepts = data.map(d => d.name.trim()).filter(Boolean);
-      }
-    } catch {}
-
-    // 2. Try localStorage Master Setting departments
-    if (rawDepts.length === 0) {
-      try {
-        const stored = localStorage.getItem('order_flow_master_departments_v1');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            rawDepts = parsed.map(d => (d.name || d.department || '').trim()).filter(Boolean);
-          }
-        }
-      } catch {}
-    }
-
-    // 3. Fallback to standard atelier departments
-    if (rawDepts.length === 0) {
-      const { SYSTEM_DEPARTMENTS } = await import('../../../../core/constants/departments');
-      rawDepts = SYSTEM_DEPARTMENTS.map(d => d.name);
-    }
+    // Departments come from the database only (Master Hub + checklist departments)
+    const rawDepts = await fetchDepartmentNames();
 
     const role = localStorage.getItem('role');
     const userAccess = localStorage.getItem('user_access');

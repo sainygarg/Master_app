@@ -34,7 +34,7 @@ import {
   Truck
 } from 'lucide-react';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
-import { canUserAccessChecklistPage } from '../../Systems/order-to-delivery/utils/userStorage';
+import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userStorage';
 import { STAGES } from '../../Systems/order-to-delivery/types/stages';
 import { fetchOrders } from '../../Systems/order-to-delivery/utils/storage';
 import { useChecklistDelegationPendingCounts } from '../../Systems/checklist-delegation/hooks/usePendingCounts';
@@ -88,7 +88,7 @@ export default function MasterShell({ children }) {
   const [checklistOpen, setChecklistOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
     const p = window.location.pathname;
-    return p.startsWith('/dashboard') || p.startsWith('/checklist');
+    return p.startsWith('/checklist') || p.startsWith('/checklist');
   });
 
   // Holiday submenu toggle state
@@ -104,7 +104,7 @@ export default function MasterShell({ children }) {
 
   // System detection
   const isOrderFlow = location.pathname.startsWith('/order-to-delivery') || location.pathname === '/';
-  const isChecklist = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/checklist');
+  const isChecklist = location.pathname.startsWith('/checklist') || location.pathname.startsWith('/checklist');
 
   // Active helpers
   const isOrderFlowActive = isOrderFlow && currentViewParam !== 'settings';
@@ -162,39 +162,39 @@ export default function MasterShell({ children }) {
   // Exact Checklist Subpages matching user-uploaded screenshot
   const checklistSubpages = useMemo(() => {
     const all = [
-      { label: 'Dashboard', href: '/dashboard/admin', icon: Database },
-      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-      { label: 'Quick Task', href: '/dashboard/quick-task', icon: Zap },
-      { label: 'Assign Task', href: '/dashboard/assign-task', icon: CheckSquare },
+      { label: 'Dashboard', href: '/checklist/admin', icon: Database },
+      { label: 'Notifications', href: '/checklist/notifications', icon: Bell },
+      { label: 'Quick Task', href: '/checklist/quick-task', icon: Zap },
+      { label: 'Assign Task', href: '/checklist/assign-task', icon: CheckSquare },
       { 
         label: 'Delegation', 
-        href: '/dashboard/delegation', 
+        href: '/checklist/delegation', 
         icon: ClipboardList,
         badge: pendingCounts.delegationPending > 0 ? pendingCounts.delegationPending : null,
       },
       { 
         label: 'Task', 
-        href: '/dashboard/task', 
+        href: '/checklist/task', 
         icon: CalendarCheck,
         badge: pendingCounts.taskPending > 0 ? pendingCounts.taskPending : null,
       },
-      { label: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
+      { label: 'Calendar', href: '/checklist/calendar', icon: CalendarIcon },
       { 
         label: 'Holiday', 
         icon: CalendarIcon,
         isSubmenu: true,
         subItems: [
-          { label: 'Holiday List', href: '/dashboard/holiday-list', icon: BookmarkCheck },
-          { label: 'Working Day Calendar', href: '/dashboard/working-day-calendar', icon: CalendarCheck }
+          { label: 'Holiday List', href: '/checklist/holiday-list', icon: BookmarkCheck },
+          { label: 'Working Day Calendar', href: '/checklist/working-day-calendar', icon: CalendarCheck }
         ]
       },
       { 
         label: 'Admin Approval', 
-        href: '/dashboard/admin-approval', 
+        href: '/checklist/admin-approval', 
         icon: BookmarkCheck,
         badge: pendingCounts.adminApprovalPending > 0 ? pendingCounts.adminApprovalPending : null,
       },
-      { label: 'Training Video', href: '/dashboard/training-video', icon: Video },
+      { label: 'Training Video', href: '/checklist/training-video', icon: Video },
     ];
     // Hide pages this user has not been granted in Master Hub > Users & RBAC
     return all
@@ -207,6 +207,14 @@ export default function MasterShell({ children }) {
         item.subItems ? item.subItems.length > 0 : canUserAccessChecklistPage(user, item.href)
       );
   }, [pendingCounts, user]);
+
+  // Order Flow pages this user may see (admins see everything)
+  const canDash = canUserAccessPage(user, 'dashboard');
+  const canOrders = canUserAccessPage(user, 'orders');
+  const canSettings = canUserAccessPage(user, 'settings');
+  const permittedStages = STAGES.filter((s) => canUserAccessStage(user, s.id));
+  const showOrderFlow = canDash || canOrders || permittedStages.length > 0;
+  const showChecklist = checklistSubpages.length > 0;
 
   // Current page title computation for header breadcrumb
   const pageTitle = useMemo(() => {
@@ -312,8 +320,9 @@ export default function MasterShell({ children }) {
               </button>
 
               {/* 2. Checklist Icon */}
+{showChecklist && (
               <button
-                onClick={() => { handleNavigate('/dashboard/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
+                onClick={() => { handleNavigate('/checklist/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isChecklistActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -326,8 +335,10 @@ export default function MasterShell({ children }) {
                   </span>
                 )}
               </button>
+)}
 
               {/* 1. Order Flow Icon */}
+{showOrderFlow && (
               <button
                 onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
@@ -342,8 +353,10 @@ export default function MasterShell({ children }) {
                   </span>
                 )}
               </button>
+)}
 
               {/* 3. Master Setting Icon */}
+{canSettings && (
               <button
                 onClick={() => { handleNavigate('/order-to-delivery?view=settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
@@ -353,6 +366,7 @@ export default function MasterShell({ children }) {
               >
                 <Settings className="w-5 h-5" />
               </button>
+)}
             </div>
           ) : (
             /* Full Expanded Navigation: Exactly 3 Main Sections */
@@ -361,6 +375,7 @@ export default function MasterShell({ children }) {
               {/* =========================================================================
                   PAGE 1: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
               ========================================================================= */}
+{showChecklist && (
               <div className="flex flex-col">
                 <button
                   type="button"
@@ -485,10 +500,12 @@ export default function MasterShell({ children }) {
                   </div>
                 )}
               </div>
+)}
 
               {/* =========================================================================
                   PAGE 2: ORDER FLOW (MAIN DROPDOWN WITH ALL 12 PEER SUBPAGES)
               ========================================================================= */}
+{showOrderFlow && (
               <div className="flex flex-col">
                 <button
                   type="button"
@@ -522,6 +539,7 @@ export default function MasterShell({ children }) {
                   <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
                     
                     {/* 1. Dashboard */}
+{canDash && (
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
@@ -545,8 +563,10 @@ export default function MasterShell({ children }) {
                         </span>
                       )}
                     </button>
+)}
 
                     {/* 2. All Orders */}
+{canOrders && (
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=orders')}
@@ -570,9 +590,10 @@ export default function MasterShell({ children }) {
                         </span>
                       )}
                     </button>
+)}
 
                     {/* 3 to 12. The 10 Stages */}
-                    {STAGES.map((stage) => {
+                    {permittedStages.map((stage) => {
                       const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
                       const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
                       const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
@@ -607,10 +628,12 @@ export default function MasterShell({ children }) {
                   </div>
                 )}
               </div>
+)}
 
               {/* =========================================================================
                   PAGE 3: MASTER SETTING (MAIN PAGE)
               ========================================================================= */}
+{canSettings && (
               <button
                 type="button"
                 onClick={() => handleNavigate('/order-to-delivery?view=settings')}
@@ -627,6 +650,7 @@ export default function MasterShell({ children }) {
                   <span className="truncate font-semibold tracking-tight">Settings</span>
                 </div>
               </button>
+)}
 
             </div>
           )}
@@ -699,6 +723,7 @@ export default function MasterShell({ children }) {
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               
               {/* 2. Checklist & Delegation in Mobile */}
+{showChecklist && (
               <div className="flex flex-col">
                 <button
                   type="button"
@@ -788,8 +813,10 @@ export default function MasterShell({ children }) {
                   </div>
                 )}
               </div>
+)}
 
               {/* 1. Order Flow in Mobile */}
+{showOrderFlow && (
               <div className="flex flex-col">
                 <button
                   type="button"
@@ -817,6 +844,7 @@ export default function MasterShell({ children }) {
                 {orderFlowOpen && (
                   <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
                     {/* 1. Dashboard */}
+{canDash && (
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
@@ -834,8 +862,10 @@ export default function MasterShell({ children }) {
                         </span>
                       )}
                     </button>
+)}
 
                     {/* 2. All Orders */}
+{canOrders && (
                     <button
                       type="button"
                       onClick={() => handleNavigate('/order-to-delivery?view=orders')}
@@ -853,9 +883,10 @@ export default function MasterShell({ children }) {
                         </span>
                       )}
                     </button>
+)}
 
                     {/* 3 to 12. The 10 Stages (Same hierarchy) */}
-                    {STAGES.map((stage, idx) => {
+                    {permittedStages.map((stage, idx) => {
                       const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
                       const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
                       return (
@@ -891,8 +922,10 @@ export default function MasterShell({ children }) {
                   </div>
                 )}
               </div>
+)}
 
               {/* 3. Master Setting in Mobile */}
+{canSettings && (
               <button
                 type="button"
                 onClick={() => handleNavigate('/order-to-delivery?view=settings')}
@@ -905,6 +938,7 @@ export default function MasterShell({ children }) {
                   <span>Settings</span>
                 </div>
               </button>
+)}
 
             </div>
 

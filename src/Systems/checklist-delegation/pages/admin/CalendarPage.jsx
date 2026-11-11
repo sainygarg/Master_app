@@ -350,9 +350,9 @@ const CalendarPage = () => {
     const handleAssignTask = (type) => {
         if (!selectedDate) return;
         if (type === 'delegation') {
-            navigate(`/dashboard/checklist?date=${selectedDate}&type=delegation`);
+            navigate(`/checklist/checklist?date=${selectedDate}&type=delegation`);
         } else if (type === 'ea') {
-            navigate(`/dashboard/ea-task?date=${selectedDate}`);
+            navigate(`/checklist/ea-task?date=${selectedDate}`);
         }
         setShowAssignTaskTypePopup(false);
         setIsModalOpen(false);

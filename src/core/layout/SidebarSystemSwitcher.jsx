@@ -6,7 +6,7 @@ export default function SidebarSystemSwitcher({ collapsed = false }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isChecklist = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/checklist');
+  const isChecklist = location.pathname.startsWith('/checklist') || location.pathname.startsWith('/checklist');
   const activeSystem = isChecklist ? 'checklist-delegation' : 'order-to-delivery';
 
   if (collapsed) {
@@ -16,7 +16,7 @@ export default function SidebarSystemSwitcher({ collapsed = false }) {
           type="button"
           onClick={() => {
             if (activeSystem === 'order-to-delivery') {
-              navigate('/dashboard/admin');
+              navigate('/checklist/admin');
             } else {
               navigate('/order-to-delivery');
             }
@@ -73,7 +73,7 @@ export default function SidebarSystemSwitcher({ collapsed = false }) {
           type="button"
           onClick={() => {
             if (activeSystem !== 'checklist-delegation') {
-              navigate('/dashboard/admin');
+              navigate('/checklist/admin');
             }
           }}
           className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${

@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
 
     // Special Case: Allow 'user' role for assign-task and checklist if canSelfAssign is enabled
     const isLegacySelfAssignAllowed = 
-        (path.startsWith("/dashboard/assign-task") || path.startsWith("/dashboard/checklist")) && 
+        (path.startsWith("/checklist/assign-task") || path.startsWith("/checklist/checklist")) && 
         role === "user" && 
         canSelfAssign;
 
@@ -63,27 +63,27 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
 
     // Determine system from path
     let currentSystem = "checklist-delegation";
-    if (path.startsWith("/dashboard/mis-")) {
+    if (path.startsWith("/checklist/mis-")) {
         currentSystem = "mis-summary";
-    } else if (path.startsWith("/dashboard/hr-")) {
+    } else if (path.startsWith("/checklist/hr-")) {
         currentSystem = "hr-fms";
-    } else if (path.startsWith("/dashboard/whatsapp-")) {
+    } else if (path.startsWith("/checklist/whatsapp-")) {
         currentSystem = "whatsapp-management";
-    } else if (path.startsWith("/dashboard/purchase")) {
+    } else if (path.startsWith("/checklist/purchase")) {
         currentSystem = "purchase";
-    } else if (path.startsWith("/dashboard/inventory")) {
+    } else if (path.startsWith("/checklist/inventory")) {
         currentSystem = "inventory";
-    } else if (path.startsWith("/dashboard/newpete")) {
+    } else if (path.startsWith("/checklist/newpete")) {
         currentSystem = "newpete";
-    } else if (path.startsWith("/dashboard/greetings")) {
+    } else if (path.startsWith("/checklist/greetings")) {
         currentSystem = "greetings";
-    } else if (path.startsWith("/dashboard/global-settings") || path.startsWith("/dashboard/master")) {
+    } else if (path.startsWith("/checklist/global-settings") || path.startsWith("/checklist/master")) {
         currentSystem = "global-settings";
     }
 
     const isSystemAllowed = allowedSystems.includes(currentSystem) || isLegacySelfAssignAllowed;
 
-    const isBypass = isSuperAdmin || path === "/dashboard" || path === "/dashboard/notifications";
+    const isBypass = isSuperAdmin || path === "/checklist" || path === "/checklist/notifications";
 
     // If locally blocked, attempt a fast live verify with DB in case permissions were updated
     useEffect(() => {
@@ -112,49 +112,49 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
                     }
 
                     const allPurchaseRoutes = [
-                        "/dashboard/purchase", "/dashboard/purchase/dashboard", "/dashboard/purchase/indent",
-                        "/dashboard/purchase/approval", "/dashboard/purchase/pocreate", "/dashboard/purchase/polist",
-                        "/dashboard/purchase/delivery", "/dashboard/purchase/receiving",
-                        "/dashboard/purchase/payment-approval", "/dashboard/purchase/payment"
+                        "/checklist/purchase", "/checklist/purchase/dashboard", "/checklist/purchase/indent",
+                        "/checklist/purchase/approval", "/checklist/purchase/pocreate", "/checklist/purchase/polist",
+                        "/checklist/purchase/delivery", "/checklist/purchase/receiving",
+                        "/checklist/purchase/payment-approval", "/checklist/purchase/payment"
                     ];
                     const allInventoryRoutes = [
-                        "/dashboard/inventory", "/dashboard/inventory/dashboard", "/dashboard/inventory/stock",
-                        "/dashboard/inventory/transactions", "/dashboard/inventory/reorder", "/dashboard/inventory/indent",
-                        "/dashboard/inventory/settings"
+                        "/checklist/inventory", "/checklist/inventory/dashboard", "/checklist/inventory/stock",
+                        "/checklist/inventory/transactions", "/checklist/inventory/reorder", "/checklist/inventory/indent",
+                        "/checklist/inventory/settings"
                     ];
                     const allNewPeteRoutes = [
-                        "/dashboard/newpete", "/dashboard/newpete-add-case", "/dashboard/newpete-expenses",
-                        "/dashboard/newpete-ledger", "/dashboard/newpete-settings"
+                        "/checklist/newpete", "/checklist/newpete-add-case", "/checklist/newpete-expenses",
+                        "/checklist/newpete-ledger", "/checklist/newpete-settings"
                     ];
 
                     let rts = [];
                     if (userProfile.page_access === "all") {
                         rts = [
-                            "/dashboard/admin", "/dashboard/notifications", "/dashboard/quick-task",
-                            "/dashboard/assign-task", "/dashboard/checklist", "/dashboard/maintenance",
-                            "/dashboard/repair", "/dashboard/ea-task", "/dashboard/calendar",
-                            "/dashboard/task", "/dashboard/training-video", "/dashboard/bulk-import",
-                            "/dashboard/holiday-list", "/dashboard/working-day-calendar",
-                            "/dashboard/data", "/dashboard/admin-data", "/dashboard/delegation",
-                            "/dashboard/delegation-data", "/dashboard/admin-approval",
-                            "/dashboard/mis-report", "/dashboard/setting", "/dashboard/global-settings",
-                            "/dashboard/mis-summary", "/dashboard/mis-history", "/dashboard/mis-kpi-kra",
-                            "/dashboard/whatsapp-history",
-                            "/dashboard/hr-dashboard", "/dashboard/hr-indent", "/dashboard/hr-find-enquiry",
-                            "/dashboard/hr-call-tracker", "/dashboard/hr-after-joining-work", "/dashboard/hr-leaving",
-                            "/dashboard/hr-after-leaving-work", "/dashboard/hr-employee",
-                            "/dashboard/hr-leave-management", "/dashboard/hr-attendance",
-                            "/dashboard/hr-attendancedaily", "/dashboard/hr-report", "/dashboard/hr-payroll",
-                            "/dashboard/hr-salary-config", "/dashboard/hr-advance", "/dashboard/hr-puttha", "/dashboard/hr-misreport",
+                            "/checklist/admin", "/checklist/notifications", "/checklist/quick-task",
+                            "/checklist/assign-task", "/checklist/checklist", "/checklist/maintenance",
+                            "/checklist/repair", "/checklist/ea-task", "/checklist/calendar",
+                            "/checklist/task", "/checklist/training-video", "/checklist/bulk-import",
+                            "/checklist/holiday-list", "/checklist/working-day-calendar",
+                            "/checklist/data", "/checklist/admin-data", "/checklist/delegation",
+                            "/checklist/delegation-data", "/checklist/admin-approval",
+                            "/checklist/mis-report", "/checklist/setting", "/checklist/global-settings",
+                            "/checklist/mis-summary", "/checklist/mis-history", "/checklist/mis-kpi-kra",
+                            "/checklist/whatsapp-history",
+                            "/checklist/hr-dashboard", "/checklist/hr-indent", "/checklist/hr-find-enquiry",
+                            "/checklist/hr-call-tracker", "/checklist/hr-after-joining-work", "/checklist/hr-leaving",
+                            "/checklist/hr-after-leaving-work", "/checklist/hr-employee",
+                            "/checklist/hr-leave-management", "/checklist/hr-attendance",
+                            "/checklist/hr-attendancedaily", "/checklist/hr-report", "/checklist/hr-payroll",
+                            "/checklist/hr-salary-config", "/checklist/hr-advance", "/checklist/hr-puttha", "/checklist/hr-misreport",
                             ...allPurchaseRoutes,
                             ...allInventoryRoutes,
                             ...allNewPeteRoutes,
-                            "/dashboard/greetings-birthdays", "/dashboard/greetings-festival-scheduler"
+                            "/checklist/greetings-birthdays", "/checklist/greetings-festival-scheduler"
                         ];
                     } else if (userProfile.page_access) {
                         rts = userProfile.page_access.split(",").map(p => p.trim()).filter(Boolean);
-                        if (!rts.includes("/dashboard")) rts.push("/dashboard");
-                        if (!rts.includes("/dashboard/notifications")) rts.push("/dashboard/notifications");
+                        if (!rts.includes("/checklist")) rts.push("/checklist");
+                        if (!rts.includes("/checklist/notifications")) rts.push("/checklist/notifications");
                     }
 
                     if (slugs.length > 0) {
@@ -187,7 +187,7 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
     }
 
     // If path is core home, allow access
-    if (path === "/dashboard" || path === "/dashboard/notifications") {
+    if (path === "/checklist" || path === "/checklist/notifications") {
         return children;
     }
 
@@ -222,7 +222,7 @@ const ProtectedRoute = ({ children, _allowedRoles = [] }) => {
 
                     <div className="flex flex-col gap-3">
                         <Link
-                            to="/dashboard"
+                            to="/checklist"
                             className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all active:scale-95 text-xs uppercase tracking-wider"
                         >
                             Return to Dashboard

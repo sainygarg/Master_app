@@ -65,7 +65,7 @@ export default function CoreDashboard() {
     return (
       sys.menuItems?.find(item => !item.showFor || item.showFor.some(r => r.toLowerCase() === roleLower))?.href ||
       sys.routes?.[0]?.path ||
-      "/dashboard"
+      "/checklist"
     );
   };
 

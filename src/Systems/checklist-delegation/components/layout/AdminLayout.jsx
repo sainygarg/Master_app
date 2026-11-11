@@ -47,16 +47,16 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     // Centralized Security Guard for User Role
     const path = location.pathname;
     const restrictedPages = [
-      "/dashboard/assign-task",
-      "/dashboard/admin-approval",
-      "/dashboard/checklist",
-      "/dashboard/maintenance",
-      "/dashboard/repair",
-      "/dashboard/ea-task",
-      "/dashboard/quick-task",
-      "/dashboard/holiday-list",
-      "/dashboard/working-day-calendar",
-      "/dashboard/setting"
+      "/checklist/assign-task",
+      "/checklist/admin-approval",
+      "/checklist/checklist",
+      "/checklist/maintenance",
+      "/checklist/repair",
+      "/checklist/ea-task",
+      "/checklist/quick-task",
+      "/checklist/holiday-list",
+      "/checklist/working-day-calendar",
+      "/checklist/setting"
     ];
 
     const storedRoleLower = (storedRole || "user").toLowerCase();
@@ -69,21 +69,21 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
       if (canSelfAssign) {
         // Authorized users can access a subset of pages
         const userAllowedPages = [
-          "/dashboard/admin",
-          "/dashboard/notifications",
-          "/dashboard/assign-task",
-          "/dashboard/checklist",
-          "/dashboard/delegation",
-          "/dashboard/task",
-          "/dashboard/calendar",
-          "/dashboard/training-video"
+          "/checklist/admin",
+          "/checklist/notifications",
+          "/checklist/assign-task",
+          "/checklist/checklist",
+          "/checklist/delegation",
+          "/checklist/task",
+          "/checklist/calendar",
+          "/checklist/training-video"
         ];
         const isAllowed = userAllowedPages.some(p => path.startsWith(p));
         console.log(`ðŸ” User Allowed Check: Path "${path}" matches allowed list: ${isAllowed}`);
 
         if (!isAllowed) {
           console.warn("ðŸš« Security: User with SelfAssign redirected from unauthorized page:", path);
-          navigate("/dashboard/admin");
+          navigate("/checklist/admin");
           return;
         }
       } else {
@@ -93,7 +93,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
         if (isRestricted) {
           console.warn("ðŸš« Security: User WITHOUT SelfAssign redirected from restricted page:", path);
-          navigate("/dashboard/admin");
+          navigate("/checklist/admin");
           return;
         }
       }
@@ -104,20 +104,20 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
       const isMachineOperator = designation.includes("machin") || designation.includes("operat") || designation.includes("oprat");
 
       const hodRestrictedPages = [
-        "/dashboard/maintenance",
-        "/dashboard/ea-task",
-        "/dashboard/quick-task",
-        "/dashboard/holiday-list",
-        "/dashboard/working-day-calendar",
-        "/dashboard/setting"
+        "/checklist/maintenance",
+        "/checklist/ea-task",
+        "/checklist/quick-task",
+        "/checklist/holiday-list",
+        "/checklist/working-day-calendar",
+        "/checklist/setting"
       ];
 
       if (!isMachineOperator) {
-        hodRestrictedPages.push("/dashboard/repair");
+        hodRestrictedPages.push("/checklist/repair");
       }
 
       if (hodRestrictedPages.some(p => path.startsWith(p))) {
-        navigate("/dashboard/admin");
+        navigate("/checklist/admin");
         return;
       }
     }
@@ -183,7 +183,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
   // Set initial submenu state based on current location
   useEffect(() => {
-    if (location.pathname.includes("/dashboard/holiday") || location.pathname.includes("/dashboard/working-day")) {
+    if (location.pathname.includes("/checklist/holiday") || location.pathname.includes("/checklist/working-day")) {
       setIsHolidaySubmenuOpen(true);
     }
   }, [location.pathname]);
@@ -203,56 +203,56 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
   // Update the routes array based on user role and super admin status
   const routes = [
     {
-      href: "/dashboard/admin",
+      href: "/checklist/admin",
       label: "Dashboard",
       icon: Database,
-      active: location.pathname === "/dashboard/admin",
+      active: location.pathname === "/checklist/admin",
       showFor: ["admin", "user", "HOD"],
     },
     {
-      href: "/dashboard/notifications",
+      href: "/checklist/notifications",
       label: "Notifications",
       icon: Bell,
-      active: location.pathname === "/dashboard/notifications",
+      active: location.pathname === "/checklist/notifications",
       showFor: ["admin", "user", "hod"],
       badge: notifications.filter(n => !n.isRead).length || null,
     },
     {
-      href: "/dashboard/quick-task",
+      href: "/checklist/quick-task",
       label: "Quick Task",
       icon: Zap,
-      active: location.pathname === "/dashboard/quick-task",
+      active: location.pathname === "/checklist/quick-task",
       // Show for super admin OR anyone with 'admin' role
       showFor: (isSuperAdmin || userRole.toLowerCase() === "admin") ? ["admin"] : [],
     },
     {
-      href: "/dashboard/assign-task",
+      href: "/checklist/assign-task",
       label: "Assign Task",
       icon: CheckSquare,
-      active: location.pathname === "/dashboard/assign-task",
+      active: location.pathname === "/checklist/assign-task",
       showFor: ["admin", "HOD", "user"],
     },
     {
-      href: "/dashboard/delegation",
+      href: "/checklist/delegation",
       label: "Delegation",
       icon: ClipboardList,
-      active: location.pathname === "/dashboard/delegation",
+      active: location.pathname === "/checklist/delegation",
       showFor: ["admin", "user", "HOD"],
       badge: pendingCounts.delegationPending || null,
     },
     {
-      href: "/dashboard/task",
+      href: "/checklist/task",
       label: "Task",
       icon: CalendarCheck,
-      active: location.pathname === "/dashboard/task",
+      active: location.pathname === "/checklist/task",
       showFor: ["admin", "HOD", "user"],
       badge: pendingCounts.taskPending || null,
     },
     {
-      href: "/dashboard/calendar",
+      href: "/checklist/calendar",
       label: "Calendar",
       icon: CalendarIcon,
-      active: location.pathname === "/dashboard/calendar",
+      active: location.pathname === "/checklist/calendar",
       showFor: ["admin", "user", "HOD"],
     },
     {
@@ -262,51 +262,51 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
       isSubmenu: true,
       isOpen: isHolidaySubmenuOpen,
       setIsOpen: setIsHolidaySubmenuOpen,
-      active: location.pathname.includes("/dashboard/holiday") || location.pathname.includes("/dashboard/working-day"),
+      active: location.pathname.includes("/checklist/holiday") || location.pathname.includes("/checklist/working-day"),
       subItems: [
         {
-          href: "/dashboard/holiday-list",
+          href: "/checklist/holiday-list",
           label: "Holiday List",
-          active: location.pathname === "/dashboard/holiday-list",
+          active: location.pathname === "/checklist/holiday-list",
           showFor: ["admin"],
         },
         {
-          href: "/dashboard/working-day-calendar",
+          href: "/checklist/working-day-calendar",
           label: "Working Day Calendar",
-          active: location.pathname === "/dashboard/working-day-calendar",
+          active: location.pathname === "/checklist/working-day-calendar",
           showFor: ["admin"],
         }
       ]
     },
     {
-      href: "/dashboard/admin-approval",
+      href: "/checklist/admin-approval",
       label: "Admin Approval",
       icon: BookmarkCheck,
-      active: location.pathname === "/dashboard/admin-approval",
+      active: location.pathname === "/checklist/admin-approval",
       showFor: ["admin", "HOD"],
       badge: pendingCounts.adminApprovalPending || null,
     },
     // {
-    //   href: "/dashboard/mis-report",
+    //   href: "/checklist/mis-report",
     //   label: "MIS Report",
     //   icon: CheckSquare,
-    //   active: location.pathname.includes("/dashboard/mis-report"),
+    //   active: location.pathname.includes("/checklist/mis-report"),
     //   // Only show for super admin (username = 'admin')
     //   showFor: isSuperAdmin ? ["admin"] : [],
     // },
     {
-      href: "/dashboard/setting",
+      href: "/checklist/setting",
       label: "Settings",
       icon: Settings,
-      active: location.pathname.includes("/dashboard/setting"),
+      active: location.pathname.includes("/checklist/setting"),
       // Only show for super admin (username = 'admin')
       showFor: isSuperAdmin ? ["admin"] : [],
     },
     {
-      href: "/dashboard/training-video",
+      href: "/checklist/training-video",
       label: "Training Video",
       icon: Video,
-      active: location.pathname === "/dashboard/training-video",
+      active: location.pathname === "/checklist/training-video",
       showFor: ["admin", "user", "HOD"],
     },
   ];
@@ -334,7 +334,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
         if (route.label === "Holiday") {
           return isSuperAdmin || userRoleNormalized === "admin";
         }
-        if (route.href === "/dashboard/assign-task") {
+        if (route.href === "/checklist/assign-task") {
           const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
           
           if (userRoleNormalized === "user") return canSelfAssign;
@@ -373,7 +373,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
       <aside className="hidden w-64 flex-shrink-0 border-r border-[#E8DFD3] bg-[#FAF6F0] md:flex md:flex-col">
         <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
           <Link
-            to="/dashboard/admin"
+            to="/checklist/admin"
             className="flex items-center gap-2.5 font-bold text-[#431021]"
           >
             <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0">
@@ -571,7 +571,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
           <div className="fixed inset-y-0 left-0 w-64 bg-[#FAF6F0] border-r border-[#E8DFD3] shadow-lg flex flex-col">
             <div className="flex h-16 items-center border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
               <Link
-                to="/dashboard/admin"
+                to="/checklist/admin"
                 className="flex items-center gap-2.5 font-bold text-[#431021]"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -798,26 +798,26 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
         {/* Premium Bottom Navigation for Mobile */}
         <div className="md:hidden fixed bottom-6 left-4 right-4 h-16 bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-50 flex items-center justify-around px-2">
           <Link
-            to="/dashboard/admin"
-            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/dashboard/admin"
+            to="/checklist/admin"
+            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/checklist/admin"
               ? "text-[#173254] bg-blue-50"
               : "text-slate-400 hover:text-[#173254]"
               }`}
           >
-            <Home size={22} strokeWidth={location.pathname === "/dashboard/admin" ? 2.5 : 2} />
+            <Home size={22} strokeWidth={location.pathname === "/checklist/admin" ? 2.5 : 2} />
             <span className="text-[10px] mt-1 font-bold">Home</span>
           </Link>
 
 
 
           <Link
-            to="/dashboard/task"
-            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/dashboard/task"
+            to="/checklist/task"
+            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/checklist/task"
               ? "text-[#173254] bg-blue-50"
               : "text-slate-400 hover:text-[#173254]"
               }`}
           >
-            <CalendarCheck size={22} strokeWidth={location.pathname === "/dashboard/task" ? 2.5 : 2} />
+            <CalendarCheck size={22} strokeWidth={location.pathname === "/checklist/task" ? 2.5 : 2} />
             <span className="text-[10px] mt-1 font-bold">Tasks</span>
           </Link>
 
@@ -828,7 +828,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
           })() && (
               <div className="relative -mt-12">
                 <Link
-                  to="/dashboard/assign-task"
+                  to="/checklist/assign-task"
                   className="flex items-center justify-center w-14 h-14 bg-[#173254] rounded-2xl shadow-lg shadow-slate-300 text-white transform active:scale-90 transition-all duration-300 border-4 border-slate-100"
                 >
                   <CirclePlus size={28} strokeWidth={2.5} />
@@ -837,13 +837,13 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
             )}
 
           <Link
-            to="/dashboard/delegation"
-            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/dashboard/delegation"
+            to="/checklist/delegation"
+            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${location.pathname === "/checklist/delegation"
               ? "text-[#173254] bg-blue-50"
               : "text-slate-400 hover:text-[#173254]"
               }`}
           >
-            <BookmarkCheck size={22} strokeWidth={location.pathname === "/dashboard/delegation" ? 2.5 : 2} />
+            <BookmarkCheck size={22} strokeWidth={location.pathname === "/checklist/delegation" ? 2.5 : 2} />
             <span className="text-[10px] mt-1 font-bold">Status</span>
           </Link>
 

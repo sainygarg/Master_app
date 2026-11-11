@@ -99,7 +99,7 @@ const LoginPage = () => {
         } catch {}
 
         showToast(`Welcome back, ${userData.user_name || userData.username}!`, "success");
-        navigate("/dashboard/admin");
+        navigate("/checklist/admin");
       } else if (error) {
         showToast(error, "error");
         setIsLoginLoading(false);

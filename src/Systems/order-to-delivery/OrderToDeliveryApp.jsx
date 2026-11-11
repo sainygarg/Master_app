@@ -559,7 +559,6 @@ export function App() {
                 users={users}
                 activeUserId={currentUser?.id}
                 currentUser={currentUser}
-                onSwitchUser={() => {}}
                 onOpenAddUser={() => {
                   setEditingUser(null);
                   setIsUserModalOpen(true);

@@ -810,7 +810,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
 
   const handleRepairUpdateSubmit = async (e) => {
     e.preventDefault();
-    if (!updateForm.status) return alert("Please select a status");
+    if (!updateForm.status) return showToast("Please select a status", "warning");
 
     // If status is Pending, just close modal and return (don't save/submit)
     if (updateForm.status === "Pending") {
@@ -1122,7 +1122,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
       fetchData();
     } catch (err) {
       console.error("Submission error:", err);
-      alert("Failed to submit tasks: " + err.message);
+      showToast("Failed to submit tasks: " + err.message, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -1162,7 +1162,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
       setSelectedItems(new Set());
     } catch (err) {
       console.error("WhatsApp error:", err);
-      alert("Failed to send WhatsApp messages: " + err.message);
+      showToast("Failed to send WhatsApp messages: " + err.message, "error");
     } finally {
       setIsSubmitting(false);
     }

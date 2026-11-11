@@ -345,7 +345,7 @@ export default function QuickTask() {
           }
         } catch (error) {
           console.error("Audio upload failed:", error);
-          alert("Failed to upload voice note. Saving without it.");
+          showToast("Failed to upload voice note. Saving without it.", "warning");
         } finally {
           setIsUploading(false);
         }

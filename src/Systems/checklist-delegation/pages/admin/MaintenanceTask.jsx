@@ -697,7 +697,7 @@ export default function MaintenanceTask() {
             setShowPreviewModal(true);
         } catch (err) {
             console.error(err);
-            alert("Error generating preview: " + err.message);
+            showToast("Error generating preview: " + err.message, "error");
         } finally {
             setIsSubmitting(false);
         }

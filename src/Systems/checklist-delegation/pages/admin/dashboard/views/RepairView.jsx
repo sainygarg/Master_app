@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux'
 import { updateRepair } from '../../../../redux/slice/repairSlice'
 import RenderDescription from '../../../../components/RenderDescription'
 import AudioPlayer from '../../../../components/AudioPlayer'
+import { useMagicToast } from '../../../../context/MagicToastContext'
 
 
 const isAudioUrl = (url) => {
@@ -42,6 +43,7 @@ const StatCard = ({ icon: Icon, label, value, color, onClick }) => (
 
 export default function RepairView({ tasks = [], onCardClick }) {
     const dispatch = useDispatch();
+    const { showToast } = useMagicToast();
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -61,7 +63,7 @@ export default function RepairView({ tasks = [], onCardClick }) {
 
     const handleUpdateSubmit = async (e) => {
         e.preventDefault();
-        if (!updateForm.status) return alert("Please select a status");
+        if (!updateForm.status) return showToast("Please select a status", "warning");
         setIsSubmitting(true);
         try {
             await dispatch(updateRepair([{
@@ -72,10 +74,11 @@ export default function RepairView({ tasks = [], onCardClick }) {
                 remarks: updateForm.remarks
             }])).unwrap();
             setIsModalOpen(false);
+            showToast("Task updated successfully!", "success");
             // We assume tasks prop will update via parent re-fetch or store subscription
         } catch (error) {
             console.error(error);
-            alert("Failed to update task.");
+            showToast("Failed to update task: " + (error?.message || "Unknown error"), "error");
         } finally {
             setIsSubmitting(false);
         }

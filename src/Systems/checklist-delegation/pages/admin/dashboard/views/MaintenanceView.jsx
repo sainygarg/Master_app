@@ -7,6 +7,7 @@ import { updateMaintenanceTask } from '../../../../redux/slice/maintenanceSlice'
 import { fetchUniqueGivenByDataApi, fetchUniqueDoerNameDataApi } from '../../../../redux/api/assignTaskApi'
 import RenderDescription, { MediaViewer } from "../../../../components/RenderDescription"
 import AudioPlayer from "../../../../components/AudioPlayer"
+import { useMagicToast } from '../../../../context/MagicToastContext'
 
 const DEPT_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#14B8A6", "#EC4899", "#64748B"];
 
@@ -48,6 +49,7 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
     const [editFormData, setEditFormData] = useState({});
 
     const dispatch = useDispatch();
+    const { showToast } = useMagicToast();
 
     const handleEditClick = (task) => {
         setEditingTaskId(task.id);
@@ -88,7 +90,7 @@ export default function MaintenanceView({ stats: _originalStats, _chartData, tas
             // But for now, we'll assume the user will reload or the state is updated
         } catch (error) {
             console.error("Failed to save maintenance edit:", error);
-            alert("Failed to save changes: " + (error.message || "Unknown error"));
+            showToast("Failed to save changes: " + (error.message || "Unknown error"), "error");
         } finally {
             setIsSaving(false);
         }

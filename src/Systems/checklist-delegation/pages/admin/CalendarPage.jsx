@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, Mic, Play, Users, ChevronDown, Search, Check, ChevronLeft, ChevronRight, Loader2, Clock, Plus, X, ShieldAlert, ClipboardList } from 'lucide-react';
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { useMagicToast } from '../../context/MagicToastContext';
 
 const extractAudioUrl = (text) => {
     if (!text || typeof text !== 'string') return null;
@@ -79,6 +80,7 @@ const CalendarPage = () => {
     const [_isUpdating, setIsUpdating] = useState(false);
     const [userProfiles, setUserProfiles] = useState({}); // Map of username -> profile_url
     const [selectedImage, setSelectedImage] = useState(null); // Full-screen image URL
+    const { showToast } = useMagicToast();
     const navigate = useNavigate();
 
     const userRole = (localStorage.getItem('role') || '').toLowerCase();
@@ -110,7 +112,7 @@ const CalendarPage = () => {
     const handleVoiceSearch = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Voice recognition is not supported in this browser.");
+            showToast("Voice recognition is not supported in this browser.", "warning");
             return;
         }
 
@@ -396,7 +398,7 @@ const CalendarPage = () => {
             setSelectedTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...updates, remark: editForm.remark, remarks: editForm.remark } : t));
         } catch (err) {
             console.error('Update error:', err);
-            alert('Update failed');
+            showToast('Update failed: ' + (err.message || 'Unknown error'), 'error');
         } finally {
             setIsUpdating(false);
         }

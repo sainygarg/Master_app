@@ -15,6 +15,7 @@ import { useDispatch } from 'react-redux'
 import { updateChecklistTask, updateDelegationTask } from '../../../redux/slice/quickTaskSlice'
 import { updateMaintenanceTask } from '../../../redux/slice/maintenanceSlice'
 import { fetchUniqueDepartmentDataApi, fetchUniqueGivenByDataApi, fetchUniqueDoerNameDataApi } from '../../../redux/api/assignTaskApi'
+import { useMagicToast } from '../../../context/MagicToastContext'
 
 const isAudioUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
@@ -57,6 +58,7 @@ export default function TaskNavigationTabs({
   const [doersList, setDoersList] = useState([]);
 
   const dispatch = useDispatch()
+  const { showToast } = useMagicToast()
   const itemsPerPage = 50
 
   // Edit Handlers
@@ -122,7 +124,7 @@ export default function TaskNavigationTabs({
           }
         } catch (error) {
           console.error("Audio upload failed:", error);
-          alert("Failed to upload voice note. Saving without it.");
+          showToast("Failed to upload voice note. Saving without it.", "warning");
         } finally {
           setIsUploading(false);
         }
@@ -184,7 +186,7 @@ export default function TaskNavigationTabs({
       loadTasksFromServer(1, false);
     } catch (error) {
       console.error("Failed to save edit:", error);
-      alert("Failed to save changes: " + (error.message || "Unknown error"));
+      showToast("Failed to save changes: " + (error.message || "Unknown error"), "error");
     } finally {
       setIsSaving(false);
     }

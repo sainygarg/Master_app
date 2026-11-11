@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar as _CalendarIcon, ChevronLeft, ChevronRight, Loader2, ShieldAlert, CheckCircle2, List } from 'lucide-react';
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { useMagicToast } from '../../context/MagicToastContext';
 
 // ISO week number
 const isoWeek = (date) => {
@@ -13,6 +14,7 @@ const isoWeek = (date) => {
 };
 
 const WorkingDayCalendarPage = () => {
+    const { showToast } = useMagicToast();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [holidays, setHolidays] = useState([]);
     const [workingDays, setWorkingDays] = useState([]);
@@ -136,7 +138,7 @@ const WorkingDayCalendarPage = () => {
             await fetchData();
         } catch (err) {
             console.error('Toggle error:', err);
-            alert('Failed to update working day');
+            showToast('Failed to update working day: ' + (err.message || 'Unknown error'), 'error');
         } finally {
             setIsProcessing(false);
         }

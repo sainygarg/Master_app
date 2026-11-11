@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchNotifications } from '../../redux/slice/notificationSlice';
+import { useSelector } from 'react-redux';
 import supabase from "../../SupabaseClient";
 import { CheckSquare, ClipboardList, Database, Zap, Settings, CalendarCheck, Calendar as CalendarIcon, BookmarkCheck, Bell, Video, CirclePlus, ChevronDown, ChevronRight, LogOut, Home, X, Menu, UserRound } from 'lucide-react';
 
@@ -13,7 +12,6 @@ import { SystemNavGroup, OtherSystemGroup } from '../../../../core/layout/System
 export default function AdminLayout({ children, darkMode, toggleDarkMode, showLayout = true }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { list: notifications } = useSelector((state) => state.notifications);
   const pendingCounts = useChecklistDelegationPendingCounts();
 
@@ -172,14 +170,8 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     setIsSuperAdmin(normalizedUsername === "admin");
   }, [navigate, location.pathname]);
 
-  // Fetch notifications globally for badge count
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-    const userId = localStorage.getItem("user-id");
-    if (role) {
-      dispatch(fetchNotifications({ role: role.toLowerCase(), userId }));
-    }
-  }, [dispatch, location.pathname]);
+  // Notifications are fetched once per page load by MasterShell (throttled to 1/min);
+  // fetching here on every route change caused the badge to flash.
 
   // Set initial submenu state based on current location
   useEffect(() => {

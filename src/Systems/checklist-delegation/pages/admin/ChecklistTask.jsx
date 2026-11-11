@@ -670,7 +670,7 @@ export default function ChecklistTask({ mode = "checklist" }) {
             setShowPreviewModal(true);
         } catch (err) {
             console.error(err);
-            alert("Error generating preview: " + err.message);
+            showToast("Error generating preview: " + err.message, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -680,22 +680,22 @@ export default function ChecklistTask({ mode = "checklist" }) {
         for (let i = 0; i < tasks.length; i++) {
             const t = tasks[i];
             if (!t.department || !t.givenBy) {
-                alert(`Task ${i + 1}: Please select Department and Assign From.`);
+                showToast(`Task ${i + 1}: Please select Department and Assign From.`, "warning");
                 return;
             }
             if (!t.doer || !t.date || (!t.description && !t.recordedAudio && (!t.references || t.references.length === 0))) {
-                alert(`Task ${i + 1}: Please fill in Doer, Date, and at least one instructional detail (Desc, Voice Note, or Reference).`);
+                showToast(`Task ${i + 1}: Please fill in Doer, Date, and at least one instructional detail (Desc, Voice Note, or Reference).`, "warning");
                 return;
             }
 
             if (t.references && t.references.length > 0) {
                 for (const ref of t.references) {
                     if (ref.type === 'image' && !ref.file) {
-                        alert(`Task ${i + 1}: Please upload the Image file for the Reference.`);
+                        showToast(`Task ${i + 1}: Please upload the Image file for the Reference.`, "warning");
                         return;
                     }
                     if (['video', 'pdf', 'link', 'rule'].includes(ref.type) && !ref.link) {
-                        alert(`Task ${i + 1}: Please provide valid ${ref.type === 'rule' ? 'text content' : 'web link'} for the ${ref.type.toUpperCase()} Reference.`);
+                        showToast(`Task ${i + 1}: Please provide valid ${ref.type === 'rule' ? 'text content' : 'web link'} for the ${ref.type.toUpperCase()} Reference.`, "warning");
                         return;
                     }
                 }
@@ -718,7 +718,7 @@ export default function ChecklistTask({ mode = "checklist" }) {
                 const isWorking = !isSunday;
 
                 if (isH || !isWorking) {
-                    alert(`Task ${i + 1}: The selected date (${dateStr}) is a ${isH ? 'holiday' : 'non-working day'}. Please select a different working day.`);
+                    showToast(`Task ${i + 1}: The selected date (${dateStr}) is a ${isH ? 'holiday' : 'non-working day'}. Please select a different working day.`, "error");
                     setIsSubmitting(false);
                     return;
                 }
@@ -823,7 +823,7 @@ export default function ChecklistTask({ mode = "checklist" }) {
             }
 
             if (allTasksToSubmit.length === 0) {
-                alert("No tasks to submit.");
+                showToast("No tasks to submit.", "warning");
                 setIsSubmitting(false);
                 return;
             }

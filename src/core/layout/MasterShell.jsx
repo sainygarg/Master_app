@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchNotifications } from '../../Systems/checklist-delegation/redux/slice/notificationSlice';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -157,6 +159,39 @@ export default function MasterShell({ children }) {
   const username = user?.name || localStorage.getItem('user-name') || localStorage.getItem('user_name') || 'Admin';
   const role = (user?.role || localStorage.getItem('role') || 'Admin').toUpperCase();
 
+  // Notifications unread count for header bell
+  const dispatch = useDispatch();
+  const notifications = useSelector((s) => s.notifications?.list) || [];
+  const notificationsLoaded = useSelector((s) => !!s.notifications?.loaded);
+  // Read/unread is only known after a fetch completed, so don't show a count before that
+  const unreadCount = notificationsLoaded ? notifications.filter((n) => !n.isRead).length : 0;
+
+  // Runs on page load/refresh only (not on route change). The thunk itself skips
+  // the call if the last fetch was less than 1 minute ago.
+  // Browsers don't tell JS about a hard refresh, so flag it on the keypress
+  // (Ctrl/Cmd+Shift+R, Ctrl+F5) and force a refetch on the next load.
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+      const hard = ((e.ctrlKey || e.metaKey) && e.shiftKey && key === 'r') || (e.ctrlKey && key === 'f5');
+      if (hard) {
+        try { sessionStorage.setItem('notif-hard-refresh', '1'); } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
+    let force = false;
+    try {
+      force = sessionStorage.getItem('notif-hard-refresh') === '1';
+      if (force) sessionStorage.removeItem('notif-hard-refresh');
+    } catch { /* ignore */ }
+    dispatch(fetchNotifications({ role: role.toLowerCase(), userId: String(user.id), force }));
+  }, [dispatch, isAuthenticated, user?.id, role]);
+
   // Total pending items for Checklist badge
   const totalChecklistPending = (pendingCounts.taskPending || 0) + (pendingCounts.delegationPending || 0) + (pendingCounts.adminApprovalPending || 0);
 
@@ -164,7 +199,6 @@ export default function MasterShell({ children }) {
   const checklistSubpages = useMemo(() => {
     const all = [
       { label: 'Dashboard', href: '/checklist/admin', icon: Database },
-      { label: 'Notifications', href: '/checklist/notifications', icon: Bell },
       { label: 'Quick Task', href: '/checklist/quick-task', icon: Zap },
       { label: 'Assign Task', href: '/checklist/assign-task', icon: CheckSquare },
       { 
@@ -980,15 +1014,6 @@ export default function MasterShell({ children }) {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Desktop Collapse Toggle */}
-            <button
-              onClick={toggleSidebar}
-              className="hidden lg:flex p-2 rounded-xl text-stone-400 hover:text-[#5B172E] hover:bg-white transition-colors border border-transparent hover:border-[#E8DFD3] cursor-pointer"
-              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            >
-              {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-            </button>
-
             {/* Breadcrumb Hierarchy */}
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-7 h-7 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border border-[#C5A059]/40 shadow-xs shrink-0">
@@ -1012,6 +1037,20 @@ export default function MasterShell({ children }) {
 
           {/* Right: User Profile + Logout */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Notifications Bell */}
+            <button
+              onClick={() => navigate('/checklist/notifications')}
+              className="relative p-2 text-stone-500 hover:text-[#5B172E] hover:bg-stone-100 rounded-xl transition-colors shrink-0 cursor-pointer"
+              title="Notifications"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
             {/* User Greeting */}
             <div className="hidden md:flex flex-col items-end mr-1">
               <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest leading-none">

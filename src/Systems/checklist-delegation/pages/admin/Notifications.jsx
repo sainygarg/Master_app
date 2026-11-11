@@ -4,11 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { fetchNotifications, createNotification, removeNotification, markAsRead } from '../../redux/slice/notificationSlice';
 import { useMagicToast } from '../../context/MagicToastContext';
+import { useToastAlert } from '../../../../core/context/ToastAlertContext';
 import { useUnifiedAuth } from '../../../../core/auth/UnifiedAuthContext';
 
 export default function Notifications() {
   const dispatch = useDispatch();
   const { showToast } = useMagicToast();
+  const { showConfirm } = useToastAlert();
   const { list, loading } = useSelector((state) => state.notifications);
   const currentUserRole = (localStorage.getItem("role") || "").toLowerCase();
   const _currentUsername = (localStorage.getItem("user-name") || "Admin");
@@ -58,7 +60,13 @@ export default function Notifications() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this notification?")) return;
+    const confirmed = await showConfirm({
+      title: "Delete Notification",
+      message: "Are you sure you want to delete this notification?",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!confirmed) return;
     try {
       await dispatch(removeNotification(id)).unwrap();
       showToast("Notification deleted", "success");

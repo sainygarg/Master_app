@@ -3,8 +3,12 @@ import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Plus, Loader2, Search, Trash2 } from 'lucide-react';
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { useMagicToast } from '../../context/MagicToastContext';
+import { useToastAlert } from '../../../../core/context/ToastAlertContext';
 
 const HolidayListPage = () => {
+    const { showToast } = useMagicToast();
+    const { showConfirm } = useToastAlert();
     const [holidays, setHolidays] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,17 +93,23 @@ const HolidayListPage = () => {
 
             setNewHoliday({ holiday_date: '', holiday_name: '' });
             fetchHolidays();
-            alert('Holiday added and tasks cleaned up successfully!');
+            showToast('Holiday added and tasks cleaned up successfully!', 'success');
         } catch (err) {
             console.error('Error adding holiday:', err);
-            alert(`Error adding holiday: ${err.message || 'Unknown error'}`);
+            showToast(`Error adding holiday: ${err.message || 'Unknown error'}`, 'error');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleDeleteHoliday = async (holiday) => {
-        if (!window.confirm(`Delete holiday "${holiday.holiday_name}"?`)) return;
+        const confirmed = await showConfirm({
+            title: 'Delete Holiday',
+            message: `Are you sure you want to delete holiday "${holiday.holiday_name}"?`,
+            confirmText: 'Delete',
+            type: 'danger'
+        });
+        if (!confirmed) return;
 
         try {
             const { error: deleteError } = await supabase

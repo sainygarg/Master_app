@@ -35,19 +35,20 @@ import {
 import ChecklistSetting from '../../checklist-delegation/pages/Setting';
 import { STAGES } from '../types/stages';
 import { fetchMasters, saveMaster, deleteMaster } from '../utils/masterStorage';
-import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS } from '../utils/userStorage';
+import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userStorage';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
+import { useToastAlert } from '../../../core/context/ToastAlertContext';
 
 export const UserManagementView = ({
   users = [],
   activeUserId,
   currentUser,
-  onSwitchUser,
   onOpenAddUser,
   onOpenEditUser,
   onDeleteUser
 }) => {
+  const { showToast } = useToastAlert();
   // Master Tabs: 'users' | 'vendors' | 'customers' | 'departments' | 'tat' | 'transporters' | 'karigars'
   const [activeTab, setActiveTab] = useState('users');
 
@@ -149,7 +150,7 @@ export const UserManagementView = ({
         .then(set)
         .catch((err) => {
           console.error(`Failed to load ${kind} master data`, err);
-          window.alert(`Failed to load ${kind} data from database: ${err.message}`);
+          showToast(`Failed to load ${kind} data from database: ${err.message}`, 'error');
         });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,9 +168,10 @@ export const UserManagementView = ({
           ? cfg.items.map((i) => (i.id === itemData.id ? itemData : i))
           : cfg.append ? [...cfg.items, itemData] : [itemData, ...cfg.items]
       );
+      showToast('Saved successfully!', 'success');
     } catch (err) {
       console.error('Failed to save master entry', err);
-      window.alert('Could not save to database: ' + err.message);
+      showToast('Could not save to database: ' + err.message, 'error');
     }
   };
 
@@ -179,9 +181,10 @@ export const UserManagementView = ({
     try {
       await deleteMaster(type, id);
       cfg.set(cfg.items.filter((i) => i.id !== id));
+      showToast('Deleted successfully!', 'success');
     } catch (err) {
       console.error('Failed to delete master entry', err);
-      window.alert('Could not delete from database: ' + err.message);
+      showToast('Could not delete from database: ' + err.message, 'error');
     }
     setDeleteConfirmId(null);
   };
@@ -428,9 +431,7 @@ export const UserManagementView = ({
                   <th className="py-3.5 px-4 min-w-[200px]">User & Name</th>
                   <th className="py-3.5 px-4 min-w-[110px]">Role</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Contact Info</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">Order Flow Pages</th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Checklist Pages</th>
-                  <th className="py-3.5 px-4 min-w-[170px]">Stage Access</th>
+                  <th className="py-3.5 px-4 min-w-[150px]">Stage Access</th>
                   <th className="py-3.5 px-4 min-w-[120px]">Account Status</th>
                 </tr>
               </thead>
@@ -533,58 +534,22 @@ export const UserManagementView = ({
                         <span className="text-[10px] text-stone-400 block truncate max-w-[140px]">{user.email}</span>
                       </td>
 
-                      {/* Order Flow Page Permissions */}
-                      <td className="py-3 px-4 align-middle">
-                        {isApexAdmin(user) ? (
-                          <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-800 text-[10px] font-bold border border-rose-200">
-                            Full Atelier Access (All Pages)
-                          </span>
-                        ) : (
-                          <div className="flex flex-wrap gap-1 max-w-[180px]">
-                            {(user.allowedPages || []).map((p) => (
-                              <span key={p} className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-stone-100 text-stone-700 border border-stone-200 capitalize">
-                                {p === 'settings' ? 'Master' : p}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Checklist Page Permissions */}
-                      <td className="py-3 px-4 align-middle">
-                        {isApexAdmin(user) ? (
-                          <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-800 text-[10px] font-bold border border-purple-200">
-                            Apex Authority (All 11 Subpages)
-                          </span>
-                        ) : (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {(user.allowedChecklistPages || []).length === ALL_CHECKLIST_PAGE_IDS.length ? (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                All Checklist Pages ({ALL_CHECKLIST_PAGE_IDS.length})
-                              </span>
-                            ) : (
-                              (user.allowedChecklistPages || []).map((href) => {
-                                const found = ALL_CHECKLIST_PAGE_IDS.find((p) => p.id === href);
-                                return (
-                                  <span key={href} className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                                    {found ? found.label : href}
-                                  </span>
-                                );
-                              })
-                            )}
-                          </div>
-                        )}
-                      </td>
-
                       {/* Stage Access */}
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-3 px-4 align-middle whitespace-nowrap">
                         {isApexAdmin(user) ? (
-                          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">
-                            All 10 Stages Accessible
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>All 10 Stages</span>
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200">
-                            {(user.allowedStages || []).length} / 10 Stages Permitted
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border shadow-2xs ${
+                            (user.allowedStages || []).length === 10
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : (user.allowedStages || []).length > 0
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : 'bg-stone-50 text-stone-500 border-stone-200'
+                          }`}>
+                            <span>{(user.allowedStages || []).length} / 10 Stages</span>
                           </span>
                         )}
                       </td>
@@ -596,16 +561,6 @@ export const UserManagementView = ({
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span>{user.status || 'Active'}</span>
                           </span>
-
-                          {!isCurrent && onSwitchUser && (
-                            <button
-                              onClick={() => onSwitchUser(user.id)}
-                              className="text-[10px] font-bold text-[#5B172E] hover:underline bg-[#FAF5EE] px-2 py-1 rounded border border-[#DECDB8]"
-                              title="Switch active session to this user"
-                            >
-                              Switch
-                            </button>
-                          )}
                         </div>
                       </td>
 
@@ -615,7 +570,7 @@ export const UserManagementView = ({
               
                 {filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={6}className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>

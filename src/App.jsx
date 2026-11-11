@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './Systems'; // Automatically registers all systems
 import { UnifiedAuthProvider } from './core/auth/UnifiedAuthContext';
+import { ToastAlertProvider } from './core/context/ToastAlertContext';
 import MasterShell from './core/layout/MasterShell';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
@@ -24,18 +25,20 @@ function ChecklistGate() {
 export function App() {
   return (
     <UnifiedAuthProvider>
-      <MasterShell>
-        <Routes>
-          {/* Default root path redirects to Checklist Dashboard (login gate sends guests to the login page) */}
-          <Route path="/" element={<Navigate to="/checklist/admin" replace />} />
+      <ToastAlertProvider>
+        <MasterShell>
+          <Routes>
+            {/* Default root path redirects to Checklist Dashboard (login gate sends guests to the login page) */}
+            <Route path="/" element={<Navigate to="/checklist/admin" replace />} />
 
-          {/* System 1: Order to Delivery */}
-          <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
+            {/* System 1: Order to Delivery */}
+            <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
 
-          {/* System 2: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
-          <Route path="*" element={<ChecklistGate />} />
-        </Routes>
-      </MasterShell>
+            {/* System 2: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
+            <Route path="*" element={<ChecklistGate />} />
+          </Routes>
+        </MasterShell>
+      </ToastAlertProvider>
     </UnifiedAuthProvider>
   );
 }

@@ -3,6 +3,7 @@ import { TrendingUp, CheckCircle, Clock, AlertCircle, Phone, Calendar, X } from 
 import { useEffect, useState, useMemo } from 'react';
 import { Save } from 'lucide-react';
 import supabase from "../../../../SupabaseClient";
+import { useMagicToast } from '../../../../context/MagicToastContext';
 
 const isAudioUrl = (url) => {
     if (!url || typeof url !== 'string') return false;
@@ -16,6 +17,7 @@ const isAudioUrl = (url) => {
 
 
 export default function EAView() {
+    const { showToast } = useMagicToast();
     const [eaTasks, setEATasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -72,7 +74,7 @@ export default function EAView() {
             setEditingTaskId(null);
         } catch (err) {
             console.error("Failed to update EA task:", err);
-            alert("Failed to update task");
+            showToast("Failed to update task: " + (err.message || "Unknown error"), "error");
         } finally {
             setIsSaving(false);
         }
@@ -89,9 +91,10 @@ export default function EAView() {
             if (error) throw error;
 
             await fetchEATasks();
+            showToast("Task approved successfully!", "success");
         } catch (err) {
             console.error("Failed to approve task:", err);
-            alert("Failed to approve task");
+            showToast("Failed to approve task: " + (err.message || "Unknown error"), "error");
         }
     };
 

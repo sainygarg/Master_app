@@ -33,8 +33,9 @@ export function UnifiedAuthProvider({ children }) {
   const syncToLocalStorage = (userData) => {
     if (userData) {
       localStorage.setItem(MASTER_AUTH_KEY, JSON.stringify(userData));
-      localStorage.setItem('user-name', userData.name || userData.username);
-      localStorage.setItem('user_name', userData.name || userData.username);
+      // Checklist tasks are assigned to users.user_name (= login username), so RBAC filters must use the username, not the display name
+      localStorage.setItem('user-name', userData.username || userData.name);
+      localStorage.setItem('user_name', userData.username || userData.name);
       localStorage.setItem('role', (userData.role || 'user').toLowerCase());
       localStorage.setItem('can_self_assign', 'true');
       localStorage.setItem('user_id', userData.id || userData.username);

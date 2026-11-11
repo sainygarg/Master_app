@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { fetchNotifications, createNotification, removeNotification, markAsRead } from '../../redux/slice/notificationSlice';
 import { useMagicToast } from '../../context/MagicToastContext';
+import { useUnifiedAuth } from '../../../../core/auth/UnifiedAuthContext';
 
 export default function Notifications() {
   const dispatch = useDispatch();
@@ -11,7 +12,9 @@ export default function Notifications() {
   const { list, loading } = useSelector((state) => state.notifications);
   const currentUserRole = (localStorage.getItem("role") || "").toLowerCase();
   const _currentUsername = (localStorage.getItem("user-name") || "Admin");
-  const currentUserId = localStorage.getItem("user-id");
+  // Signed-in user id comes from the auth context (database user id), not from a stored key
+  const { user: authUser } = useUnifiedAuth();
+  const currentUserId = authUser?.id ? String(authUser.id) : null;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,6 +135,7 @@ export default function Notifications() {
                 <div
                   key={noti.id}
                   onMouseEnter={() => handleMarkAsRead(noti.id, noti.isRead)}
+                  onClick={() => handleMarkAsRead(noti.id, noti.isRead)}
                   className={`group relative flex gap-4 md:gap-6 p-2 transition-all duration-300`}
                 >
                   {/* Left: Avatar & Connector */}

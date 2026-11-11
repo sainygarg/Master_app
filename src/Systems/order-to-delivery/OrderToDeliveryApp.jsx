@@ -188,8 +188,8 @@ export function App() {
     setCurrentView(view);
     // Cross-system credential bridge
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-    localStorage.setItem('user-name', user.name || user.username);
-    localStorage.setItem('user_name', user.name || user.username);
+    localStorage.setItem('user-name', user.username || user.name); // must match users.user_name for task RBAC
+    localStorage.setItem('user_name', user.username || user.name);
     localStorage.setItem('role', (user.role || 'user').toLowerCase());
     localStorage.setItem('can_self_assign', 'true');
     showToast(`Welcome back, ${user.name}! (${user.role} role)`, 'success');

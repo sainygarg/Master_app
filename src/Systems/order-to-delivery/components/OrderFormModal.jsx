@@ -49,7 +49,6 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const handleImageUpload = (e, type) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {

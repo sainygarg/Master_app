@@ -504,7 +504,10 @@ export default function AdminApprovalPage() {
                                     { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-blue-600' },
                                     { id: 'repair', label: 'Repair', icon: Hammer, color: 'bg-amber-600' },
                                     { id: 'ea', label: 'EA Tasks', icon: Briefcase, color: 'bg-emerald-600' },
-                                ].map((tab) => (
+                                ]
+                                // Hidden from the UI only; the tab definitions and their data logic are kept
+                                .filter((tab) => !['maintenance', 'repair', 'ea'].includes(tab.id))
+                                .map((tab) => (
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}

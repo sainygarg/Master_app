@@ -10,7 +10,7 @@ import {
   Image as ImageIcon,
   ArrowRight
 } from 'lucide-react';
-import { UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
+import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
 
 export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) => {
   if (!isOpen) return null;
@@ -20,7 +20,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [mobile, setMobile] = useState('');
   const [city, setCity] = useState('');
   const [designName, setDesignName] = useState('');
-  const [size, setSize] = useState('Custom');
+  const [size, setSize] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const [trialDate, setTrialDate] = useState('');
 
@@ -71,47 +71,6 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
     }
   };
 
-  // Quick preset loader for fast testing / demos
-  const loadPresetData = () => {
-    setClientName('Rhea Singhania');
-    setMobile('+91 98112 34567');
-    setCity('Delhi');
-    setDesignName('Ivory & Blush Raw Silk Lehenga Set');
-    setSize('Custom');
-
-    // Set dates: delivery in 25 days, trial in 18 days
-    const today = new Date();
-    const trial = new Date(today);
-    trial.setDate(trial.getDate() + 18);
-    const deliv = new Date(today);
-    deliv.setDate(deliv.getDate() + 25);
-
-    setTrialDate(trial.toISOString().split('T')[0]);
-    setDeliveryDate(deliv.toISOString().split('T')[0]);
-
-    setDesignImages([
-      '/assets/sg-1024-lehenga.jpg'
-    ]);
-    setInspirationImages([
-      '/assets/sg-1042-rose.jpg'
-    ]);
-
-    setHasUpper(true);
-    setHasLower(true);
-
-    const presetUpper = {};
-    UPPER_BODY_MEASUREMENTS.forEach(m => {
-      presetUpper[m.id] = m.defaultVal;
-      if (m.isDropdownWithSize) {
-        presetUpper[`${m.id}Type`] = m.defaultType || m.options[0];
-      }
-    });
-    setUpperMeasurements(presetUpper);
-
-    const presetLower = {};
-    LOWER_BODY_MEASUREMENTS.forEach(m => presetLower[m.id] = m.defaultVal);
-    setLowerMeasurements(presetLower);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -131,16 +90,16 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       id: nextOrderId,
       clientName: clientName.trim(),
       mobile: mobile.trim(),
-      city: city.trim() || 'New Delhi',
+      city: city.trim(),
       designName: designName.trim(),
       size,
       deliveryDate,
       trialDate,
       createdAt: new Date().toISOString(),
-      currentStageId: 'material_check',
+      currentStageId: STAGES[0].id,
       currentStageIndex: 0,
-      designImages: designImages.length > 0 ? designImages : ['/assets/sg-1024-lehenga.jpg'],
-      inspirationImages: inspirationImages.length > 0 ? inspirationImages : ['/assets/sg-1042-rose.jpg'],
+      designImages,
+      inspirationImages,
       measurements: {
         hasUpper,
         hasLower,
@@ -148,20 +107,20 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         lower: hasLower ? lowerMeasurements : {}
       },
       stageData: {
-        material_check: {
-          dyeStatus: 'No',
+        [STAGES[0].id]: {
+          dyeStatus: '',
           materialReadyDate: '',
-          remarks: 'Newly created order awaiting Material QC.'
+          remarks: ''
         }
       },
       history: [
         {
-          stageId: 'material_check',
-          stageName: 'Material QC',
+          stageId: STAGES[0].id,
+          stageName: STAGES[0].name,
           timestamp: new Date().toISOString(),
           action: 'Order Placed & Created',
-          actor: 'Order Desk',
-          notes: 'Assigned to Material QC stage automatically.'
+          actor: localStorage.getItem('user-name') || '',
+          notes: `Assigned to ${STAGES[0].name} stage automatically.`
         }
       ]
     };
@@ -196,14 +155,6 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={loadPresetData}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#9B783E] bg-[#FAF3E8] hover:bg-[#F3E7D3] border border-[#DECDB8] transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Fill Sample Data</span>
-            </button>
             <button
               type="button"
               onClick={onClose}
@@ -242,7 +193,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                     setClientName(e.target.value);
                     if (errors.clientName) setErrors({ ...errors, clientName: null });
                   }}
-                  placeholder="e.g. Priya Sharma"
+                  placeholder="Client full name"
                   className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${errors.clientName ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                     }`}
                 />
@@ -261,7 +212,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                     setMobile(e.target.value);
                     if (errors.mobile) setErrors({ ...errors, mobile: null });
                   }}
-                  placeholder="+91 98765 43210"
+                  placeholder="Mobile number"
                   className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${errors.mobile ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                     }`}
                 />
@@ -277,7 +228,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g. New Delhi, Mumbai"
+                  placeholder="City"
                   className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                 />
               </div>
@@ -294,7 +245,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                     setDesignName(e.target.value);
                     if (errors.designName) setErrors({ ...errors, designName: null });
                   }}
-                  placeholder="e.g. Sage Green Handcrafted Lehenga Set"
+                  placeholder="Design name"
                   className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${errors.designName ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                     }`}
                 />
@@ -310,7 +261,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                   type="text"
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
-                  placeholder="e.g. Custom, 36, M, 38, etc."
+                  placeholder="Size"
                   className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                 />
               </div>
@@ -512,7 +463,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                         <div className="flex items-center gap-1">
                           {/* Dropdown Selector for Type */}
                           <select
-                            value={upperMeasurements[`${item.id}Type`] || item.defaultType || item.options[0]}
+                            value={upperMeasurements[`${item.id}Type`] || item.options[0]}
                             onChange={(e) =>
                               setUpperMeasurements({
                                 ...upperMeasurements,
@@ -538,7 +489,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                                   [item.id]: e.target.value
                                 })
                               }
-                              placeholder={item.defaultVal}
+                             
                               className="w-full pr-3.5 pl-1.5 py-1 text-xs font-bold text-stone-800 bg-[#FAF8F5] border border-[#DECDB8] rounded focus:outline-none focus:ring-1 focus:ring-[#5B172E] text-center"
                               title={`Enter ${item.label} Length in Inches`}
                             />
@@ -563,7 +514,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                                 [item.id]: e.target.value
                               })
                             }
-                            placeholder={item.defaultVal}
+                           
                             className="w-full pr-5 pl-2 py-1 text-xs font-bold text-stone-800 bg-[#FAF8F5] border border-[#DECDB8] rounded focus:outline-none focus:ring-1 focus:ring-[#5B172E]"
                           />
                           <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 font-medium">
@@ -604,7 +555,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                               [item.id]: e.target.value
                             })
                           }
-                          placeholder={item.defaultVal}
+                         
                           className="w-full pr-5 pl-2 py-1 text-xs font-bold text-stone-800 bg-[#FAF8F5] border border-[#DECDB8] rounded focus:outline-none focus:ring-1 focus:ring-[#5B172E]"
                         />
                         <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 font-medium">

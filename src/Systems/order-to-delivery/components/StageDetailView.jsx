@@ -33,7 +33,7 @@ import { getStagePlannedTime, getStageActualTime, formatPlanned, formatDelay } f
 
 export const StageDetailView = ({
   orders = [],
-  selectedStageId = 'material_check',
+  selectedStageId = STAGES[0].id,
   currentUser,
   onSelectStage,
   onUpdateStageData,

@@ -123,11 +123,7 @@ export const MeasurementsModal = ({ order, isOpen, onClose, onSaveMeasurements, 
           {/* Photos / Fitting preview (like Image 1 in user mockup) */}
           <div className="bg-white rounded-2xl p-4 border border-[#E8DFD3] shadow-xs flex flex-col sm:flex-row items-center gap-4">
             <div className="w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-stone-100 border border-[#DECDB8] shrink-0">
-              <img
-                src={order.designImages?.[0] || '/assets/sg-measurement-book.jpg'}
-                alt="Client reference"
-                className="w-full h-full object-cover"
-              />
+{order.designImages?.[0] ? (                <img src={order.designImages[0]} alt="Client reference" className="w-full h-full object-cover" />              ) : (                <div className="w-full h-full flex items-center justify-center text-[11px] text-stone-400">No image</div>              )}
             </div>
             <div className="space-y-1">
               <h4 className="font-serif font-bold text-sm text-[#431021]">
@@ -180,7 +176,7 @@ export const MeasurementsModal = ({ order, isOpen, onClose, onSaveMeasurements, 
                             type="text"
                             value={upperValues[m.id] !== undefined ? upperValues[m.id] : ''}
                             onChange={(e) => handleUpperChange(m.id, e.target.value)}
-                            placeholder={m.defaultVal}
+                           
                             className="w-full pl-2 pr-5 py-1.5 text-sm font-bold text-stone-900 bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 text-center"
                             title={`Enter ${m.label} Length`}
                           />
@@ -200,7 +196,7 @@ export const MeasurementsModal = ({ order, isOpen, onClose, onSaveMeasurements, 
                           type="text"
                           value={upperValues[m.id] !== undefined ? upperValues[m.id] : ''}
                           onChange={(e) => handleUpperChange(m.id, e.target.value)}
-                          placeholder={m.defaultVal}
+                         
                           className="w-full pl-2.5 pr-6 py-1.5 text-sm font-bold text-stone-900 bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                         />
                         <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">
@@ -238,7 +234,7 @@ export const MeasurementsModal = ({ order, isOpen, onClose, onSaveMeasurements, 
                         type="text"
                         value={lowerValues[m.id] !== undefined ? lowerValues[m.id] : ''}
                         onChange={(e) => handleLowerChange(m.id, e.target.value)}
-                        placeholder={m.defaultVal}
+                       
                         className="w-full pl-2.5 pr-6 py-1.5 text-sm font-bold text-stone-900 bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">

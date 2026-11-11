@@ -238,7 +238,7 @@ function DelegationPage({
       showToast("Task updated successfully", "success");
     } catch (error) {
       console.error("Failed to update task:", error)
-      showToast("Failed to update task", "error");
+      showToast("Failed to update task: " + (error?.message || (typeof error === "string" ? error : "unknown error")), "error");
     } finally {
       setIsSaving(false);
     }

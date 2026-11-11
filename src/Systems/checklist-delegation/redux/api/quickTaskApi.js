@@ -244,8 +244,8 @@ export const updateChecklistTaskApi = async (updatedTask, originalTask) => {
       task_description: updatedTask.task_description,
       audio_url: updatedTask.audio_url,
       frequency: updatedTask.frequency,
-      duration: updatedTask.duration || null,
-      require_attachment: updatedTask.require_attachment,
+      duration: blankToNull(updatedTask.duration),
+      require_attachment: blankToNull(updatedTask.require_attachment),
       instruction_attachment_url: updatedTask.instruction_attachment_url,
       instruction_attachment_type: updatedTask.instruction_attachment_type,
       remark: updatedTask.remark,
@@ -254,10 +254,7 @@ export const updateChecklistTaskApi = async (updatedTask, originalTask) => {
 
     if (originalTask) {
       // Update all matching pending tasks
-      query = query
-        .eq("department", originalTask.department)
-        .eq("name", originalTask.name)
-        .eq("task_description", originalTask.task_description)
+      query = matchCol(matchCol(matchCol(query, "department", originalTask.department), "name", originalTask.name), "task_description", originalTask.task_description)
         .is("submission_date", null);
     } else {
       // Fallback to single record update
@@ -282,9 +279,9 @@ export const updateDelegationTaskApi = async (updatedTask, originalTask) => {
       task_description: updatedTask.task_description,
       audio_url: updatedTask.audio_url,
       frequency: updatedTask.frequency,
-      duration: updatedTask.duration || null,
-      enable_reminder: updatedTask.enable_reminder,
-      require_attachment: updatedTask.require_attachment,
+      duration: blankToNull(updatedTask.duration),
+      enable_reminder: blankToNull(updatedTask.enable_reminder),
+      require_attachment: blankToNull(updatedTask.require_attachment),
       instruction_attachment_url: updatedTask.instruction_attachment_url,
       instruction_attachment_type: updatedTask.instruction_attachment_type,
       remarks: updatedTask.remarks
@@ -292,10 +289,7 @@ export const updateDelegationTaskApi = async (updatedTask, originalTask) => {
 
     if (originalTask) {
       // Update all matching pending tasks
-      query = query
-        .eq("department", originalTask.department)
-        .eq("name", originalTask.name)
-        .eq("task_description", originalTask.task_description)
+      query = matchCol(matchCol(matchCol(query, "department", originalTask.department), "name", originalTask.name), "task_description", originalTask.task_description)
         .is("submission_date", null);
     } else {
       // Fallback to single record update
@@ -421,3 +415,14 @@ export const fetchChecklistHistory = async () => {
     return [];
   }
 };
+
+
+// Postgres rejects "" for boolean/typed columns ("invalid input syntax for type boolean"), so blanks are sent as NULL
+function blankToNull(value) {
+  return value === '' || value === undefined ? null : value;
+}
+
+// .eq(col, null) never matches in PostgREST; use IS NULL for empty values so edits still find their rows
+function matchCol(query, column, value) {
+  return value === null || value === undefined ? query.is(column, null) : query.eq(column, value);
+}

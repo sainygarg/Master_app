@@ -83,7 +83,7 @@ export function App() {
   const VIEWS = ['dashboard', 'orders', 'stages', 'settings'];
   const pathSegs = location.pathname.split('/').filter(Boolean); // ['order-to-delivery', view, stageId]
   const currentView = VIEWS.includes(pathSegs[1]) ? pathSegs[1] : 'orders'; // default to Orders page
-  const selectedStageId = STAGES.some((s) => s.id === pathSegs[2]) ? pathSegs[2] : 'material_check';
+  const selectedStageId = STAGES.some((s) => s.id === pathSegs[2]) ? pathSegs[2] : STAGES[0].id;
 
   // Keeps the latest requested stage so setSelectedStageId(x); setCurrentView('stages') works in one tick
   const stageRef = useRef(selectedStageId);
@@ -105,7 +105,7 @@ export function App() {
     const params = new URLSearchParams(location.search);
     const legacyView = params.get('view');
     if (VIEWS.includes(legacyView)) {
-      navigate(viewPath(legacyView, params.get('stage') || 'material_check'), { replace: true });
+      navigate(viewPath(legacyView, params.get('stage') || STAGES[0].id), { replace: true });
     } else if (location.pathname.replace(/\/+$/, '') === '/order-to-delivery') {
       navigate('/order-to-delivery/orders', { replace: true });
     }
@@ -274,7 +274,7 @@ export function App() {
     showToast(`Order ${newOrder.id} created! Saved to your personal account.`, 'success');
 
     // Automatically navigate to Stage 1: Material Check
-    setSelectedStageId('material_check');
+    setSelectedStageId(STAGES[0].id);
     setCurrentView('stages');
   };
 

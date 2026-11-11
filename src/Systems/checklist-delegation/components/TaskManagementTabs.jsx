@@ -14,7 +14,11 @@ export default function TaskManagementTabs({ activeTab, setActiveTab }) {
         { id: 'ea', label: 'EA', icon: Users, color: 'text-emerald-600', activeColor: 'bg-[#5B172E]' },
     ];
 
+    // Hidden from the UI only (code, pages and data are untouched). Remove an id from this list to show the tab again.
+    const HIDDEN_TAB_IDS = ['maintenance', 'repair', 'ea'];
+
     const tabs = allTabs.filter(tab => {
+        if (HIDDEN_TAB_IDS.includes(tab.id)) return false;
         if (role === "hod") {
             if (tab.id === "checklist") return true;
             if (tab.id === "repair" && isMachineOperator) return true;

@@ -403,6 +403,7 @@ export default function QuickTask() {
       }
 
       setEditingTaskId(null);
+      setIsEditModalOpen(false);
       setEditFormData({});
       setRecordedAudio(null);
 
@@ -419,7 +420,7 @@ export default function QuickTask() {
 
     } catch (error) {
       console.error("Failed to update task:", error);
-      showToast("Failed to update task", "error");
+      showToast("Failed to update task: " + (error?.message || (typeof error === "string" ? error : "unknown error")), "error");
     } finally {
       setIsSaving(false);
     }
@@ -1405,6 +1406,7 @@ export default function QuickTask() {
                           className="w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm font-medium focus:border-purple-400 outline-none transition-all"
                         >
                           <option value="">Select Dept</option>
+                          {editFormData.department && !departments.includes(editFormData.department) && <option value={editFormData.department}>{editFormData.department}</option>}
                           {departments.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                       </div>

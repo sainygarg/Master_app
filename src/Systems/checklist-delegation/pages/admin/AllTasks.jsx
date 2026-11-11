@@ -430,7 +430,8 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
 
       const currentUsername = (username || "");
       const currentUserRole = (userRole || "").toLowerCase();
-      const isSuperAdmin = currentUsername.toLowerCase() === "admin";
+      // Master Hub admins (role admin) see every task, like the legacy "admin" user
+      const isSuperAdmin = currentUsername.toLowerCase() === "admin" || currentUserRole === "admin";
 
       if (!isSuperAdmin) {
         let reportingUsers = [currentUsername];

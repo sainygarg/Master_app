@@ -120,11 +120,15 @@ export const OrderDetailDrawer = ({
                       Design Sketch
                     </div>
                     <div className="h-56 sm:h-64 flex items-center justify-center p-2">
-                      <img
-                        src={order.designImages?.[0] || '/assets/sg-1024-lehenga.jpg'}
-                        alt="Design sketch"
-                        className="w-full h-full object-contain rounded-lg"
-                      />
+                      {order.designImages?.[0] ? (
+                        <img
+                          src={order.designImages[0]}
+                          alt="Design sketch"
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-xs text-stone-400">No image uploaded</span>
+                      )}
                     </div>
                   </div>
 
@@ -134,11 +138,15 @@ export const OrderDetailDrawer = ({
                       Final Outfit / Workmanship Preview
                     </div>
                     <div className="h-56 sm:h-64 flex items-center justify-center p-2">
-                      <img
-                        src={order.designImages?.[1] || order.designImages?.[0] || '/assets/sg-1042-rose.jpg'}
-                        alt="Final Outfit"
-                        className="w-full h-full object-contain rounded-lg"
-                      />
+                      {order.designImages?.[1] || order.designImages?.[0] ? (
+                        <img
+                          src={order.designImages[1] || order.designImages[0]}
+                          alt="Final Outfit"
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-xs text-stone-400">No image uploaded</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -180,14 +188,14 @@ export const OrderDetailDrawer = ({
                     <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#EFE7DC]">
                       <span className="text-stone-400 block text-[10px]">Fabric Required</span>
                       <span className="text-stone-800 font-medium">
-                        {order.stageData?.material_check?.fabricMeterage || order.designDetails?.fabric || 'Chanderi Silk / Pure Satin'}
+                        {order.stageData?.material_check?.fabricMeterage || order.designDetails?.fabric || '—'}
                       </span>
                     </div>
 
                     <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#EFE7DC]">
                       <span className="text-stone-400 block text-[10px]">Dye Status</span>
                       <span className="font-bold text-[#9B783E]">
-                        {order.stageData?.material_check?.dyeStatus || 'Confirmed'}
+                        {order.stageData?.material_check?.dyeStatus || '—'}
                       </span>
                     </div>
                   </div>

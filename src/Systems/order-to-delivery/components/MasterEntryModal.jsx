@@ -18,6 +18,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
+import { fetchDepartmentNames } from '../../../core/services/departmentService';
 
 export const MasterEntryModal = ({
   isOpen,
@@ -31,6 +32,13 @@ export const MasterEntryModal = ({
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+
+  // Department choices come from the database (Master Hub departments)
+  useEffect(() => {
+    if (type !== 'tat') return;
+    fetchDepartmentNames().then(setDepartmentOptions).catch(() => setDepartmentOptions([]));
+  }, [type, isOpen]);
 
   useEffect(() => {
     if (initialData) {
@@ -78,13 +86,13 @@ export const MasterEntryModal = ({
         setFormData({
           id: nextId || `TAT-${Date.now().toString().slice(-3)}`,
           stageName: STAGES[0]?.name || 'Material Check',
-          stageId: STAGES[0]?.id || 'material_check',
+          stageId: STAGES[0]?.id,
           stageIndex: 1,
           standardDays: 2,
           standardHours: 16,
           bufferDays: 1,
           maxSlaDays: 3,
-          department: 'Order Desk & Client Relations',
+          department: '',
           priority: 'Normal',
           notes: ''
         });
@@ -226,7 +234,7 @@ export const MasterEntryModal = ({
                   type="text"
                   value={formData.phone || ''}
                   onChange={(e) => handleChange('phone', e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
+                  placeholder="Mobile number"
                   className={`w-full px-3 py-2 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
                     errors.phone ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                   }`}
@@ -259,7 +267,7 @@ export const MasterEntryModal = ({
                     type="text"
                     value={formData.city || ''}
                     onChange={(e) => handleChange('city', e.target.value)}
-                    placeholder="e.g. New Delhi, Mumbai"
+                    placeholder="City"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>
@@ -277,7 +285,7 @@ export const MasterEntryModal = ({
                     type="text"
                     value={formData.contactPerson || ''}
                     onChange={(e) => handleChange('contactPerson', e.target.value)}
-                    placeholder="e.g. Rajesh Shah"
+                    placeholder="Contact person"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>
@@ -411,13 +419,19 @@ export const MasterEntryModal = ({
                   <label className="block font-semibold text-stone-700 mb-1">
                     In-Charge Department
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.department || ''}
                     onChange={(e) => handleChange('department', e.target.value)}
-                    placeholder="e.g. Tracing, Khaka & Cutting"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
+                  >
+                    <option value="">Select department</option>
+                    {formData.department && !departmentOptions.includes(formData.department) && (
+                      <option value={formData.department}>{formData.department}</option>
+                    )}
+                    {departmentOptions.map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -461,7 +475,7 @@ export const MasterEntryModal = ({
                     type="text"
                     value={formData.contactPerson || ''}
                     onChange={(e) => handleChange('contactPerson', e.target.value)}
-                    placeholder="e.g. Vikram Batra"
+                    placeholder="Contact person"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>

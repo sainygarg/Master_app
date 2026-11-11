@@ -99,8 +99,9 @@ export default function MasterShell({ children }) {
   });
 
   // URL View & Stage parameters
-  const currentViewParam = new URLSearchParams(location.search).get('view') || (location.pathname.startsWith('/order-to-delivery') ? 'orders' : '');
-  const currentStageParam = new URLSearchParams(location.search).get('stage');
+  const otdSegs = location.pathname.split('/').filter(Boolean); // ['order-to-delivery', view, stageId]
+  const currentViewParam = location.pathname.startsWith('/order-to-delivery') ? (otdSegs[1] || 'orders') : '';
+  const currentStageParam = otdSegs[1] === 'stages' ? otdSegs[2] || null : null;
 
   // System detection
   const isOrderFlow = location.pathname.startsWith('/order-to-delivery') || location.pathname === '/';

@@ -88,18 +88,18 @@ export function OtherSystemGroup({ systemId, onNavigate }) {
   let rows = [];
   if (systemId === 'order-to-delivery') {
     rows = [
-      { label: 'Dashboard', icon: 'LayoutDashboard', to: '/order-to-delivery?view=dashboard' },
+      { label: 'Dashboard', icon: 'LayoutDashboard', to: '/order-to-delivery/dashboard' },
       {
         label: 'Orders',
         icon: 'ShoppingBag',
-        to: '/order-to-delivery?view=orders',
+        to: '/order-to-delivery/orders',
         children: STAGES.map((s, i) => ({
           label: `${i + 1}. ${s.name}`,
           icon: 'Scissors',
-          to: `/order-to-delivery?view=stages&stage=${s.id}`,
+          to: `/order-to-delivery/stages/${s.id}`,
         })),
       },
-      { label: 'Master', icon: 'Database', to: '/order-to-delivery?view=settings' },
+      { label: 'Master', icon: 'Database', to: '/order-to-delivery/settings' },
     ];
   } else {
     const role = (localStorage.getItem('role') || 'user').toLowerCase();

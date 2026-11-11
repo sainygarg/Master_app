@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
@@ -76,22 +76,41 @@ export function App() {
   // Sidebar Hide / Unhide State (Defaults to hidden on phones for full width)
   const [isSidebarHidden, setIsSidebarHidden] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
-  // Navigation State ('dashboard' | 'orders' | 'stages' | 'settings')
-  const [currentView, setCurrentView] = useState('orders'); // default to Orders page
-  const [selectedStageId, setSelectedStageId] = useState('material_check');
-
-  // Deep-link from the other system's sidebar: /order-to-delivery?view=stages&stage=<id>
+  // Navigation is driven by the URL path:
+  //   /order-to-delivery/dashboard | /orders | /stages/<stageId> | /settings
   const location = useLocation();
   const navigate = useNavigate();
+  const VIEWS = ['dashboard', 'orders', 'stages', 'settings'];
+  const pathSegs = location.pathname.split('/').filter(Boolean); // ['order-to-delivery', view, stageId]
+  const currentView = VIEWS.includes(pathSegs[1]) ? pathSegs[1] : 'orders'; // default to Orders page
+  const selectedStageId = STAGES.some((s) => s.id === pathSegs[2]) ? pathSegs[2] : 'material_check';
+
+  // Keeps the latest requested stage so setSelectedStageId(x); setCurrentView('stages') works in one tick
+  const stageRef = useRef(selectedStageId);
+  useEffect(() => { stageRef.current = selectedStageId; }, [selectedStageId]);
+
+  const viewPath = (view, stageId) =>
+    view === 'stages' ? `/order-to-delivery/stages/${stageId}` : `/order-to-delivery/${view}`;
+
+  const setCurrentView = (view, options = {}) => {
+    navigate(viewPath(view, stageRef.current), options);
+  };
+  const setSelectedStageId = (stageId) => {
+    stageRef.current = stageId;
+    if (currentView === 'stages') navigate(viewPath('stages', stageId));
+  };
+
+  // Old links (/order-to-delivery?view=stages&stage=<id>) and the bare /order-to-delivery redirect to a clean path
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const view = params.get('view');
-    if (['dashboard', 'orders', 'stages', 'settings'].includes(view)) {
-      setCurrentView(view);
-      const stage = params.get('stage');
-      if (stage) setSelectedStageId(stage);
+    const legacyView = params.get('view');
+    if (VIEWS.includes(legacyView)) {
+      navigate(viewPath(legacyView, params.get('stage') || 'material_check'), { replace: true });
+    } else if (location.pathname.replace(/\/+$/, '') === '/order-to-delivery') {
+      navigate('/order-to-delivery/orders', { replace: true });
     }
-  }, [location.search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search]);
 
   // If the current view is not permitted for this user, move them to one they can open
   useEffect(() => {
@@ -104,7 +123,8 @@ export function App() {
     };
     if (allowed[currentView]) return;
     const next = ['orders', 'dashboard', 'stages', 'settings'].find((v) => allowed[v]);
-    if (next) setCurrentView(next);
+    if (next) setCurrentView(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, currentView]);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewFormat, setViewFormat] = useState('table'); // 'table' | 'cards'

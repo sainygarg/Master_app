@@ -239,7 +239,7 @@ export function ChecklistDelegationApp() {
         {/* 10. Settings - Redirected to Unified Master Setting */}
         <Route
           path="/checklist/setting"
-          element={<Navigate to="/order-to-delivery?view=settings" replace />}
+          element={<Navigate to="/order-to-delivery/settings" replace />}
         />
 
         {/* 11. Training Video */}

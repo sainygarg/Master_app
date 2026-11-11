@@ -275,7 +275,7 @@ export default function MasterShell({ children }) {
             isCollapsed ? 'h-16 justify-center px-2' : 'h-16 justify-between px-4'
           }`}>
             <button
-              onClick={() => { handleNavigate('/order-to-delivery?view=dashboard'); setOrderFlowOpen(true); setChecklistOpen(false); }}
+              onClick={() => { handleNavigate('/order-to-delivery/dashboard'); setOrderFlowOpen(true); setChecklistOpen(false); }}
               className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer"
               title="Sainy Couture Atelier"
             >
@@ -340,7 +340,7 @@ export default function MasterShell({ children }) {
               {/* 1. Order Flow Icon */}
 {showOrderFlow && (
               <button
-                onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+                onClick={() => handleNavigate('/order-to-delivery/dashboard')}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -358,7 +358,7 @@ export default function MasterShell({ children }) {
               {/* 3. Master Setting Icon */}
 {canSettings && (
               <button
-                onClick={() => { handleNavigate('/order-to-delivery?view=settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                onClick={() => { handleNavigate('/order-to-delivery/settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -542,7 +542,7 @@ export default function MasterShell({ children }) {
 {canDash && (
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+                      onClick={() => handleNavigate('/order-to-delivery/dashboard')}
                       className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                         isOrderFlow && currentViewParam === 'dashboard'
                           ? 'bg-[#5B172E] text-white font-bold shadow-xs'
@@ -569,7 +569,7 @@ export default function MasterShell({ children }) {
 {canOrders && (
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=orders')}
+                      onClick={() => handleNavigate('/order-to-delivery/orders')}
                       className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                         isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
                           ? 'bg-[#5B172E] text-white font-bold shadow-xs'
@@ -601,7 +601,7 @@ export default function MasterShell({ children }) {
                         <button
                           key={stage.id}
                           type="button"
-                          onClick={() => handleNavigate(`/order-to-delivery?view=stages&stage=${stage.id}`)}
+                          onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
                           className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
                             isStageActive
                               ? 'bg-[#5B172E] text-white font-bold shadow-xs'
@@ -636,7 +636,7 @@ export default function MasterShell({ children }) {
 {canSettings && (
               <button
                 type="button"
-                onClick={() => handleNavigate('/order-to-delivery?view=settings')}
+                onClick={() => handleNavigate('/order-to-delivery/settings')}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${
                   isMasterSettingActive
                     ? 'bg-[#5B172E] text-white font-bold shadow-xs'
@@ -847,7 +847,7 @@ export default function MasterShell({ children }) {
 {canDash && (
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=dashboard')}
+                      onClick={() => handleNavigate('/order-to-delivery/dashboard')}
                       className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
                         isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
                       }`}
@@ -868,7 +868,7 @@ export default function MasterShell({ children }) {
 {canOrders && (
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/order-to-delivery?view=orders')}
+                      onClick={() => handleNavigate('/order-to-delivery/orders')}
                       className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
                         isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
                       }`}
@@ -893,7 +893,7 @@ export default function MasterShell({ children }) {
                         <button
                           key={stage.id}
                           type="button"
-                          onClick={() => handleNavigate(`/order-to-delivery?view=stages&stage=${stage.id}`)}
+                          onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
                           className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
                             isStageActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
                           }`}
@@ -928,7 +928,7 @@ export default function MasterShell({ children }) {
 {canSettings && (
               <button
                 type="button"
-                onClick={() => handleNavigate('/order-to-delivery?view=settings')}
+                onClick={() => handleNavigate('/order-to-delivery/settings')}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                   isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-700 hover:bg-[#F3ECE2]'
                 }`}

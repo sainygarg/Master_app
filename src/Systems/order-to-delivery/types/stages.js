@@ -9,6 +9,7 @@ export const STAGES = [
     icon: 'PackageCheck',
     fields: [
       { key: 'dyeStatus', label: 'DYE Status', type: 'select', options: ['Yes', 'No', 'Not Required', 'In Process'] },
+      { key: 'receivedStatus', label: 'Received Status', type: 'select', options: ['Received', 'Partially Received', 'Not Received', 'Pending'] },
       { key: 'materialReadyDate', label: 'Full Material Ready Date', type: 'date' },
       { key: 'remarks', label: 'Remarks', type: 'textarea', placeholder: 'Dye shade remarks, fabric texture...' },
     ]
@@ -22,8 +23,10 @@ export const STAGES = [
     description: 'Khaka tracing, marking placement & base fabric cutting',
     icon: 'Scissors',
     fields: [
-      { key: 'cuttingDate', label: 'Cutting Date', type: 'date' },
-      { key: 'markingDate', label: 'Marking Date', type: 'date' },
+      { key: 'dateType', label: 'Type', type: 'select', options: ['Cutting Date', 'Marking Date'] },
+      // Only the date matching the selected Type is shown / editable
+      { key: 'cuttingDate', label: 'Cutting Date', type: 'date', showIf: { key: 'dateType', equals: 'Cutting Date' } },
+      { key: 'markingDate', label: 'Marking Date', type: 'date', showIf: { key: 'dateType', equals: 'Marking Date' } },
       { key: 'handoverToEmbroidery', label: 'Handover to Embroidery Team', type: 'select', options: ['Yes', 'No', 'In Transit'] },
       { key: 'masterCutterName', label: 'Cutter / Master Name', type: 'text', placeholder: 'Master Name' },
       { key: 'remarks', label: 'Remarks', type: 'textarea', placeholder: 'Pattern placement, neck shape adjustment notes...' },
@@ -31,7 +34,7 @@ export const STAGES = [
   },  
   {
     id: 'embroidery_sample_approval',
-    name: 'Sample Approval',
+    name: 'EMB Sample Approval',
     code: 'ESA',
     badgeColor: 'bg-purple-100 text-purple-800 border-purple-200',
     dotColor: 'bg-purple-500',
@@ -198,3 +201,18 @@ export const LOWER_BODY_MEASUREMENTS = [
   { id: 'pantFlare', label: 'Pant Flare' },
   { id: 'skirtFlare', label: 'Skirt Flare' },
 ];
+
+// Orders placed with "Embroidery = No" skip these two stages
+export const EMBROIDERY_STAGE_IDS = ['embroidery_sample_approval', 'full_embroidery'];
+
+export const isEmbroideryRequired = (order) => (order?.embroidery || 'Yes') !== 'No';
+
+export const isStageSkipped = (order, stageId) =>
+  !isEmbroideryRequired(order) && EMBROIDERY_STAGE_IDS.includes(stageId);
+
+// Index of the stage an order moves to after `fromIndex` (skipping embroidery stages when not required)
+export const getNextStageIndex = (order, fromIndex) => {
+  let next = fromIndex + 1;
+  while (next < STAGES.length && isStageSkipped(order, STAGES[next].id)) next++;
+  return next;
+};

@@ -11,6 +11,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
+import { uploadOrderImage } from '../utils/imageUpload';
 
 export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) => {
   if (!isOpen) return null;
@@ -23,6 +24,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [size, setSize] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const [trialDate, setTrialDate] = useState('');
+  const [embroidery, setEmbroidery] = useState('Yes'); // 'No' skips the two embroidery stages
 
   // Images arrays
   const [designImages, setDesignImages] = useState([]);
@@ -46,42 +48,25 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Downscale + re-encode photos before they are stored inside the order row.
-  // Raw phone photos are several MB of base64 each, which makes saving fail and every page load slow.
-  const compressImage = (file) =>
-    new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onerror = () => resolve(null);
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = () => resolve(reader.result);
-        img.onload = () => {
-          const MAX = 1280;
-          const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  // Photos are uploaded to Supabase Storage right away; the order only stores the short URL
+  // (storing base64 inside the order made every save and every page load slow).
+  const [uploadingCount, setUploadingCount] = useState(0);
 
-  // Helper to handle multiple image uploads
   const handleImageUpload = (e, type) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+    const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
     e.target.value = ''; // allow re-selecting the same file
+    if (!files.length) return;
+    setUploadingCount((c) => c + files.length);
     files.forEach(async (file) => {
-      if (!file.type.startsWith('image/')) return;
-      const dataUrl = await compressImage(file);
-      if (!dataUrl) return;
-      if (type === 'design') {
-        setDesignImages((prev) => [...prev, dataUrl]);
-      } else {
-        setInspirationImages((prev) => [...prev, dataUrl]);
+      try {
+        const url = await uploadOrderImage(file, nextOrderId || 'drafts');
+        if (type === 'design') setDesignImages((prev) => [...prev, url]);
+        else setInspirationImages((prev) => [...prev, url]);
+      } catch (err) {
+        console.error('Image upload failed', err);
+        setErrors((prev) => ({ ...prev, images: 'Could not upload a photo: ' + (err.message || 'unknown error') }));
+      } finally {
+        setUploadingCount((c) => c - 1);
       }
     });
   };
@@ -98,6 +83,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
+    if (uploadingCount > 0) {
+      setErrors({ images: 'Please wait for photos to finish uploading.' });
+      return;
+    }
     const errs = {};
     if (!clientName.trim()) errs.clientName = 'Client name is required';
     if (!mobile.trim()) errs.mobile = 'Mobile number is required';
@@ -119,6 +108,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       size,
       deliveryDate,
       trialDate,
+      embroidery,
       createdAt: new Date().toISOString(),
       currentStageId: STAGES[0].id,
       currentStageIndex: 0,
@@ -330,7 +320,28 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                 />
                 {errors.deliveryDate && <p className="text-[11px] text-rose-500 mt-1">{errors.deliveryDate}</p>}
               </div>
+
+              {/* Embroidery Type */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
+                  9. Embroidery <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={embroidery}
+                  onChange={(e) => setEmbroidery(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+                {embroidery === 'No' && (
+                  <p className="text-[11px] text-amber-700 mt-1">Embroidery &amp; EMB Sample Approval stages will be skipped.</p>
+                )}
+              </div>
             </div>
+
+            {errors.images && <p className="text-[11px] text-rose-500 mt-3">{errors.images}</p>}
+            {uploadingCount > 0 && <p className="text-[11px] text-stone-500 mt-3">Uploading {uploadingCount} photo(s)…</p>}
 
             {/* Images Upload Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 pt-4 border-t border-[#F0E6D8]">
@@ -615,10 +626,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || uploadingCount > 0}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#7B203E] hover:from-[#431021] hover:to-[#5B172E] shadow-md transition-all transform active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>{submitting ? 'Saving…' : 'Create Order'}</span>
+              <span>{submitting ? 'Saving…' : uploadingCount > 0 ? 'Uploading photos…' : 'Create Order'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

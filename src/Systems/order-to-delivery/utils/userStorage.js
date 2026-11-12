@@ -76,6 +76,13 @@ export const fetchUsers = async () => {
   return (data || []).map(fromRow);
 };
 
+// Only ids – used to generate the next USR-xx without downloading every user row
+export const fetchUserIds = async () => {
+  const { data, error } = await supabase.from(TABLE).select('id');
+  if (error) throw error;
+  return data || [];
+};
+
 export const createUser = async (user) => {
   const { data, error } = await supabase.from(TABLE).insert([toRow(user)]).select().single();
   if (error) throw error;

@@ -106,6 +106,7 @@ export default function MasterShell({ children }) {
   const currentStageParam = otdSegs[1] === 'stages' ? otdSegs[2] || null : null;
 
   // System detection
+  const isProfile = location.pathname === '/profile';
   const isOrderFlow = location.pathname.startsWith('/order-to-delivery') || location.pathname === '/';
   const isChecklist = location.pathname.startsWith('/checklist') || location.pathname.startsWith('/checklist');
 
@@ -158,6 +159,22 @@ export default function MasterShell({ children }) {
   // User display metadata & permissions
   const username = user?.name || localStorage.getItem('user-name') || localStorage.getItem('user_name') || 'Admin';
   const role = (user?.role || localStorage.getItem('role') || 'Admin').toUpperCase();
+
+  // Header avatar photo (set from the Profile page; cached in localStorage)
+  const [avatarUrl, setAvatarUrl] = useState(() => {
+    try { return localStorage.getItem('profile_image') || null; } catch { return null; }
+  });
+  useEffect(() => {
+    const sync = () => {
+      try { setAvatarUrl(localStorage.getItem('profile_image') || null); } catch { /* ignore */ }
+    };
+    window.addEventListener('profile-image-changed', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('profile-image-changed', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
 
   // Notifications unread count for header bell
   const dispatch = useDispatch();
@@ -253,6 +270,7 @@ export default function MasterShell({ children }) {
 
   // Current page title computation for header breadcrumb
   const pageTitle = useMemo(() => {
+    if (isProfile) return 'My Profile';
     if (isOrderFlow) {
       if (currentViewParam === 'dashboard') return 'Dashboard';
       if (currentViewParam === 'stages') {
@@ -276,7 +294,7 @@ export default function MasterShell({ children }) {
     if (path.includes('training-video')) return 'Training Video';
     if (path.includes('task')) return 'Task';
     return 'Dashboard';
-  }, [isOrderFlow, currentViewParam, currentStageParam, location.pathname]);
+  }, [isProfile, isOrderFlow, currentViewParam, currentStageParam, location.pathname]);
 
   // If not authenticated, render plain shell
   if (!isAuthenticated && !localStorage.getItem('sainy_couture_auth_user_v3') && !localStorage.getItem('user-name')) {
@@ -382,9 +400,9 @@ export default function MasterShell({ children }) {
                 title="Order to Delivery"
               >
                 <Scissors className="w-5 h-5" />
-                {orders.length > 0 && (
+                {activeOrdersCount > 0 && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
-                    {orders.length}
+                    {activeOrdersCount}
                   </span>
                 )}
               </button>
@@ -558,9 +576,9 @@ export default function MasterShell({ children }) {
                     <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {orders.length > 0 && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
-                        {orders.length}
+                    {activeOrdersCount > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white bg-[#E11D48]">
+                        {activeOrdersCount}
                       </span>
                     )}
                     <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
@@ -592,7 +610,7 @@ export default function MasterShell({ children }) {
                       </div>
                       {activeOrdersCount > 0 && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                          isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
                         }`}>
                           {activeOrdersCount}
                         </span>
@@ -619,7 +637,7 @@ export default function MasterShell({ children }) {
                       </div>
                       {orders.length > 0 && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                          isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
                         }`}>
                           {orders.length}
                         </span>
@@ -651,7 +669,7 @@ export default function MasterShell({ children }) {
                           </div>
                           {stageOrders.length > 0 && (
                             <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isStageActive ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                              isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
                             }`}>
                               {stageOrders.length}
                             </span>
@@ -865,9 +883,9 @@ export default function MasterShell({ children }) {
                     <span>Order to Delivery</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {orders.length > 0 && (
-                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold bg-[#FAF5EE] text-[#5B172E]">
-                        {orders.length}
+                    {activeOrdersCount > 0 && (
+                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
+                        {activeOrdersCount}
                       </span>
                     )}
                     <span className="p-0.5 rounded text-stone-500">
@@ -892,7 +910,7 @@ export default function MasterShell({ children }) {
                         <span>Dashboard</span>
                       </div>
                       {activeOrdersCount > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#C5A059] text-white">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
                           {activeOrdersCount}
                         </span>
                       )}
@@ -946,7 +964,7 @@ export default function MasterShell({ children }) {
                           </div>
                           {stageOrders.length > 0 && (
                             <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isStageActive ? 'bg-[#C5A059] text-white' : 'bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]'
+                              isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
                             }`}>
                               {stageOrders.length}
                             </span>
@@ -1025,7 +1043,7 @@ export default function MasterShell({ children }) {
                 </span>
                 <span className="text-stone-300">/</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] shrink-0">
-                  {isMasterSettingActive ? 'Settings' : isOrderFlow ? 'Order to Delivery' : 'Checklist'}
+                  {isProfile ? 'Profile' : isMasterSettingActive ? 'Settings' : isOrderFlow ? 'Order to Delivery' : 'Checklist'}
                 </span>
                 <span className="text-stone-300 hidden xs:inline">/</span>
                 <span className="text-xs font-semibold text-stone-600 truncate hidden xs:inline">
@@ -1062,12 +1080,18 @@ export default function MasterShell({ children }) {
             </div>
 
             {/* User Avatar Circle */}
-            <div
-              className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs cursor-pointer hover:scale-105 transition-transform"
-              title={`${username} (${role})`}
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-xs border-2 border-[#C5A059]/40 shadow-xs cursor-pointer hover:scale-105 transition-transform overflow-hidden"
+              title={`${username} (${role}) — open profile`}
             >
-              {username ? username.substring(0, 2).toUpperCase() : 'SG'}
-            </div>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                username ? username.substring(0, 2).toUpperCase() : 'SG'
+              )}
+            </button>
 
             {/* Logout Action Button */}
             <button

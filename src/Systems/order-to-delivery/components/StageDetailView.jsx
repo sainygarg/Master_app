@@ -26,7 +26,7 @@ import {
   Edit3,
   Layers
 } from 'lucide-react';
-import { STAGES } from '../types/stages';
+import { STAGES, isStageSkipped } from '../types/stages';
 import { StageUpdateModal } from './StageUpdateModal';
 import { CustomerPhoneDisplay } from '../utils/privacy';
 import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
@@ -64,8 +64,10 @@ export const StageDetailView = ({
 
   // Orders that have passed or completed this stage in the past
   const historyOrders = orders.filter(o =>
-    o.currentStageIndex > currentStageIndex ||
-    (o.stageData && o.stageData[selectedStageId] && o.currentStageId !== selectedStageId)
+    !isStageSkipped(o, selectedStageId) && (
+      o.currentStageIndex > currentStageIndex ||
+      (o.stageData && o.stageData[selectedStageId] && o.currentStageId !== selectedStageId)
+    )
   );
 
   const handleOpenUpdateModal = (order) => {
@@ -716,6 +718,7 @@ export const StageDetailView = ({
           setSelectedOrderForUpdate(null);
         }}
         order={selectedOrderForUpdate}
+        currentUser={currentUser}
         stageId={selectedStageId}
         onSaveOnly={handleSaveStageDataOnly}
         onSaveAndAdvance={handleSaveAndAdvanceStage}

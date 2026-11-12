@@ -11,10 +11,11 @@ import { UserFormModal } from './components/UserFormModal';
 import { OrderFormModal } from './components/OrderFormModal';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
 import { MeasurementsModal } from './components/MeasurementsModal';
-import { STAGES } from './types/stages';
+import { STAGES, getNextStageIndex } from './types/stages';
 import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId, getCachedOrders, syncOrdersCache } from './utils/storage';
 import {
   fetchUsers,
+  fetchUserIds,
   createUser,
   updateUser,
   deleteUser,
@@ -164,8 +165,11 @@ export function App() {
   }, []);
 
   // Keep the cache in step with local edits (create/update/advance/delete)
+  // Debounced so rapid edits don't repeatedly serialize every order on the main thread
   useEffect(() => {
-    if (!ordersLoading) syncOrdersCache(orders);
+    if (ordersLoading) return;
+    const t = setTimeout(() => syncOrdersCache(orders), 1500);
+    return () => clearTimeout(t);
   }, [orders, ordersLoading]);
 
   // Persist an order; on failure tell the user and resync from the DB
@@ -322,8 +326,12 @@ export function App() {
       return;
     }
 
-    const nextIndex = currentIndex + 1;
+    const nextIndex = getNextStageIndex(currentOrder, currentIndex);
     const nextStage = STAGES[nextIndex];
+    if (!nextStage) {
+      showToast(`Order ${orderId} is in final delivery stage.`, 'info');
+      return;
+    }
 
     const updatedOrders = orders.map((order) => {
       if (order.id !== orderId) return order;
@@ -334,7 +342,7 @@ export function App() {
         timestamp: new Date().toISOString(),
         action: `Moved from ${STAGES[currentIndex].name} to ${nextStage.name}`,
         actor: currentUser?.name || 'Staff User',
-        notes: stageFields.stageNotes || 'Stage parameters confirmed.'
+        notes: stageFields.stageNotes || (nextIndex > currentIndex + 1 ? 'Stage parameters confirmed. Embroidery stages skipped (Embroidery = No).' : 'Stage parameters confirmed.')
       };
 
       return {
@@ -409,9 +417,9 @@ export function App() {
         showToast(`User ${saved.name} updated!`, 'success');
       } else {
         // Re-read from DB so the generated ID can't collide with another session's insert
-        const fresh = await fetchUsers();
-        const saved = await createUser({ ...userData, id: generateNextUserId(fresh) });
-        setUsers([...fresh, saved]);
+        const ids = await fetchUserIds();
+        const saved = await createUser({ ...userData, id: generateNextUserId(ids) });
+        setUsers((prev) => [...prev.filter((u) => u.id !== saved.id), saved]);
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
         showToast(`New ${saved.role} account created!`, 'success');
       }

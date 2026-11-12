@@ -4,6 +4,7 @@ import './Systems'; // Automatically registers all systems
 import { UnifiedAuthProvider } from './core/auth/UnifiedAuthContext';
 import { ToastAlertProvider } from './core/context/ToastAlertContext';
 import MasterShell from './core/layout/MasterShell';
+import ProfilePage from './core/pages/ProfilePage';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
 
@@ -30,6 +31,9 @@ export function App() {
           <Routes>
             {/* Default root path redirects to Checklist Dashboard (login gate sends guests to the login page) */}
             <Route path="/" element={<Navigate to="/checklist/admin" replace />} />
+
+            {/* My Profile (opened from the header avatar) */}
+            <Route path="/profile" element={<ProfilePage />} />
 
             {/* System 1: Order to Delivery */}
             <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />

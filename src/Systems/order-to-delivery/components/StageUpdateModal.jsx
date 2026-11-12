@@ -13,12 +13,14 @@ import {
   PackageCheck,
   Tag
 } from 'lucide-react';
-import { STAGES } from '../types/stages';
+import { STAGES, getNextStageIndex } from '../types/stages';
+import { maskCustomerMobile } from '../utils/privacy';
 
 export const StageUpdateModal = ({
   isOpen,
   onClose,
   order,
+  currentUser,
   stageId,
   onSaveOnly,
   onSaveAndAdvance
@@ -27,24 +29,37 @@ export const StageUpdateModal = ({
 
   const currentStage = STAGES.find(s => s.id === stageId) || STAGES[0];
   const currentStageIndex = STAGES.findIndex(s => s.id === stageId);
-  const nextStage = STAGES[currentStageIndex + 1];
+  const nextStageIndex = getNextStageIndex(order, currentStageIndex);
+  const nextStage = STAGES[nextStageIndex];
 
   // Local state for editing fields in this stage
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
     if (order && stageId) {
-      const existingData = order.stageData?.[stageId] || {};
-      setFormData({ ...existingData });
+      const existingData = { ...(order.stageData?.[stageId] || {}) };
+      // Older records saved before a conditional "Type" existed: infer it from the date that is filled
+      (STAGES.find((s) => s.id === stageId)?.fields || []).forEach((f) => {
+        if (f.showIf && !existingData[f.showIf.key] && existingData[f.key]) {
+          existingData[f.showIf.key] = f.showIf.equals;
+        }
+      });
+      setFormData(existingData);
     }
   }, [order, stageId, isOpen]);
 
   const handleChange = (key, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setFormData(prev => {
+      const next = { ...prev, [key]: value };
+      // Switching the Type clears the dependent field that is now hidden, so no stale value is saved
+      currentStage.fields.forEach((f) => {
+        if (f.showIf && f.showIf.key === key && f.showIf.equals !== value) next[f.key] = '';
+      });
+      return next;
+    });
   };
+
+  const isFieldVisible = (field) => !field.showIf || formData[field.showIf.key] === field.showIf.equals;
 
   const handleSaveDraft = (e) => {
     e.preventDefault();
@@ -94,20 +109,26 @@ export const StageUpdateModal = ({
         {/* Modal Body / Stage Fields Form */}
         <form className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs scrollbar-thin">
 
-          {/* Order Quick Context Bar */}
-          <div className="p-3 rounded-xl bg-white border border-[#E8DFD3] shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div>
-              <span className="text-stone-400">Target Delivery:</span>{' '}
-              <strong className="text-stone-800">{order.deliveryDate}</strong>
-            </div>
-            <div>
-              <span className="text-stone-400">Trial Date:</span>{' '}
-              <strong className="text-stone-800">{order.trialDate || 'N/A'}</strong>
-            </div>
-            <div>
-              <span className="text-stone-400">Size:</span>{' '}
-              <strong className="text-[#5B172E]">{order.size}</strong>
-            </div>
+          {/* Customer & Order Details (read-only) */}
+          <div className="p-3 rounded-xl bg-white border border-[#E8DFD3] shadow-xs">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Customer &amp; Order Details</div>
+            <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-xs">
+              {[
+                ['Client', order.clientName],
+                ['Mobile', maskCustomerMobile(order.mobile, currentUser)],
+                ['City', order.city],
+                ['Design', order.designName],
+                ['Size', order.size],
+                ['Target Delivery', order.deliveryDate],
+                ['Trial Date', order.trialDate],
+                ['Embroidery', order.embroidery || 'Yes']
+              ].map(([k, v]) => (
+                <div key={k} className="min-w-0">
+                  <dt className="text-stone-400">{k}</dt>
+                  <dd className="font-semibold text-stone-800 truncate" title={v || ''}>{v || 'N/A'}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
           {/* Dynamic Stage Input Fields */}
@@ -118,7 +139,7 @@ export const StageUpdateModal = ({
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {currentStage.fields.map((field) => {
+              {currentStage.fields.filter(isFieldVisible).map((field) => {
                 const val = formData[field.key] || '';
 
                 if (field.type === 'select') {
@@ -222,7 +243,7 @@ export const StageUpdateModal = ({
                 type="button"
                 onClick={handleAdvance}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-xs hover:shadow transition-all"
-                title={nextStage ? `Save and move to Stage ${currentStageIndex + 2}: ${nextStage.name}` : 'Finalize Delivery'}
+                title={nextStage ? `Save and move to Stage ${nextStageIndex + 1}: ${nextStage.name}` : 'Finalize Delivery'}
               >
                 <span>Save & Advance</span>
                 <ArrowRight className="w-3.5 h-3.5" />

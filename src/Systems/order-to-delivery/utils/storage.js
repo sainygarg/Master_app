@@ -22,10 +22,20 @@ export const getCachedOrders = () => {
   return null;
 };
 
+// Photos still stored as base64 are far too heavy for the cache; drop them there (the DB copy is untouched)
+const lightweight = (orders) =>
+  orders.map((o) => ({
+    ...o,
+    designImages: (o.designImages || []).filter((i) => !String(i).startsWith('data:')),
+    inspirationImages: (o.inspirationImages || []).filter((i) => !String(i).startsWith('data:'))
+  }));
+
 const setCachedOrders = (orders) => {
   memoryCache = orders;
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(orders));
+    const json = JSON.stringify(lightweight(orders));
+    if (json.length > 2_000_000) return; // too big to be worth caching
+    sessionStorage.setItem(CACHE_KEY, json);
   } catch {
     /* quota exceeded – memory cache still works */
   }

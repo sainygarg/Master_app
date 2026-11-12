@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LoadingState, LoadingRow } from './LoadingState';
 import { 
   ShoppingBag, 
   PlusCircle, 
@@ -20,6 +21,7 @@ import { CustomerPhoneDisplay } from '../utils/privacy';
 
 export const OrdersView = ({
   orders = [],
+  loading = false,
   currentUser,
   onOpenNewOrder,
   onViewOrderDetails,
@@ -290,7 +292,8 @@ export const OrdersView = ({
                   );
                 })}
               
-                {filteredOrders.length === 0 && (
+                {loading && <LoadingRow colSpan={7} />}
+                {!loading && filteredOrders.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No Orders Found</div>
@@ -304,7 +307,8 @@ export const OrdersView = ({
 
           {/* MOBILE ORDER CARDS (< md) */}
           <div className="md:hidden divide-y divide-[#EFE7DC]">
-            {filteredOrders.length === 0 && (
+            {loading && <LoadingState />}
+            {!loading && filteredOrders.length === 0 && (
               <div className="p-10 text-center">
                 <div className="font-serif text-base font-bold text-[#431021]">No Orders Found</div>
                 <p className="text-xs text-stone-500 mt-1">No orders matched your search or stage filter. Click "+ Create New Order" above to place an order.</p>

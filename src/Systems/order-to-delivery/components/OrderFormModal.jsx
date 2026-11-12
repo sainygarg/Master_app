@@ -44,21 +44,45 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
 
   // Validation errors
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
-  // Helper to handle multiple image uploads (file reader to Data URL)
+  // Downscale + re-encode photos before they are stored inside the order row.
+  // Raw phone photos are several MB of base64 each, which makes saving fail and every page load slow.
+  const compressImage = (file) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onerror = () => resolve(null);
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => resolve(reader.result);
+        img.onload = () => {
+          const MAX = 1280;
+          const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+  // Helper to handle multiple image uploads
   const handleImageUpload = (e, type) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (type === 'design') {
-          setDesignImages((prev) => [...prev, reader.result]);
-        } else {
-          setInspirationImages((prev) => [...prev, reader.result]);
-        }
-      };
-      reader.readAsDataURL(file);
+    e.target.value = ''; // allow re-selecting the same file
+    files.forEach(async (file) => {
+      if (!file.type.startsWith('image/')) return;
+      const dataUrl = await compressImage(file);
+      if (!dataUrl) return;
+      if (type === 'design') {
+        setDesignImages((prev) => [...prev, dataUrl]);
+      } else {
+        setInspirationImages((prev) => [...prev, dataUrl]);
+      }
     });
   };
 
@@ -71,8 +95,9 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   };
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const errs = {};
     if (!clientName.trim()) errs.clientName = 'Client name is required';
     if (!mobile.trim()) errs.mobile = 'Mobile number is required';
@@ -124,8 +149,13 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       ]
     };
 
-    onSubmitOrder(newOrder);
-    onClose();
+    setSubmitting(true);
+    try {
+      const ok = await onSubmitOrder(newOrder);
+      if (ok !== false) onClose(); // keep the sheet open (nothing lost) if the save failed
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -585,9 +615,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#7B203E] hover:from-[#431021] hover:to-[#5B172E] shadow-md transition-all transform active:scale-98"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#7B203E] hover:from-[#431021] hover:to-[#5B172E] shadow-md transition-all transform active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>Create Order</span>
+              <span>{submitting ? 'Saving…' : 'Create Order'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

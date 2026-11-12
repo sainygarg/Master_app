@@ -95,7 +95,9 @@ export const deleteUser = async (id) => {
 };
 
 export const loginUser = async (identifier, password) => {
-  const key = identifier.trim().toLowerCase();
+  // strip characters that would break out of the PostgREST .or() filter below
+  const key = identifier.trim().toLowerCase().replace(/[,()"\\]/g, '');
+  if (!key) return { error: 'User not found.' };
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')

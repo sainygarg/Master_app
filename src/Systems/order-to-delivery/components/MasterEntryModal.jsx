@@ -108,8 +108,11 @@ export const MasterEntryModal = ({
     }
   };
 
-  const handleSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const newErrors = {};
 
     if (type === 'tat') {
@@ -133,8 +136,13 @@ export const MasterEntryModal = ({
       return;
     }
 
-    onSubmit(formData);
-    onClose();
+    setSubmitting(true);
+    try {
+      const ok = await onSubmit(formData);
+      if (ok !== false) onClose(); // keep the form open (data intact) if the save failed
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getTitle = () => {
@@ -495,10 +503,11 @@ export const MasterEntryModal = ({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5B172E] hover:bg-[#431021] shadow-xs hover:shadow transition-all"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5B172E] hover:bg-[#431021] shadow-xs hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
-              <span>{initialData ? 'Update Record' : 'Save Record'}</span>
+              <span>{submitting ? 'Saving…' : initialData ? 'Update Record' : 'Save Record'}</span>
             </button>
           </div>
 

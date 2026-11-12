@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, Mic, Play, Users, ChevronDown, Search, Check,
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { useMagicToast } from '../../context/MagicToastContext';
+import AudioPlayer from '../../components/AudioPlayer';
 
 const extractAudioUrl = (text) => {
     if (!text || typeof text !== 'string') return null;
@@ -313,9 +314,9 @@ const CalendarPage = () => {
                 if (t.type === 'repair') return true; // Repairs are reactive, ignore calendar
 
                 const isH = (holidaysRes.data || []).some(h => normalizeDate(h.holiday_date) === t.date);
-                const isW = (workingDaysRes.data || []).some(w => normalizeDate(w.working_date) === t.date);
-
-                return !isH && isW;
+                // Existing tasks are always shown on their planned day (except holidays);
+                // working_day_calender is not used to hide them.
+                return !isH;
             });
 
             // Sort by ascending date so tasks appear sequentially
@@ -353,8 +354,8 @@ const CalendarPage = () => {
         if (!selectedDate) return;
         if (type === 'delegation') {
             navigate(`/checklist/assign-delegation?date=${selectedDate}`);
-        } else if (type === 'ea') {
-            navigate(`/checklist/ea-task?date=${selectedDate}`);
+        } else if (type === 'checklist') {
+            navigate(`/checklist/checklist?date=${selectedDate}`);
         }
         setShowAssignTaskTypePopup(false);
         setIsModalOpen(false);
@@ -912,15 +913,15 @@ const CalendarPage = () => {
                             </button>
 
                             <button
-                                onClick={() => handleAssignTask('ea')}
+                                onClick={() => handleAssignTask('checklist')}
                                 className="w-full bg-gray-50 hover:bg-purple-600 text-gray-900 hover:text-white p-5 rounded-3xl flex items-center gap-4 transition-all group border border-gray-100 hover:border-purple-600"
                             >
                                 <div className="p-3 bg-white text-purple-600 rounded-2xl shadow-sm group-hover:bg-purple-500 group-hover:text-white transition-all">
-                                    <Users size={20} />
+                                    <ClipboardList size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <h4 className="text-sm font-black uppercase leading-tight mb-0.5">EA Task Assignment</h4>
-                                    <p className="text-[9px] font-bold opacity-60 uppercase tracking-wider">Executive assistance</p>
+                                    <h4 className="text-sm font-black uppercase leading-tight mb-0.5">Checklist Task</h4>
+                                    <p className="text-[9px] font-bold opacity-60 uppercase tracking-wider">Recurring routine</p>
                                 </div>
                                 <ChevronRight className="ml-auto opacity-20 group-hover:opacity-100 transition-all font-black" size={16} />
                             </button>

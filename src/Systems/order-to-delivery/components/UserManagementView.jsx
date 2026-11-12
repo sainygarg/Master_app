@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LoadingRow } from './LoadingState';
 import { 
   User,
   Users, 
@@ -34,7 +35,7 @@ import {
 } from 'lucide-react';
 import ChecklistSetting from '../../checklist-delegation/pages/Setting';
 import { STAGES } from '../types/stages';
-import { fetchMasters, saveMaster, deleteMaster } from '../utils/masterStorage';
+import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterStorage';
 import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userStorage';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
@@ -42,6 +43,7 @@ import { useToastAlert } from '../../../core/context/ToastAlertContext';
 
 export const UserManagementView = ({
   users = [],
+  usersLoading = false,
   activeUserId,
   currentUser,
   onOpenAddUser,
@@ -57,12 +59,15 @@ export const UserManagementView = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // Master Data States
-  const [customers, setCustomers] = useState([]);
-  const [vendors, setVendors] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [tatConfig, setTATConfig] = useState([]);
-  const [transporters, setTransporters] = useState([]);
-  const [karigars, setKarigars] = useState([]);
+  const [customers, setCustomers] = useState(() => getCachedMasters("customer") || []);
+  const [vendors, setVendors] = useState(() => getCachedMasters("vendor") || []);
+  const [departments, setDepartments] = useState(() => getCachedMasters("department") || []);
+  const [tatConfig, setTATConfig] = useState(() => getCachedMasters("tat") || []);
+  const [transporters, setTransporters] = useState(() => getCachedMasters("transporter") || []);
+  const [karigars, setKarigars] = useState(() => getCachedMasters("karigar") || []);
+  // Kinds whose first load has finished (cached kinds count as loaded) – prevents "No records found" flashing
+  const [loadedKinds, setLoadedKinds] = useState(() => new Set(["customer", "vendor", "department", "tat", "transporter", "karigar"].filter((k) => getCachedMasters(k))));
+  const loadingKind = (k) => !loadedKinds.has(k);
 
   // Master Entry Modal State
   const [isMasterModalOpen, setIsMasterModalOpen] = useState(false);
@@ -147,11 +152,12 @@ export const UserManagementView = ({
   useEffect(() => {
     Object.entries(MASTER_KINDS).forEach(([kind, { set }]) => {
       fetchMasters(kind)
-        .then(set)
+        .then((rows) => { set(rows); })
         .catch((err) => {
           console.error(`Failed to load ${kind} master data`, err);
           showToast(`Failed to load ${kind} data from database: ${err.message}`, 'error');
-        });
+        })
+        .finally(() => setLoadedKinds((prev) => new Set(prev).add(kind)));
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -159,19 +165,24 @@ export const UserManagementView = ({
   // Saves to the database first; local state is updated only after the DB confirms.
   const handleSubmitMaster = async (itemData) => {
     const cfg = MASTER_KINDS[masterModalType];
-    if (!cfg) return;
+    if (!cfg) return false;
     try {
-      await saveMaster(masterModalType, itemData);
-      const exists = cfg.items.some((i) => i.id === itemData.id);
-      cfg.set(
-        exists
-          ? cfg.items.map((i) => (i.id === itemData.id ? itemData : i))
-          : cfg.append ? [...cfg.items, itemData] : [itemData, ...cfg.items]
-      );
+      if (editingMasterItem) {
+        await saveMaster(masterModalType, itemData);
+        cfg.set(cfg.items.map((i) => (i.id === itemData.id ? itemData : i)));
+      } else {
+        // New entry: take the id from the latest DB state (never overwrite an existing record)
+        const fresh = await fetchMasters(masterModalType, { force: true });
+        const item = { ...itemData, id: generateNextMasterId(masterModalType, fresh) };
+        await insertMaster(masterModalType, item);
+        cfg.set(cfg.append ? [...fresh, item] : [item, ...fresh]);
+      }
       showToast('Saved successfully!', 'success');
+      return true;
     } catch (err) {
       console.error('Failed to save master entry', err);
       showToast('Could not save to database: ' + err.message, 'error');
+      return false;
     }
   };
 
@@ -568,7 +579,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredUsers.length === 0 && (
+                {usersLoading && <LoadingRow colSpan={6} />}
+                {!usersLoading && filteredUsers.length === 0 && (
                   <tr>
                     <td colSpan={6}className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -655,7 +667,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredVendors.length === 0 && (
+                {loadingKind("vendor") && <LoadingRow colSpan={4} />}
+                {!loadingKind("vendor") && filteredVendors.length === 0 && (
                   <tr>
                     <td colSpan={4} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -746,7 +759,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredCustomers.length === 0 && (
+                {loadingKind("customer") && <LoadingRow colSpan={5} />}
+                {!loadingKind("customer") && filteredCustomers.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -830,7 +844,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredDepartments.length === 0 && (
+                {loadingKind("department") && <LoadingRow colSpan={3} />}
+                {!loadingKind("department") && filteredDepartments.length === 0 && (
                   <tr>
                     <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -955,7 +970,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredTAT.length === 0 && (
+                {loadingKind("tat") && <LoadingRow colSpan={9} />}
+                {!loadingKind("tat") && filteredTAT.length === 0 && (
                   <tr>
                     <td colSpan={9} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -1038,7 +1054,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredTransporters.length === 0 && (
+                {loadingKind("transporter") && <LoadingRow colSpan={3} />}
+                {!loadingKind("transporter") && filteredTransporters.length === 0 && (
                   <tr>
                     <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -1120,7 +1137,8 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {filteredKarigars.length === 0 && (
+                {loadingKind("karigar") && <LoadingRow colSpan={3} />}
+                {!loadingKind("karigar") && filteredKarigars.length === 0 && (
                   <tr>
                     <td colSpan={3} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -1153,14 +1171,7 @@ export const UserManagementView = ({
         type={masterModalType}
         initialData={editingMasterItem}
         onSubmit={handleSubmitMaster}
-        nextId={
-          masterModalType === 'customer' ? `CUST-00${customers.length + 1}` :
-          masterModalType === 'vendor' ? `VND-00${vendors.length + 1}` :
-          masterModalType === 'department' ? `DEPT-00${departments.length + 1}` :
-          masterModalType === 'tat' ? `TAT-0${tatConfig.length + 1}` :
-          masterModalType === 'transporter' ? `TRN-00${transporters.length + 1}` :
-          `KRG-00${karigars.length + 1}`
-        }
+        nextId={generateNextMasterId(masterModalType, MASTER_KINDS[masterModalType]?.items || [])}
       />
 
     </div>

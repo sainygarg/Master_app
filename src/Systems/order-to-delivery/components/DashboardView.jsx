@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LoadingState, LoadingRow } from './LoadingState';
 import { 
   ArrowRight, 
   Ruler, 
@@ -26,6 +27,7 @@ import { maskCustomerMobile } from '../utils/privacy';
 
 export const DashboardView = ({
   orders = [],
+  loading = false,
   currentUser,
   onSelectStage,
   onViewOrderDetails,
@@ -247,7 +249,9 @@ export const DashboardView = ({
 
                       {/* Orders Cards List */}
                       <div className="p-3 space-y-3 overflow-y-auto flex-1 scrollbar-thin">
-                        {stageOrders.length === 0 ? (
+                        {loading ? (
+                          <LoadingState />
+                        ) : stageOrders.length === 0 ? (
                           <div className="p-6 text-center text-xs text-stone-400 border border-dashed border-[#DECDB8] rounded-xl bg-white/50">
                             No orders pending in this stage
                           </div>
@@ -463,7 +467,8 @@ export const DashboardView = ({
                     );
                   })}
                 
-                {activeOrders.length === 0 && (
+                {loading && <LoadingRow colSpan={6} />}
+                {!loading && activeOrders.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
@@ -487,7 +492,9 @@ export const DashboardView = ({
             Production Handover & Stage Movement History
           </h3>
 
-          {allHistoryLogs.length === 0 ? (
+          {loading ? (
+            <LoadingState />
+          ) : allHistoryLogs.length === 0 ? (
             <div className="p-8 text-center text-xs text-stone-400">
               No stage transition logs recorded yet. Logs will appear here whenever an order advances across stages.
             </div>

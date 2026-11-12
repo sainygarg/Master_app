@@ -2,14 +2,55 @@ import supabase from '../../../core/config/supabaseClient';
 
 const TABLE = 'order_delivery_orders';
 
+const CACHE_KEY = 'otd_orders_cache_v1';
+let memoryCache = null;
+let inflight = null;
+
+// Last known orders (memory, then sessionStorage) so pages can paint instantly
+// while fresh data loads in the background. Returns null when nothing is cached.
+export const getCachedOrders = () => {
+  if (memoryCache) return memoryCache;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (raw) {
+      memoryCache = JSON.parse(raw);
+      return memoryCache;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+};
+
+const setCachedOrders = (orders) => {
+  memoryCache = orders;
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(orders));
+  } catch {
+    /* quota exceeded – memory cache still works */
+  }
+};
+
 export const fetchOrders = async () => {
-  const { data, error } = await supabase
+  if (inflight) return inflight; // de-duplicate concurrent fetches
+  inflight = supabase
     .from(TABLE)
     .select('data')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return (data || []).map((r) => r.data);
+    .order('created_at', { ascending: false })
+    .then(({ data, error }) => {
+      if (error) throw error;
+      const orders = (data || []).map((r) => r.data);
+      setCachedOrders(orders);
+      return orders;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
 };
+
+// Keep the cache in step with local edits so a reload doesn't flash old data
+export const syncOrdersCache = (orders) => setCachedOrders(orders);
 
 export const saveOrder = async (order) => {
   const { error } = await supabase

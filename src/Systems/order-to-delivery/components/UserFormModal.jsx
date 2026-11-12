@@ -129,6 +129,7 @@ export const UserFormModal = ({
   const [allowedChecklistPages, setAllowedChecklistPages] = useState(allChecklistIds);
   const [avatarColor, setAvatarColor] = useState('bg-[#5B172E]');
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (editingUser) {
@@ -206,6 +207,7 @@ export const UserFormModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const errs = {};
     if (!name.trim()) errs.name = 'Full name is required';
     if (!username.trim()) errs.username = 'Username is required';
@@ -233,8 +235,13 @@ export const UserFormModal = ({
       avatarColor: isAdmin ? 'bg-[#5B172E]' : avatarColor
     };
 
-    const ok = await onSubmitUser(userData);
-    if (ok) onClose();
+    setSubmitting(true);
+    try {
+      const ok = await onSubmitUser(userData);
+      if (ok) onClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -495,10 +502,11 @@ export const UserFormModal = ({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow transition-all"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
-              <span>{editingUser ? 'Save Changes' : 'Create Staff Member'}</span>
+              <span>{submitting ? 'Saving…' : editingUser ? 'Save Changes' : 'Create Staff Member'}</span>
             </button>
           </div>
 

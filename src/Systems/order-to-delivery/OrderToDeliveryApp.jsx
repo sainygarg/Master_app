@@ -12,7 +12,7 @@ import { OrderFormModal } from './components/OrderFormModal';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
 import { MeasurementsModal } from './components/MeasurementsModal';
 import { STAGES } from './types/stages';
-import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId } from './utils/storage';
+import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId, getCachedOrders, syncOrdersCache } from './utils/storage';
 import {
   fetchUsers,
   createUser,
@@ -40,6 +40,7 @@ const AUTH_USER_KEY = 'sainy_couture_auth_user_v3';
 export function App() {
   // Users State (Strictly Admin & User accounts)
   const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
 
   const loadUsers = async () => {
     try {
@@ -47,6 +48,8 @@ export function App() {
     } catch (e) {
       console.error('Failed to load users from database', e);
       showToast('Failed to load users from database: ' + e.message, 'error');
+    } finally {
+      setUsersLoading(false);
     }
   };
 
@@ -71,7 +74,9 @@ export function App() {
   });
 
   // Orders State
-  const [orders, setOrders] = useState([]);
+  // Start from the cached copy (if any) so pages paint instantly; fresh data replaces it
+  const [orders, setOrders] = useState(() => getCachedOrders() || []);
+  const [ordersLoading, setOrdersLoading] = useState(() => getCachedOrders() === null);
 
   // Sidebar Hide / Unhide State (Defaults to hidden on phones for full width)
   const [isSidebarHidden, setIsSidebarHidden] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
@@ -148,6 +153,8 @@ export function App() {
     } catch (e) {
       console.error("Failed to load orders", e);
       showToast("Failed to load orders from database: " + e.message, "error");
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -155,6 +162,11 @@ export function App() {
     loadOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keep the cache in step with local edits (create/update/advance/delete)
+  useEffect(() => {
+    if (!ordersLoading) syncOrdersCache(orders);
+  }, [orders, ordersLoading]);
 
   // Persist an order; on failure tell the user and resync from the DB
   const persistOrder = async (order) => {
@@ -203,6 +215,7 @@ export function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem(AUTH_USER_KEY);
+    try { sessionStorage.removeItem('otd_orders_cache_v1'); } catch { /* ignore */ }
     localStorage.removeItem('user-name');
     localStorage.removeItem('user_name');
     localStorage.removeItem('role');
@@ -262,7 +275,7 @@ export function App() {
     } catch (e) {
       console.error('Failed to create order', e);
       showToast('Could not save order to database: ' + e.message, 'error');
-      return;
+      return false;
     }
 
     confetti({
@@ -276,6 +289,7 @@ export function App() {
     // Automatically navigate to Stage 1: Material Check
     setSelectedStageId(STAGES[0].id);
     setCurrentView('stages');
+    return true;
   };
 
   // Update stage fields
@@ -476,6 +490,7 @@ export function App() {
           {/* 1. Dashboard */}
           {currentView === 'dashboard' && canUserAccessPage(currentUser, 'dashboard') && (
             <DashboardView
+              loading={ordersLoading}
               orders={filteredOrders}
               currentUser={currentUser}
               onSelectStage={(stageId) => {
@@ -495,6 +510,7 @@ export function App() {
           {/* 2. Orders Page (Table Format + EXCLUSIVE + Create New Order button) */}
           {currentView === 'orders' && canUserAccessPage(currentUser, 'orders') && (
             <OrdersView
+              loading={ordersLoading}
               orders={filteredOrders}
               currentUser={currentUser}
               onOpenNewOrder={() => setIsOrderFormOpen(true)}
@@ -516,6 +532,7 @@ export function App() {
           {currentView === 'stages' && (
             hasStageAccess ? (
               <StageDetailView
+                loading={ordersLoading}
                 orders={filteredOrders}
                 selectedStageId={selectedStageId}
                 currentUser={currentUser}
@@ -556,6 +573,7 @@ export function App() {
           {currentView === 'settings' && (
             canUserAccessPage(currentUser, 'settings') ? (
               <UserManagementView
+                usersLoading={usersLoading}
                 users={users}
                 activeUserId={currentUser?.id}
                 currentUser={currentUser}

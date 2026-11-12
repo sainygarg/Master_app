@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LoadingState, LoadingRow } from './LoadingState';
 import {
   PackageCheck,
   Scissors,
@@ -28,11 +29,12 @@ import {
 import { STAGES } from '../types/stages';
 import { StageUpdateModal } from './StageUpdateModal';
 import { CustomerPhoneDisplay } from '../utils/privacy';
-import { fetchMasters } from '../utils/masterStorage';
+import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
 import { getStagePlannedTime, getStageActualTime, formatPlanned, formatDelay } from '../utils/stageTiming';
 
 export const StageDetailView = ({
   orders = [],
+  loading = false,
   selectedStageId = STAGES[0].id,
   currentUser,
   onSelectStage,
@@ -45,9 +47,9 @@ export const StageDetailView = ({
   const currentStageIndex = STAGES.findIndex(s => s.id === selectedStageId);
 
   // Stage TAT master (used to compute the Planned date)
-  const [tatConfig, setTatConfig] = useState([]);
+  const [tatConfig, setTatConfig] = useState(() => getCachedMasters("tat") || []);
   useEffect(() => {
-    fetchMasters('tat').then(setTatConfig).catch(() => setTatConfig([]));
+    fetchMasters("tat").then(setTatConfig).catch(() => setTatConfig([]));
   }, []);
 
   // Sub-tabs: 'pending' vs 'history'
@@ -313,7 +315,8 @@ export const StageDetailView = ({
                       );
                     })}
                   
-                {pendingOrders.length === 0 && (
+                {loading && <LoadingRow colSpan={6} />}
+                {!loading && pendingOrders.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No Orders Currently Pending</div>
@@ -328,7 +331,8 @@ export const StageDetailView = ({
 
             {/* MOBILE ATELIER CARDS (SPECIALLY OPTIMIZED FOR PHONES < md) */}
             <div className="md:hidden space-y-3.5">
-              {pendingOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Orders Currently Pending in this stage.</div>)}
+              {loading && <LoadingState />}
+              {!loading && pendingOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Orders Currently Pending in this stage.</div>)}
               {pendingOrders.map((order) => {
                 const daysToDelivery = Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
                 const stageVals = order.stageData?.[selectedStageId] || {};
@@ -609,7 +613,8 @@ export const StageDetailView = ({
                       );
                     })}
                   
-                {historyOrders.length === 0 && (
+                {loading && <LoadingRow colSpan={8} />}
+                {!loading && historyOrders.length === 0 && (
                   <tr>
                     <td colSpan={8} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No Historical Orders</div>
@@ -624,7 +629,8 @@ export const StageDetailView = ({
 
             {/* MOBILE HISTORY CARDS (< md) */}
             <div className="md:hidden space-y-3">
-              {historyOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Historical Orders for this stage yet.</div>)}
+              {loading && <LoadingState />}
+              {!loading && historyOrders.length === 0 && (<div className="p-8 text-center bg-white rounded-2xl border border-[#E8DFD3] text-xs text-stone-500">No Historical Orders for this stage yet.</div>)}
               {historyOrders.map((order) => {
                 const stageVals = order.stageData?.[selectedStageId] || {};
 

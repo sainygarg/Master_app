@@ -181,7 +181,6 @@ export default function Notifications() {
                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
                           noti.role_target === 'all' ? 'bg-blue-50 text-blue-600 border-blue-100' : 
                           noti.role_target === 'admin' ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                          noti.role_target === 'superadmin' ? 'bg-red-50 text-red-600 border-red-100' :
                           'bg-orange-50 text-orange-600 border-orange-100'
                         }`}>
                           {noti.role_target}
@@ -281,10 +280,8 @@ export default function Notifications() {
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:bg-white outline-none transition-all text-gray-900 cursor-pointer"
                     >
                       <option value="all">Everyone</option>
-                      <option value="superadmin">Super-Admins</option>
                       <option value="admin">Admins</option>
-                      <option value="hod">Department Heads</option>
-                      <option value="user">Standard Users</option>
+                      <option value="user">Users</option>
                     </select>
                   </div>
 

@@ -19,7 +19,9 @@ import {
   Shield,
   CheckCircle2,
   Lock,
-  CalendarDays
+  CalendarDays,
+  Sparkles,
+  CheckSquare
 } from 'lucide-react';
 import ChecklistSetting from '../../Systems/checklist-delegation/pages/Setting';
 import supabase from '../config/supabaseClient';

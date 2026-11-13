@@ -440,12 +440,12 @@ export const UserFormModal = ({
           {/* Section 2: CHECKLIST & DELEGATION SUB-PAGE PERMISSIONS (collapsible, toggles) */}
           <PermissionSection
             icon={<CheckSquare className="w-4 h-4 text-[#9B783E]" />}
-            title="Checklist & Delegation Pages"
-            subtitle="Control access across all Checklist, Tasks, Calendar, and Delegation submodules."
+            title="Checklist Pages"
+            subtitle="Control access across all Checklist pages: Tasks, Calendar, Delegation and more."
             enabledCount={allowedChecklistPages.length}
             totalCount={ALL_CHECKLIST_PAGE_IDS.length}
             isAdmin={isAdmin}
-            adminNote="All Checklist Pages: Admins automatically access every Checklist & Delegation page unconditionally."
+            adminNote="All Checklist Pages: Admins automatically access every Checklist page unconditionally."
             onSelectAll={() => setAllowedChecklistPages(allChecklistIds)}
             onDeselectAll={() => setAllowedChecklistPages([])}
           >

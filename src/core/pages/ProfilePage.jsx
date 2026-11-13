@@ -61,10 +61,7 @@ const compressToBlob = (file, max = 512) =>
 // [table, column holding the assignee, has submission_date]
 const TASK_SOURCES = [
   { key: 'checklist', title: 'Checklist', table: 'checklist', col: 'name', pendingBySubmission: true, href: '/checklist/task' },
-  { key: 'delegation', title: 'Delegation', table: 'delegation', col: 'name', pendingBySubmission: true, href: '/checklist/delegation' },
-  { key: 'maintenance', title: 'Maintenance', table: 'maintenance_tasks', col: 'name', pendingBySubmission: true, href: '/checklist/maintenance' },
-  { key: 'repair', title: 'Repair', table: 'repair_tasks', col: 'assigned_person', pendingBySubmission: false, href: '/checklist/repair' },
-  { key: 'ea', title: 'EA', table: 'ea_tasks', col: 'doer_name', pendingBySubmission: true, href: '/checklist/ea-task' }
+  { key: 'delegation', title: 'Delegation', table: 'delegation', col: 'name', pendingBySubmission: true, href: '/checklist/delegation' }
 ];
 
 const countOf = async (query) => {
@@ -94,7 +91,6 @@ export default function ProfilePage() {
   const [isEditingPassword, setIsEditingPassword] = useState(false);
 
   const [tasks, setTasks] = useState(null); // null = loading
-  const [orderCount, setOrderCount] = useState(null);
 
   // ---- load the user's fresh row ----
   useEffect(() => {
@@ -139,10 +135,6 @@ export default function ProfilePage() {
       );
       if (cancelled) return;
       setTasks(results);
-
-      const ordersQuery = supabase.from('order_delivery_orders').select('id', { count: 'exact', head: true });
-      const oc = await countOf(isApexAdmin(user) ? ordersQuery : ordersQuery.in('data->>createdByUserId', [String(user?.id), username]));
-      if (!cancelled) setOrderCount(oc);
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -651,7 +643,7 @@ export default function ProfilePage() {
             <span>Loading task counts…</span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {tasks.map((t) => (
               <button
                 key={t.key}
@@ -669,20 +661,6 @@ export default function ProfilePage() {
                 </div>
               </button>
             ))}
-
-            {/* Orders Summary Card */}
-            <button
-              type="button"
-              onClick={() => navigate('/order-to-delivery/orders')}
-              className="group text-left p-3.5 rounded-xl border border-[#DECDB8] bg-[#FAF5EE] hover:bg-white hover:border-[#5B172E] hover:shadow-xs transition-all cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#5B172E]">{admin ? 'All Orders' : 'My Orders'}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#9B783E] group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-2 text-2xl font-serif font-bold text-[#431021]">{orderCount ?? '—'}</div>
-              <div className="text-[11px] text-[#9B783E] font-medium mt-0.5">Order to Delivery</div>
-            </button>
           </div>
         )}
       </div>

@@ -110,12 +110,12 @@ export default function Notifications() {
           </div>
 
           <div className="flex items-center gap-4">
-             {isAdmin && (
+            {isAdmin && (
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="group flex items-center justify-center gap-2 bg-gray-900 hover:bg-purple-600 text-white px-8 py-4 rounded-2xl font-bold transition-all active:scale-95 shadow-xl shadow-gray-200 hover:shadow-purple-200"
               >
-                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" /> 
+                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                 <span className="tracking-tight">New Broadcast</span>
               </button>
             )}
@@ -148,11 +148,10 @@ export default function Notifications() {
                 >
                   {/* Left: Avatar & Connector */}
                   <div className="flex flex-col items-center">
-                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex-shrink-0 flex items-center justify-center border-2 shadow-sm transition-transform duration-300 ${
-                      noti.isRead 
-                        ? 'bg-white border-gray-100 text-gray-400' 
+                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex-shrink-0 flex items-center justify-center border-2 shadow-sm transition-transform duration-300 ${noti.isRead
+                        ? 'bg-white border-gray-100 text-gray-400'
                         : 'bg-purple-600 border-purple-600 text-white'
-                    }`}>
+                      }`}>
                       {noti.creator?.profile_image ? (
                         <img src={noti.creator.profile_image} alt="" className="w-full h-full object-cover rounded-[inherit]" />
                       ) : (
@@ -175,14 +174,13 @@ export default function Notifications() {
                           <> • {new Date(noti.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</>
                         )}
                       </span>
-                      
+
                       {/* Status Badges */}
                       <div className="ml-auto flex items-center gap-3">
-                         <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-                          noti.role_target === 'all' ? 'bg-blue-50 text-blue-600 border-blue-100' : 
-                          noti.role_target === 'admin' ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                          'bg-orange-50 text-orange-600 border-orange-100'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${noti.role_target === 'all' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                            noti.role_target === 'admin' ? 'bg-purple-50 text-purple-600 border-purple-100' :
+                              'bg-orange-50 text-orange-600 border-orange-100'
+                          }`}>
                           {noti.role_target}
                         </span>
                         {noti.isRead ? (
@@ -193,19 +191,16 @@ export default function Notifications() {
                       </div>
                     </div>
 
-                    <div className={`relative p-5 md:p-6 rounded-2xl transition-all duration-300 border ${
-                      noti.isRead 
-                        ? 'bg-white border-gray-100 shadow-sm' 
+                    <div className={`relative p-5 md:p-6 rounded-2xl transition-all duration-300 border ${noti.isRead
+                        ? 'bg-white border-gray-100 shadow-sm'
                         : 'bg-white border-purple-100 shadow-md ring-1 ring-purple-50'
-                    }`}>
-                      {/* Chat Bubble Tail */}
-                      <div className={`absolute top-4 -left-2 w-4 h-4 rotate-45 border-l border-b transition-all duration-300 ${
-                        noti.isRead ? 'bg-white border-gray-100' : 'bg-white border-purple-100'
-                      }`} />
-
-                      <h3 className={`text-lg font-bold mb-1 transition-colors ${
-                        noti.isRead ? 'text-gray-700' : 'text-purple-700'
                       }`}>
+                      {/* Chat Bubble Tail */}
+                      <div className={`absolute top-4 -left-2 w-4 h-4 rotate-45 border-l border-b transition-all duration-300 ${noti.isRead ? 'bg-white border-gray-100' : 'bg-white border-purple-100'
+                        }`} />
+
+                      <h3 className={`text-lg font-bold mb-1 transition-colors ${noti.isRead ? 'text-gray-700' : 'text-purple-700'
+                        }`}>
                         {noti.title}
                       </h3>
                       <p className="text-sm md:text-base text-gray-600 leading-relaxed whitespace-pre-wrap">
@@ -235,18 +230,18 @@ export default function Notifications() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => !isSubmitting && setIsModalOpen(false)} />
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-              
+
               <div className="p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Create Notification</h2>
-                  <button 
+                  <button
                     onClick={() => setIsModalOpen(false)}
                     className="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
                   >
                     <X size={20} />
                   </button>
                 </div>
-                
+
                 <form onSubmit={handleCreate} className="space-y-5">
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700">Subject</label>

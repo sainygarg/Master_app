@@ -25,7 +25,7 @@ export const ALL_CHECKLIST_PAGE_IDS = [
 ];
 
 // DB row (snake_case) <-> app user (camelCase)
-const fromRow = (r) => ({
+export const fromRow = (r) => ({
   id: r.id,
   username: r.username,
   password: r.password,
@@ -175,7 +175,8 @@ export const canUserAccessPage = (user, pageId) => {
 export const canUserAccessChecklistPage = (user, href) => {
   if (isApexAdmin(user)) return true;
   if (!user) return false;
-  if (!Array.isArray(user.allowedChecklistPages)) return true; // legacy/fallback sessions
+  // No recorded list on the session => deny (the auth provider refreshes it from the DB; failing open leaked pages)
+  if (!Array.isArray(user.allowedChecklistPages)) return false;
   const norm = (h) => String(h).replace('/dashboard/', '/checklist/'); // tolerate sessions saved before the route rename
   return user.allowedChecklistPages.some((h) => norm(h) === href);
 };

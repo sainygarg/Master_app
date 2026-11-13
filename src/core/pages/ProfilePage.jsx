@@ -27,6 +27,7 @@ import { STAGES } from '../../Systems/order-to-delivery/types/stages';
 import {
   ALL_PAGE_IDS,
   ALL_CHECKLIST_PAGE_IDS,
+  canUserAccessChecklistPage,
   isApexAdmin
 } from '../../Systems/order-to-delivery/utils/userStorage';
 
@@ -126,7 +127,7 @@ export default function ProfilePage() {
     (async () => {
       const names = [username, user?.name].filter(Boolean);
       const results = await Promise.all(
-        TASK_SOURCES.map(async (s) => {
+        TASK_SOURCES.filter((s) => canUserAccessChecklistPage(user, s.href)).map(async (s) => {
           const base = () => supabase.from(s.table).select('*', { count: 'exact', head: true }).in(s.col, names);
           const total = await countOf(base());
           const pending = s.pendingBySubmission ? await countOf(base().is('submission_date', null)) : null;
@@ -138,7 +139,7 @@ export default function ProfilePage() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username]);
+  }, [username, JSON.stringify(user?.allowedChecklistPages)]);
 
   const admin = isApexAdmin(user);
   const profileImage = row?.profile_image || localStorage.getItem('profile_image') || null;
@@ -642,6 +643,8 @@ export default function ProfilePage() {
             <Loader2 className="w-4 h-4 animate-spin text-[#5B172E]" />
             <span>Loading task counts…</span>
           </div>
+        ) : tasks.length === 0 ? (
+          <div className="text-xs text-stone-500 py-8 text-center">No task queues are assigned to your account.</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {tasks.map((t) => (

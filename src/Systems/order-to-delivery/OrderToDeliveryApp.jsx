@@ -183,6 +183,20 @@ export function App() {
     }
   };
 
+  // Pick up permission refreshes made by the master auth provider (keeps this app's copy from going stale)
+  useEffect(() => {
+    const onAuthChanged = () => {
+      try {
+        const raw = localStorage.getItem(AUTH_USER_KEY);
+        if (!raw) return;
+        const fresh = JSON.parse(raw);
+        setCurrentUser((prev) => (prev && JSON.stringify(prev) !== JSON.stringify(fresh) ? fresh : prev));
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('unified-auth-changed', onAuthChanged);
+    return () => window.removeEventListener('unified-auth-changed', onAuthChanged);
+  }, []);
+
   // Sync Auth User to localStorage
   useEffect(() => {
     if (currentUser) {

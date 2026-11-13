@@ -458,7 +458,7 @@ export const UserFormModal = ({
           {/* Section 3: PRODUCTION STAGES ACCESS (collapsible, toggles) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
-            title={`Production Stages Access (${STAGES.length} Stages)`}
+            title={`Order to Delivery (${STAGES.length} Stages)`}
             subtitle="Control which atelier pipeline stages this staff member can view and update."
             enabledCount={allowedStages.length}
             totalCount={STAGES.length}

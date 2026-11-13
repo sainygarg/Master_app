@@ -18,8 +18,10 @@ import {
   Briefcase,
   Shield,
   CheckCircle2,
-  Lock
+  Lock,
+  CalendarDays
 } from 'lucide-react';
+import ChecklistSetting from '../../Systems/checklist-delegation/pages/Setting';
 import supabase from '../config/supabaseClient';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
 import { showGlobalToast } from '../context/ToastAlertContext';
@@ -262,22 +264,22 @@ export default function ProfilePage() {
   const initials = (details.name || username || 'SG').substring(0, 2).toUpperCase();
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10">
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
       {/* 1. Identity & Personal Details Master Card */}
       <form onSubmit={saveDetails} className={card}>
         {/* Top Header Row: Avatar, Identity, Badges & Edit Button */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5 pb-5 border-b border-[#F0E6D8]">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5 pb-6 border-b border-[#F0E6D8]">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
             {/* Avatar with luxury golden ring & upload trigger */}
             <div className="relative shrink-0 group">
-              <div className="w-22 h-22 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#5B172E] to-[#3a0d1c] text-white flex items-center justify-center font-serif font-bold text-2xl shadow-sm border-2 border-[#C5A059]/40 overflow-hidden ring-4 ring-[#FAF5EE]">
+              <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-3xl bg-gradient-to-br from-[#5B172E] via-[#431021] to-[#260511] text-white flex items-center justify-center font-serif font-bold text-2xl shadow-md border-2 border-[#C5A059]/50 overflow-hidden ring-4 ring-[#FAF5EE]">
                 {profileImage ? <img src={profileImage} alt="" className="w-full h-full object-cover" /> : initials}
               </div>
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-white border border-[#DECDB8] text-[#5B172E] shadow-sm hover:bg-[#FAF5EE] hover:scale-105 active:scale-95 disabled:opacity-60 cursor-pointer transition-all"
+                className="absolute -bottom-2 -right-2 p-2.5 rounded-2xl bg-white border border-[#DECDB8] text-[#5B172E] shadow-md hover:bg-[#FAF5EE] hover:scale-105 active:scale-95 disabled:opacity-60 cursor-pointer transition-all"
                 title="Change photo"
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin text-[#9B783E]" /> : <Camera className="w-4 h-4 text-[#9B783E]" />}
@@ -287,25 +289,26 @@ export default function ProfilePage() {
 
             {/* Name, Username, Role & Status Pills */}
             <div className="min-w-0">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#431021] tracking-tight truncate">
+              <div className="flex items-center justify-center sm:justify-start gap-2.5">
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#431021] tracking-tight truncate">
                   {row?.name || row?.user_name || details.name || username}
                 </h1>
                 {admin && (
-                  <span title="Apex Authority" className="p-1 rounded-md bg-[#FAF5EE] text-[#C5A059] border border-[#DECDB8]">
-                    <ShieldCheck className="w-4 h-4" />
+                  <span title="Apex Authority (Full System Access)" className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-50 to-rose-50 border border-amber-200 text-amber-900 text-[10px] font-bold shadow-2xs">
+                    <Sparkles className="w-3 h-3 text-amber-600" />
+                    <span>Apex</span>
                   </span>
                 )}
               </div>
-              <p className="text-xs text-stone-500 font-mono mt-0.5">@{username}{row?.Designation ? ` • ${row.Designation}` : ''}</p>
+              <p className="text-xs sm:text-sm text-stone-500 font-mono mt-1">@{username}{row?.Designation ? ` • ${row.Designation}` : ''}</p>
               
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] shadow-2xs">
-                  <Shield className="w-3 h-3 text-[#9B783E]" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] shadow-2xs">
+                  <Shield className="w-3.5 h-3.5 text-[#9B783E]" />
                   <span>{user.role || 'User'}</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>{row?.status || 'Active'}</span>
                 </span>
               </div>
@@ -318,10 +321,10 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setIsEditingDetails(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] hover:border-[#5B172E]/40 shadow-xs hover:shadow transition-all cursor-pointer active:scale-98"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] hover:border-[#5B172E]/50 shadow-xs hover:shadow transition-all cursor-pointer active:scale-98"
               >
                 <Edit3 className="w-3.5 h-3.5 text-[#9B783E]" />
-                <span>Edit Details</span>
+                <span>Edit Profile</span>
               </button>
             ) : (
               <button
@@ -337,7 +340,7 @@ export default function ProfilePage() {
                     });
                   }
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Cancel</span>
@@ -347,21 +350,25 @@ export default function ProfilePage() {
         </div>
 
         {/* Form Fields: Display state vs Editable State */}
-        <div className="pt-5">
-          <div className="flex items-center justify-between mb-3.5">
-            <h3 className="font-serif text-sm font-bold text-[#431021] flex items-center gap-2">
+        <div className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-serif text-sm sm:text-base font-bold text-[#431021] flex items-center gap-2">
               <UserIcon className="w-4 h-4 text-[#9B783E]" />
-              <span>Personal Information</span>
+              <span>Personal Details</span>
             </h3>
-            <span className="text-[11px] text-stone-400">
-              {isEditingDetails ? 'Editing enabled' : 'Read-only mode'}
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              isEditingDetails 
+                ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                : 'bg-stone-50 text-stone-400 border-stone-200'
+            }`}>
+              {isEditingDetails ? 'Editing Active' : 'Locked (Click Edit to change)'}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label className={label}>
-                <UserIcon className="w-3 h-3 text-stone-400" />
+                <UserIcon className="w-3.5 h-3.5 text-stone-400" />
                 <span>Full Name</span>
               </label>
               <input
@@ -374,7 +381,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className={label}>
-                <Mail className="w-3 h-3 text-stone-400" />
+                <Mail className="w-3.5 h-3.5 text-stone-400" />
                 <span>Email Address</span>
               </label>
               <input
@@ -388,7 +395,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className={label}>
-                <Phone className="w-3 h-3 text-stone-400" />
+                <Phone className="w-3.5 h-3.5 text-stone-400" />
                 <span>Phone Number</span>
               </label>
               <input
@@ -401,7 +408,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className={label}>
-                <Briefcase className="w-3 h-3 text-stone-400" />
+                <Briefcase className="w-3.5 h-3.5 text-stone-400" />
                 <span>Designation</span>
               </label>
               <input
@@ -416,7 +423,7 @@ export default function ProfilePage() {
 
           {/* Save Bar */}
           {isEditingDetails && (
-            <div className="mt-5 pt-4 border-t border-[#F0E6D8] flex items-center justify-end gap-3 animate-in fade-in">
+            <div className="mt-6 pt-5 border-t border-[#F0E6D8] flex items-center justify-end gap-3 animate-in fade-in">
               <button
                 type="button"
                 onClick={() => {
@@ -430,13 +437,13 @@ export default function ProfilePage() {
                     });
                   }
                 }}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer"
               >
                 Discard Changes
               </button>
               <button type="submit" disabled={savingDetails || !row} className={btn}>
                 {savingDetails ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                <span>{savingDetails ? 'Saving…' : 'Save Details'}</span>
+                <span>{savingDetails ? 'Saving Changes…' : 'Save Details'}</span>
               </button>
             </div>
           )}
@@ -447,7 +454,7 @@ export default function ProfilePage() {
       <form onSubmit={changePassword} className={card}>
         <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-4 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs">
               <KeyRound className="w-4 h-4 text-[#9B783E]" />
             </div>
             <div>
@@ -460,7 +467,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setIsEditingPassword(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] hover:border-[#5B172E]/40 shadow-xs hover:shadow transition-all cursor-pointer active:scale-98"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] hover:border-[#5B172E]/50 shadow-xs hover:shadow transition-all cursor-pointer active:scale-98"
             >
               <Lock className="w-3.5 h-3.5 text-[#9B783E]" />
               <span>Change Password</span>
@@ -472,7 +479,7 @@ export default function ProfilePage() {
                 setIsEditingPassword(false);
                 setPw({ current: '', next: '', confirm: '' });
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Cancel</span>
@@ -481,27 +488,27 @@ export default function ProfilePage() {
         </div>
 
         {!isEditingPassword ? (
-          <div className="py-6 px-4 bg-[#FAF8F5] rounded-xl border border-dashed border-[#DECDB8] text-center space-y-2">
-            <div className="w-10 h-10 rounded-full bg-white text-[#5B172E] border border-[#DECDB8] flex items-center justify-center mx-auto shadow-2xs">
-              <Lock className="w-4 h-4 text-[#9B783E]" />
+          <div className="py-7 px-4 bg-[#FAF8F5] rounded-2xl border border-dashed border-[#DECDB8] text-center space-y-2">
+            <div className="w-11 h-11 rounded-2xl bg-white text-[#5B172E] border border-[#DECDB8] flex items-center justify-center mx-auto shadow-2xs">
+              <Lock className="w-5 h-5 text-[#9B783E]" />
             </div>
-            <p className="text-xs font-bold text-stone-800">Account Security Locked</p>
-            <p className="text-[11px] text-stone-500 max-w-sm mx-auto">
+            <p className="text-xs sm:text-sm font-bold text-stone-800">Account Security Locked</p>
+            <p className="text-[11px] sm:text-xs text-stone-500 max-w-sm mx-auto leading-relaxed">
               Your password is encrypted. Click <strong className="text-[#5B172E]">"Change Password"</strong> above whenever you need to update it.
             </p>
           </div>
         ) : (
           <div className="space-y-4 pt-1 animate-in fade-in">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={label}>
-                  <Lock className="w-3 h-3 text-stone-400" />
+                  <Lock className="w-3.5 h-3.5 text-stone-400" />
                   <span>Current Password</span>
                 </label>
                 <input
                   type={showPw ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className={`${input} bg-white`}
+                  className={`${input} bg-white shadow-2xs`}
                   value={pw.current}
                   placeholder="Enter current password"
                   onChange={(e) => setPw({ ...pw, current: e.target.value })}
@@ -509,13 +516,13 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className={label}>
-                  <KeyRound className="w-3 h-3 text-stone-400" />
+                  <KeyRound className="w-3.5 h-3.5 text-stone-400" />
                   <span>New Password</span>
                 </label>
                 <input
                   type={showPw ? 'text' : 'password'}
                   autoComplete="new-password"
-                  className={`${input} bg-white`}
+                  className={`${input} bg-white shadow-2xs`}
                   value={pw.next}
                   placeholder="Min 4 characters"
                   onChange={(e) => setPw({ ...pw, next: e.target.value })}
@@ -523,13 +530,13 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className={label}>
-                  <CheckCircle2 className="w-3 h-3 text-stone-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-stone-400" />
                   <span>Confirm New Password</span>
                 </label>
                 <input
                   type={showPw ? 'text' : 'password'}
                   autoComplete="new-password"
-                  className={`${input} bg-white`}
+                  className={`${input} bg-white shadow-2xs`}
                   value={pw.confirm}
                   placeholder="Re-enter new password"
                   onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
@@ -537,7 +544,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
@@ -547,7 +554,7 @@ export default function ProfilePage() {
                 <span>{showPw ? 'Hide passwords' : 'Show passwords'}</span>
               </button>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -576,7 +583,7 @@ export default function ProfilePage() {
       <div className={card}>
         <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs">
               <ShieldCheck className="w-4 h-4 text-[#9B783E]" />
             </div>
             <div>
@@ -587,14 +594,14 @@ export default function ProfilePage() {
         </div>
 
         {admin ? (
-          <div className="p-4 rounded-xl bg-gradient-to-r from-[#FAF5EE] via-white to-[#FAF5EE] border border-[#DECDB8] flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-[#5B172E] text-white shrink-0 shadow-2xs mt-0.5">
-              <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#FAF5EE] via-white to-[#FAF5EE] border border-[#DECDB8] flex items-start gap-3.5 shadow-2xs">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-[#5B172E] to-[#781F3E] text-white shrink-0 shadow-xs mt-0.5">
+              <ShieldCheck className="w-5 h-5 text-[#E6C687]" />
             </div>
             <div>
-              <div className="font-serif font-bold text-sm text-[#431021]">Full Apex Atelier Authority</div>
-              <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
-                As an Administrator, you possess unrestricted authority across every module, master hub directory, and all 10 production workflow stages.
+              <div className="font-serif font-bold text-sm sm:text-base text-[#431021]">Full Apex Atelier Authority</div>
+              <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                As an Administrator, you possess unrestricted apex authority across every system module, master reference hub directory, and all 10 production workflow stages.
               </p>
             </div>
           </div>
@@ -605,12 +612,15 @@ export default function ProfilePage() {
               ['Production stages', permissions.stages.map((s) => s.name)],
               ['Checklist & Delegation pages', permissions.checklist.map((p) => p.label)]
             ].map(([title, items]) => (
-              <div key={title} className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8DFD3]">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-2">{title}</div>
+              <div key={title} className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8DFD3]">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-2.5 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#9B783E]"></span>
+                  <span>{title} ({items.length})</span>
+                </div>
                 {items.length ? (
                   <div className="flex flex-wrap gap-1.5">
                     {items.map((i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-[#5B172E] border border-[#DECDB8] shadow-2xs">
+                      <span key={i} className="px-3 py-1 rounded-xl text-xs font-semibold bg-white text-[#5B172E] border border-[#DECDB8] shadow-2xs">
                         {i}
                       </span>
                     ))}
@@ -628,11 +638,11 @@ export default function ProfilePage() {
       <div className={card}>
         <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs">
               <ListChecks className="w-4 h-4 text-[#9B783E]" />
             </div>
             <div>
-              <h2 className="font-serif font-bold text-base text-[#431021]">My Active Tasks & Workspaces</h2>
+              <h2 className="font-serif font-bold text-base text-[#431021]">My Tasks & Workspaces</h2>
               <p className="text-[11px] text-stone-500">Quick shortcuts to your personal queues across systems</p>
             </div>
           </div>
@@ -644,28 +654,57 @@ export default function ProfilePage() {
             <span>Loading task counts…</span>
           </div>
         ) : tasks.length === 0 ? (
-          <div className="text-xs text-stone-500 py-8 text-center">No task queues are assigned to your account.</div>
+          <div className="text-xs text-stone-500 py-8 text-center bg-[#FAF8F5] rounded-2xl border border-dashed border-[#DECDB8]">
+            No task queues are assigned to your account.
+          </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {tasks.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => navigate(t.href)}
-                className="group text-left p-3.5 rounded-xl border border-[#E8DFD3] bg-[#FAF8F5] hover:bg-white hover:border-[#5B172E]/40 hover:shadow-xs transition-all cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 group-hover:text-[#5B172E] transition-colors">{t.title}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-stone-300 group-hover:text-[#5B172E] group-hover:translate-x-0.5 transition-all" />
-                </div>
-                <div className="mt-2 text-2xl font-serif font-bold text-[#431021]">{t.total ?? '—'}</div>
-                <div className="text-[11px] text-stone-500 font-medium mt-0.5">
-                  {t.pending !== null && t.pending !== undefined ? `${t.pending} pending` : 'total assigned'}
-                </div>
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {tasks.map((t) => {
+              const IconComp = t.icon || CheckSquare;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => navigate(t.href)}
+                  className="group flex items-center justify-between p-4 rounded-2xl border border-[#E8DFD3] bg-[#FAF8F5] hover:bg-white hover:border-[#5B172E]/40 hover:shadow-sm transition-all cursor-pointer text-left"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-[#DECDB8] text-[#5B172E] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                      <IconComp className="w-5 h-5 text-[#9B783E]" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-stone-700 group-hover:text-[#5B172E] transition-colors">
+                        {t.title}
+                      </span>
+                      <div className="text-[11px] text-stone-500 font-medium">
+                        {t.pending !== null && t.pending !== undefined ? `${t.pending} pending action` : 'Active items'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-serif font-bold text-[#431021]">{t.total ?? '—'}</span>
+                    <ChevronRight className="w-4 h-4 text-stone-300 group-hover:text-[#5B172E] group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
+      </div>
+
+      {/* 5. Leave form (reassign tasks to a substitute during a leave period) */}
+      <div className={card}>
+        <div className="flex items-center gap-2.5 border-b border-[#F0E6D8] pb-3 mb-4">
+          <div className="w-9 h-9 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs">
+            <CalendarDays className="w-4 h-4 text-[#9B783E]" />
+          </div>
+          <div>
+            <h2 className="font-serif font-bold text-base text-[#431021]">Leave Management</h2>
+            <p className="text-[11px] text-stone-500">Apply leave and hand over tasks to a substitute</p>
+          </div>
+        </div>
+        <ChecklistSetting embedMode leaveOnly initialTab="leave" />
       </div>
     </div>
   );

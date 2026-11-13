@@ -23,9 +23,10 @@ const formatDateISO = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const Setting = ({ embedMode = false, initialTab = "leave" }) => {
+// leaveOnly: render just the Leave Management form (no tab bar / other admin tabs), e.g. on the profile page
+const Setting = ({ embedMode = false, initialTab = "leave", leaveOnly = false }) => {
   const { showToast } = useMagicToast();
-  const [activeTab, setActiveTab] = useState(embedMode ? initialTab : 'users');
+  const [activeTab, setActiveTab] = useState(leaveOnly ? 'leave' : embedMode ? initialTab : 'users');
   const [showUserModal, setShowUserModal] = useState(false);
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -1057,6 +1058,7 @@ const Setting = ({ embedMode = false, initialTab = "leave" }) => {
 
   const settingBody = (
     <div className="space-y-8">
+        {!leaveOnly && (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-6">
           <h1 className="text-2xl font-bold text-purple-600">User Management System</h1>
 
@@ -1125,6 +1127,7 @@ const Setting = ({ embedMode = false, initialTab = "leave" }) => {
             </div>
           </div>
         </div>
+        )}
         {/* <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
         <h3 className="text-sm font-medium text-yellow-800">Debug Info</h3>
         <p className="text-xs text-yellow-700">

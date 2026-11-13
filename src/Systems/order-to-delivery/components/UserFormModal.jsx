@@ -22,6 +22,9 @@ import {
 import { STAGES } from '../types/stages';
 import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userStorage';
 
+// Order to Delivery sub pages (stage access is separate, per stage)
+const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders');
+
 // One selectable permission card: click anywhere on it to allow / revoke
 const PermissionRow = ({ label, checked, onToggle, index }) => (
   <button
@@ -29,7 +32,7 @@ const PermissionRow = ({ label, checked, onToggle, index }) => (
     role="checkbox"
     aria-checked={checked}
     onClick={onToggle}
-    className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all ${
+    className={`select-text flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all ${
       checked
         ? 'bg-[#FAF5EE] border-[#C5A059] text-stone-900 shadow-2xs ring-1 ring-[#C5A059]/30'
         : 'bg-white border-[#E8DFD3] text-stone-500 hover:bg-[#FAF8F5] hover:border-stone-400'
@@ -62,10 +65,10 @@ const PermissionSection = ({
         tabIndex={0}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((o) => !o); } }}
-        className="w-full flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-[#FCFAF7] transition-colors select-none"
+        className="w-full flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-[#FCFAF7] transition-colors"
         aria-expanded={open}
       >
-        <div className="min-w-0">
+        <div className="min-w-0 select-text">
           <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
             {icon}
             <span className="truncate">{title}</span>
@@ -459,15 +462,29 @@ export const UserFormModal = ({
           {/* Section 3: PRODUCTION STAGES ACCESS (collapsible, toggles) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
-            title={`Order to Delivery (${STAGES.length} Stages)`}
-            subtitle="Control which atelier pipeline stages this staff member can view and update."
-            enabledCount={allowedStages.length}
-            totalCount={STAGES.length}
+            title={`Order to Delivery (Dashboard, Orders & ${STAGES.length} Stages)`}
+            subtitle="Control the Dashboard, All Orders page and which atelier pipeline stages this staff member can view and update."
+            enabledCount={allowedStages.length + OTD_PAGES.filter((p) => allowedPages.includes(p.id)).length}
+            totalCount={STAGES.length + OTD_PAGES.length}
             isAdmin={isAdmin}
-            adminNote={`All ${STAGES.length} Stages Permitted: Admins can view and operate every stage of the production pipeline.`}
-            onSelectAll={handleSelectAllStages}
-            onDeselectAll={handleDeselectAllStages}
+            adminNote={`Full access: Admins can open the Dashboard, All Orders and every one of the ${STAGES.length} stages.`}
+            onSelectAll={() => {
+              handleSelectAllStages();
+              setAllowedPages((prev) => Array.from(new Set([...prev, ...OTD_PAGES.map((p) => p.id)])));
+            }}
+            onDeselectAll={() => {
+              handleDeselectAllStages();
+              setAllowedPages((prev) => prev.filter((id) => !OTD_PAGES.some((p) => p.id === id)));
+            }}
           >
+            {OTD_PAGES.map((p) => (
+              <PermissionRow
+                key={p.id}
+                label={p.label}
+                checked={allowedPages.includes(p.id)}
+                onToggle={() => togglePage(p.id)}
+              />
+            ))}
             {STAGES.map((stage, idx) => (
               <PermissionRow
                 key={stage.id}

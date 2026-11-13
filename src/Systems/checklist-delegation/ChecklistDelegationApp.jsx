@@ -38,8 +38,8 @@ const checkPageAccess = (path) => {
       '/checklist/assign-delegation': '/checklist/assign-task',
     };
     const permissionPath = PERMISSION_ALIASES[path] || path;
-    const isListed = ALL_CHECKLIST_PAGE_IDS.some((p) => p.id === permissionPath);
-    if (!isListed || canUserAccessChecklistPage(masterUser, permissionPath)) return null;
+    // Pages not in the permission list (maintenance, repair, EA...) are admin-only: no grant exists for them
+    if (canUserAccessChecklistPage(masterUser, permissionPath)) return null;
     const firstAllowed = ALL_CHECKLIST_PAGE_IDS.find((p) => canUserAccessChecklistPage(masterUser, p.id));
     return <Navigate to={firstAllowed ? firstAllowed.id : '/order-to-delivery'} replace />;
   } catch {

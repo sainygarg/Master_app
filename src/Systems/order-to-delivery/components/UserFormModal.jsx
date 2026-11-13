@@ -123,10 +123,11 @@ export const UserFormModal = ({
   const [phone, setPhone] = useState('');
   const [designation, setDesignation] = useState('');
   const [status, setStatus] = useState('Active');
-  const [allowedPages, setAllowedPages] = useState(['dashboard', 'orders', 'stages']);
-  const [allowedStages, setAllowedStages] = useState(STAGES.map(s => s.id));
+  // New users start with NO access; an admin must grant each page explicitly
+  const [allowedPages, setAllowedPages] = useState([]);
+  const [allowedStages, setAllowedStages] = useState([]);
   const allChecklistIds = ALL_CHECKLIST_PAGE_IDS.map(p => p.id);
-  const [allowedChecklistPages, setAllowedChecklistPages] = useState(allChecklistIds);
+  const [allowedChecklistPages, setAllowedChecklistPages] = useState([]);
   const [avatarColor, setAvatarColor] = useState('bg-[#5B172E]');
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -141,12 +142,12 @@ export const UserFormModal = ({
       setPhone(editingUser.phone || '');
       setDesignation(editingUser.designation || '');
       setStatus(editingUser.status || 'Active');
-      setAllowedPages(editingUser.allowedPages || ['dashboard', 'orders', 'stages']);
-      setAllowedStages(editingUser.allowedStages || STAGES.map(s => s.id));
-      setAllowedChecklistPages(editingUser.allowedChecklistPages || allChecklistIds);
+      setAllowedPages(editingUser.allowedPages || []);
+      setAllowedStages(editingUser.allowedStages || []);
+      setAllowedChecklistPages(editingUser.allowedChecklistPages || []);
       setAvatarColor(editingUser.avatarColor || 'bg-[#5B172E]');
     } else {
-      setAllowedChecklistPages(allChecklistIds);
+      setAllowedChecklistPages([]);
       setName('');
       setUsername('');
       setPassword('user123');
@@ -155,8 +156,8 @@ export const UserFormModal = ({
       setPhone('');
       setDesignation('');
       setStatus('Active');
-      setAllowedPages(['dashboard', 'orders', 'stages']);
-      setAllowedStages(STAGES.map(s => s.id));
+      setAllowedPages([]);
+      setAllowedStages([]);
       setAvatarColor('bg-blue-700');
     }
     setErrors({});

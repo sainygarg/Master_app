@@ -38,11 +38,11 @@ export const fromRow = (r) => ({
   status: r.status,
   allowedPages: r.allowed_pages || [],
   allowedStages: r.allowed_stages || [],
-  // null/undefined (legacy rows) => no restriction recorded => all checklist pages
+  // null/undefined => nothing granted (deny by default)
   // legacy ids were saved as /dashboard/...; the routes now live under /checklist/...
   allowedChecklistPages: Array.isArray(r.allowed_checklist_pages)
     ? r.allowed_checklist_pages.map((h) => String(h).replace('/dashboard/', '/checklist/'))
-    : ALL_CHECKLIST_PAGE_IDS.map((p) => p.id),
+    : [],
   avatarColor: r.avatar_color || 'bg-[#5B172E]'
 });
 

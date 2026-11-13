@@ -12,6 +12,7 @@ import { createPortal } from 'react-dom';
 import { sendTaskReassignmentNotification, isWhatsAppConnected } from '../services/whatsappService';
 import { useMagicToast } from '../context/MagicToastContext';
 import { Edit } from 'lucide-react';
+import CalendarComponent from '../components/CalendarComponent';
 
 const formatDateLong = (date) => date ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "";
 const formatDateISO = (date) => {

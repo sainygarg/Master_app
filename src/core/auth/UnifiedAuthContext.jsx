@@ -23,8 +23,9 @@ export function UnifiedAuthProvider({ children }) {
           name: chName,
           username: chName.toLowerCase(),
           role: chRole ? (chRole.charAt(0).toUpperCase() + chRole.slice(1)) : 'User',
-          allowedPages: ['orders', 'stages'],
+          allowedPages: [],
           allowedStages: [],
+          allowedChecklistPages: [],
         };
       }
     } catch (e) {
@@ -128,8 +129,9 @@ export function UnifiedAuthProvider({ children }) {
             name: chName,
             username: chName.toLowerCase(),
             role: chRole ? (chRole.charAt(0).toUpperCase() + chRole.slice(1)) : 'User',
-            allowedPages: ['orders', 'stages'],
+            allowedPages: [],
             allowedStages: [],
+            allowedChecklistPages: [],
           });
           return;
         }

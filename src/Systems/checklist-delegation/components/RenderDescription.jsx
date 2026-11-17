@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Play, FileText, Image as ImageIcon, Link as LinkIcon, X } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import { Play, ExternalLink, Maximize2, FileText, Image as ImageIcon, Link as LinkIcon, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import AudioPlayer from './AudioPlayer';
 
 const getYouTubeId = (url) => {
     if (!url || typeof url !== 'string') return null;

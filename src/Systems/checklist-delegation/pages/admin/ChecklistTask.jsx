@@ -1,4 +1,5 @@
-import { Trash2, Play, X, Calendar, Clock, ClipboardList, Save, Database, CheckCircle2, Plus, Loader2, Square, FileCheck } from 'lucide-react';
+import { ExternalLink, Trash2, Play, X, Calendar, Clock, ClipboardList, Save, Database, CheckCircle2, Plus, Loader2, Square, FileCheck } from 'lucide-react';
+import AudioPlayer from '../../components/AudioPlayer';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';

@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 ;
 

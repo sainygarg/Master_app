@@ -1,4 +1,5 @@
 import { X, Save, Mic, Trash2, Calendar, Clock, CheckCircle2, Plus, Loader2, Wrench, Square, BellRing, FileCheck } from 'lucide-react';
+import AudioPlayer from '../../components/AudioPlayer';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';

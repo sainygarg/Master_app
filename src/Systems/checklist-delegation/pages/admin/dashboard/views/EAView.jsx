@@ -1,4 +1,5 @@
 import { PieChart } from 'lucide-react';
+import AudioPlayer from '../../../../components/AudioPlayer';
 import { TrendingUp, CheckCircle, Clock, AlertCircle, Phone, Calendar, X } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { Save } from 'lucide-react';

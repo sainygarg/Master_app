@@ -27,7 +27,8 @@ export const MasterEntryModal = ({
   type, // 'customer' | 'vendor' | 'transporter' | 'karigar' | 'department' | 'tat'
   initialData = null,
   onSubmit,
-  nextId
+  nextId,
+  users = []
 }) => {
   if (!isOpen) return null;
 
@@ -95,15 +96,14 @@ export const MasterEntryModal = ({
       } else if (type === 'tat') {
         setFormData({
           id: nextId || `TAT-${Date.now().toString().slice(-3)}`,
+          moduleName: 'Order to Delivery',
           stageName: STAGES[0]?.name || 'Material Check',
           stageId: STAGES[0]?.id,
           stageIndex: 1,
-          standardDays: 2,
-          standardHours: 16,
-          bufferDays: 1,
-          maxSlaDays: 3,
-          department: '',
-          priority: 'Normal',
+          tatType: 'Days', // 'Days' | 'Hours' | 'Minutes'
+          timeValue: 2,
+          assignedPerson: '',
+          assignedPersonId: '',
           notes: ''
         });
       }
@@ -126,11 +126,17 @@ export const MasterEntryModal = ({
     const newErrors = {};
 
     if (type === 'tat') {
+      if (!formData.moduleName?.trim()) {
+        newErrors.moduleName = 'Module Name is required';
+      }
       if (!formData.stageName?.trim()) {
         newErrors.stageName = 'Stage Name is required';
       }
-      if (formData.standardDays === undefined || formData.standardDays === '') {
-        newErrors.standardDays = 'Standard Days is required';
+      if (formData.timeValue === undefined || formData.timeValue === '' || Number(formData.timeValue) <= 0) {
+        newErrors.timeValue = 'Valid time value is required';
+      }
+      if (!formData.assignedPerson?.trim()) {
+        newErrors.assignedPerson = 'Assigned Person is required';
       }
     } else {
       if (!formData.name?.trim()) {
@@ -363,125 +369,145 @@ export const MasterEntryModal = ({
             {/* TYPE SPECIFIC FIELDS: TAT */}
             {type === 'tat' && (
               <>
-                <div className="sm:col-span-2">
+                {/* 1. Module Name */}
+                <div>
                   <label className="block font-semibold text-stone-700 mb-1">
-                    Select Workflow Stage <span className="text-rose-500">*</span>
+                    Module Name <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    value={formData.stageName || STAGES[0]?.name}
-                    onChange={(e) => {
-                      const selectedStg = STAGES.find(s => s.name === e.target.value);
-                      handleChange('stageName', e.target.value);
-                      if (selectedStg) {
-                        handleChange('stageId', selectedStg.id);
-                        handleChange('stageIndex', STAGES.findIndex(s => s.id === selectedStg.id) + 1);
-                      }
-                    }}
+                    value={formData.moduleName || 'Order to Delivery'}
+                    onChange={(e) => handleChange('moduleName', e.target.value)}
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   >
-                    {STAGES.map((s, idx) => (
-                      <option key={s.id} value={s.name}>
-                        Stage {idx + 1}: {s.name}
+                    <option value="Order to Delivery">Order to Delivery (10 Stages)</option>
+                    <option value="Checklist Operations">Checklist Operations</option>
+                    <option value="Delegation Tasks">Delegation Tasks</option>
+                    <option value="Maintenance Tasks">Maintenance Tasks</option>
+                    <option value="Repair Tasks">Repair Tasks</option>
+                    <option value="EA Tasks">EA Tasks</option>
+                  </select>
+                </div>
+
+                {/* 2. Stage Name */}
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Stage Name <span className="text-rose-500">*</span>
+                  </label>
+                  {(!formData.moduleName || formData.moduleName === 'Order to Delivery') ? (
+                    <select
+                      value={formData.stageName || STAGES[0]?.name}
+                      onChange={(e) => {
+                        const selectedStg = STAGES.find(s => s.name === e.target.value);
+                        handleChange('stageName', e.target.value);
+                        if (selectedStg) {
+                          handleChange('stageId', selectedStg.id);
+                          handleChange('stageIndex', STAGES.findIndex(s => s.id === selectedStg.id) + 1);
+                        }
+                      }}
+                      className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                    >
+                      {STAGES.map((s, idx) => (
+                        <option key={s.id} value={s.name}>
+                          Stage {idx + 1}: {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={formData.stageName || ''}
+                      onChange={(e) => handleChange('stageName', e.target.value)}
+                      placeholder="e.g. Daily Review, Verification, Initial Call..."
+                      className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                    />
+                  )}
+                  {errors.stageName && <p className="text-[11px] text-rose-500 mt-1">{errors.stageName}</p>}
+                </div>
+
+                {/* 3. TAT Type (Days, Hours, Minutes) */}
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    TAT Type <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={formData.tatType || 'Days'}
+                    onChange={(e) => handleChange('tatType', e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  >
+                    <option value="Days">Days</option>
+                    <option value="Hours">Hours</option>
+                    <option value="Minutes">Minutes</option>
+                  </select>
+                </div>
+
+                {/* 4. Time Value */}
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Time Value ({formData.tatType || 'Days'}) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.timeValue ?? 2}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 1;
+                      handleChange('timeValue', val);
+                      // Backward compatibility helper
+                      if ((formData.tatType || 'Days') === 'Days') {
+                        handleChange('standardDays', val);
+                      } else if (formData.tatType === 'Hours') {
+                        handleChange('standardHours', val);
+                      }
+                    }}
+                    placeholder="Enter duration..."
+                    className={`w-full px-3 py-2 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
+                      errors.timeValue ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
+                    }`}
+                  />
+                  {errors.timeValue && <p className="text-[11px] text-rose-500 mt-1">{errors.timeValue}</p>}
+                </div>
+
+                {/* 5. Assigned Person */}
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Assign Person <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={formData.assignedPerson || ''}
+                    onChange={(e) => {
+                      const selectedUser = users.find(u => u.name === e.target.value || u.username === e.target.value);
+                      handleChange('assignedPerson', e.target.value);
+                      if (selectedUser) {
+                        handleChange('assignedPersonId', selectedUser.id);
+                      }
+                    }}
+                    className={`w-full px-3 py-2 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
+                      errors.assignedPerson ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
+                    }`}
+                  >
+                    <option value="">Select person responsible for this stage</option>
+                    {formData.assignedPerson && !users.some(u => u.name === formData.assignedPerson || u.username === formData.assignedPerson) && (
+                      <option value={formData.assignedPerson}>{formData.assignedPerson}</option>
+                    )}
+                    {users.map((u) => (
+                      <option key={u.id} value={u.name || u.username}>
+                        {u.name || u.username} {u.role ? `(${u.role})` : ''}
                       </option>
                     ))}
                   </select>
+                  {errors.assignedPerson && <p className="text-[11px] text-rose-500 mt-1">{errors.assignedPerson}</p>}
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Standard Target (Days) <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.standardDays ?? 2}
-                    onChange={(e) => handleChange('standardDays', parseInt(e.target.value, 10) || 1)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Target Work Hours
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.standardHours ?? 16}
-                    onChange={(e) => handleChange('standardHours', parseInt(e.target.value, 10) || 8)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Buffer / Grace Days
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.bufferDays ?? 1}
-                    onChange={(e) => handleChange('bufferDays', parseInt(e.target.value, 10) || 0)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    Max SLA Limit (Days)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.maxSlaDays ?? 3}
-                    onChange={(e) => handleChange('maxSlaDays', parseInt(e.target.value, 10) || 2)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    In-Charge Department
-                  </label>
-                  <select
-                    value={formData.department || ''}
-                    onChange={(e) => handleChange('department', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="">Select department</option>
-                    {formData.department && !departmentOptions.includes(formData.department) && (
-                      <option value={formData.department}>{formData.department}</option>
-                    )}
-                    {departmentOptions.map((name) => (
-                      <option key={name} value={name}>{name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    SLA Priority Flag
-                  </label>
-                  <select
-                    value={formData.priority || 'Normal'}
-                    onChange={(e) => handleChange('priority', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                  >
-                    <option value="Normal">Normal</option>
-                    <option value="High">High</option>
-                    <option value="Urgent">Urgent</option>
-                  </select>
-                </div>
-
+                {/* 6. Remarks / Notes (Optional) */}
                 <div className="sm:col-span-2">
                   <label className="block font-semibold text-stone-700 mb-1">
-                    SLA Guidelines & SOP Remark
+                    SLA Guidelines &amp; Notes
                   </label>
                   <textarea
                     rows={2}
                     value={formData.notes || ''}
                     onChange={(e) => handleChange('notes', e.target.value)}
-                    placeholder="Quality verification rules, alert trigger notes..."
+                    placeholder="SLA escalation rules, handover notes..."
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>

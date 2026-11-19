@@ -413,13 +413,13 @@ export default function MasterShell({ children }) {
               </button>
 )}
 
-              {/* PC (Production Control) Rail Icon - Just below Order to Delivery */}
+              {/* PC Rail Icon - Just below Order to Delivery */}
               <button
                 onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
-                title="Production Control (PC) - Stage Wise Pending"
+                title="PC"
               >
                 <Layers className="w-5 h-5" />
               </button>
@@ -709,7 +709,7 @@ export default function MasterShell({ children }) {
 )}
 
               {/* =========================================================================
-                  PAGE: PC (PRODUCTION CONTROL) - JUST BELOW ORDER TO DELIVERY
+                  PAGE: PC - JUST BELOW ORDER TO DELIVERY
               ========================================================================= */}
               <button
                 type="button"
@@ -724,10 +724,7 @@ export default function MasterShell({ children }) {
                   <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
                     <Layers className="w-3.5 h-3.5 shrink-0" />
                   </div>
-                  <div className="flex flex-col text-left">
-                    <span className="truncate font-semibold tracking-tight">PC (Production Control)</span>
-                    <span className="text-[10px] text-[#9B783E] font-normal">Stage-Wise Pending</span>
-                  </div>
+                  <span className="truncate font-semibold tracking-tight">PC</span>
                 </div>
                 <ChevronRight className={`w-3.5 h-3.5 ${isPcActive ? 'text-white' : 'text-stone-400'}`} />
               </button>
@@ -1045,7 +1042,7 @@ export default function MasterShell({ children }) {
               >
                 <div className="flex items-center gap-2.5">
                   <Layers className="w-4 h-4 text-[#C5A059]" />
-                  <span>PC (Production Control)</span>
+                  <span>PC</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
               </button>

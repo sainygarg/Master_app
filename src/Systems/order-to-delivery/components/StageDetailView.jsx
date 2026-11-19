@@ -161,12 +161,17 @@ export const StageDetailView = ({
                       <th className="py-3.5 px-4 min-w-[140px]">Target Dates</th>
                       <th className="py-3.5 px-4 min-w-[170px]">Planned Date</th>
 
-                      {/* DEDICATED COLUMN HEADERS FOR DISPLAYING EACH STAGE FIELD */}
-                      {currentStage.fields.map((field) => (
-                        <th key={field.key} className="py-3.5 px-4 min-w-[170px] bg-stone-50/70 border-l border-[#EFE7DC]">
-                          <span className="text-[#5B172E] font-bold">{field.label}</span>
-                        </th>
-                      ))}
+                      {/* DEDICATED COLUMN HEADERS FOR DISPLAYING EACH STAGE FIELD THAT HAS DATA */}
+                      {currentStage.fields
+                        .filter((field) => pendingOrders.some((order) => {
+                          const val = order.stageData?.[selectedStageId]?.[field.key];
+                          return val !== undefined && val !== null && String(val).trim() !== '';
+                        }))
+                        .map((field) => (
+                          <th key={field.key} className="py-3.5 px-4 min-w-[170px] bg-stone-50/70 border-l border-[#EFE7DC]">
+                            <span className="text-[#5B172E] font-bold">{field.label}</span>
+                          </th>
+                        ))}
 
                     </tr>
                   </thead>
@@ -175,8 +180,19 @@ export const StageDetailView = ({
                       const daysToDelivery = Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
                       const stageVals = order.stageData?.[selectedStageId] || {};
 
+                      // Check if PC target date has passed current date
+                      const todayStr = new Date().toISOString().split('T')[0];
+                      const isPcDatePassed = Boolean(order.pcTargetDate && order.pcTargetDate < todayStr);
+
                       return (
-                        <tr key={order.id} className="hover:bg-[#FCFAF7] transition-colors">
+                        <tr
+                          key={order.id}
+                          className={`transition-colors ${
+                            isPcDatePassed
+                              ? 'bg-rose-50/70 hover:bg-rose-100/60 border-l-4 border-l-rose-500 animate-pulse'
+                              : 'hover:bg-[#FCFAF7]'
+                          }`}
+                        >
 
                           {/* 1ST COLUMN: ALL ACTION BUTTONS IN ONE ROW */}
                           <td className="py-2.5 px-3 bg-white border-r border-[#DECDB8] align-middle whitespace-nowrap">
@@ -283,8 +299,13 @@ export const StageDetailView = ({
                             })()}
                           </td>
 
-                          {/* PURE DISPLAY COLUMNS (NO INLINE FORM INPUTS) */}
-                          {currentStage.fields.map((field) => {
+                          {/* PURE DISPLAY COLUMNS (ONLY SHOW FIELDS THAT HAVE AT LEAST ONE FILLED VALUE) */}
+                          {currentStage.fields
+                            .filter((field) => pendingOrders.some((o) => {
+                              const val = o.stageData?.[selectedStageId]?.[field.key];
+                              return val !== undefined && val !== null && String(val).trim() !== '';
+                            }))
+                            .map((field) => {
                             const val = stageVals[field.key];
 
                             return (
@@ -339,10 +360,18 @@ export const StageDetailView = ({
                 const daysToDelivery = Math.ceil((new Date(order.deliveryDate) - new Date()) / (1000 * 60 * 60 * 24));
                 const stageVals = order.stageData?.[selectedStageId] || {};
 
+                // Check if PC target date has passed current date
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isPcDatePassed = Boolean(order.pcTargetDate && order.pcTargetDate < todayStr);
+
                 return (
                   <div
                     key={order.id}
-                    className="bg-white rounded-2xl border border-[#E8DFD3] p-4 shadow-xs space-y-3 animate-in fade-in duration-150"
+                    className={`rounded-2xl border p-4 shadow-xs space-y-3 animate-in fade-in duration-150 transition-colors ${
+                      isPcDatePassed
+                        ? 'bg-rose-50/70 border-rose-300 border-l-4 border-l-rose-500 animate-pulse'
+                        : 'bg-white border-[#E8DFD3]'
+                    }`}
                   >
                     {/* Top Row: Order ID, Client, Countdown Badge */}
                     <div className="flex items-start justify-between gap-2 border-b border-[#F0E6D8] pb-2.5">
@@ -506,12 +535,17 @@ export const StageDetailView = ({
                       <th className="py-3.5 px-4 min-w-[170px]">Actual</th>
                       <th className="py-3.5 px-4 min-w-[130px]">Time Delay</th>
 
-                      {/* DEDICATED COLUMNS FOR STAGE PARAMETERS */}
-                      {currentStage.fields.map((field) => (
-                        <th key={field.key} className="py-3.5 px-4 min-w-[170px] bg-stone-50/70 border-l border-[#EFE7DC]">
-                          <span className="text-stone-700 font-bold">{field.label}</span>
-                        </th>
-                      ))}
+                      {/* DEDICATED COLUMNS FOR STAGE PARAMETERS (ONLY FILLED FIELDS) */}
+                      {currentStage.fields
+                        .filter((field) => historyOrders.some((order) => {
+                          const val = order.stageData?.[selectedStageId]?.[field.key];
+                          return val !== undefined && val !== null && String(val).trim() !== '';
+                        }))
+                        .map((field) => (
+                          <th key={field.key} className="py-3.5 px-4 min-w-[170px] bg-stone-50/70 border-l border-[#EFE7DC]">
+                            <span className="text-stone-700 font-bold">{field.label}</span>
+                          </th>
+                        ))}
 
                     </tr>
                   </thead>
@@ -602,8 +636,13 @@ export const StageDetailView = ({
                             );
                           })()}
 
-                          {/* STAGE DATA VALUES */}
-                          {currentStage.fields.map((field) => (
+                          {/* STAGE DATA VALUES (ONLY FILLED FIELDS IN HISTORY) */}
+                          {currentStage.fields
+                            .filter((field) => historyOrders.some((o) => {
+                              const val = o.stageData?.[selectedStageId]?.[field.key];
+                              return val !== undefined && val !== null && String(val).trim() !== '';
+                            }))
+                            .map((field) => (
                             <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle">
                               <span className="font-medium text-stone-800">
                                 {stageVals[field.key] || '—'}

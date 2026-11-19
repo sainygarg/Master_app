@@ -889,19 +889,19 @@ export const UserManagementView = ({
                   <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Workflow Stage</th>
-                  <th className="py-3.5 px-4 min-w-[120px]">Standard Target</th>
-                  <th className="py-3.5 px-4 min-w-[110px]">Work Hours</th>
-                  <th className="py-3.5 px-4 min-w-[110px]">Buffer Days</th>
-                  <th className="py-3.5 px-4 min-w-[110px]">Max SLA Limit</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">In-Charge Dept</th>
-                  <th className="py-3.5 px-4 min-w-[100px]">SLA Priority</th>
-                  <th className="py-3.5 px-4 min-w-[220px]">SOP & Guidelines</th>
+                  <th className="py-3.5 px-4 min-w-[160px]">Module Name</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">Stage Name</th>
+                  <th className="py-3.5 px-4 min-w-[120px]">TAT Type</th>
+                  <th className="py-3.5 px-4 min-w-[130px]">Time Value</th>
+                  <th className="py-3.5 px-4 min-w-[160px]">Assigned Person</th>
+                  <th className="py-3.5 px-4 min-w-[200px]">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
                 {filteredTAT.map((tat, idx) => {
                   const isConfirming = deleteConfirmId === tat.id;
+                  const displayType = tat.tatType || 'Days';
+                  const displayValue = tat.timeValue ?? tat.standardDays ?? (tat.standardHours ? `${tat.standardHours}` : 2);
                   return (
                     <tr key={tat.id} className="hover:bg-[#FCFAF7] transition-colors">
                       <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
@@ -941,6 +941,11 @@ export const UserManagementView = ({
                         )}
                       </td>
                       <td className="py-3 px-4 align-middle">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
+                          {tat.moduleName || 'Order to Delivery'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 align-middle">
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-bold text-[10px]">
                             {tat.stageIndex || idx + 1}
@@ -952,34 +957,28 @@ export const UserManagementView = ({
                         </div>
                       </td>
                       <td className="py-3 px-4 align-middle">
+                        <span className="px-2 py-0.5 rounded font-bold text-[11px] bg-stone-100 text-stone-700 border border-stone-200">
+                          {displayType}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 align-middle">
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200">
-                          {tat.standardDays} Days
+                          {displayValue} {displayType}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle font-semibold text-stone-700">
-                        {tat.standardHours} Hours
-                      </td>
-                      <td className="py-3 px-4 align-middle font-medium text-stone-600">
-                        +{tat.bufferDays} Days
                       </td>
                       <td className="py-3 px-4 align-middle">
-                        <span className="font-bold text-rose-700">
-                          {tat.maxSlaDays} Days Max
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 align-middle text-stone-800 font-medium">
-                        {tat.department}
-                      </td>
-                      <td className="py-3 px-4 align-middle">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          tat.priority === 'Urgent'
-                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                            : tat.priority === 'High'
-                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                            : 'bg-stone-100 text-stone-700 border border-stone-200'
-                        }`}>
-                          {tat.priority}
-                        </span>
+                        {tat.assignedPerson ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-6 h-6 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-bold text-[10px]">
+                              {tat.assignedPerson.substring(0, 1).toUpperCase()}
+                            </span>
+                            <span className="font-semibold text-stone-800 text-xs">
+                              {tat.assignedPerson}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-stone-400 italic">Not Assigned</span>
+                        )}
                       </td>
                       <td className="py-3 px-4 align-middle text-[11px] text-stone-600 line-clamp-2" title={tat.notes}>
                         {tat.notes || '—'}
@@ -988,10 +987,10 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {loadingKind("tat") && <LoadingRow colSpan={9} />}
+                {loadingKind("tat") && <LoadingRow colSpan={7} />}
                 {!loadingKind("tat") && filteredTAT.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={7} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Nothing to show here yet. Use the add button above to create the first entry.</p>
                     </td>
@@ -1272,6 +1271,7 @@ export const UserManagementView = ({
         initialData={editingMasterItem}
         onSubmit={handleSubmitMaster}
         nextId={generateNextMasterId(masterModalType, MASTER_KINDS[masterModalType]?.items || [])}
+        users={users}
       />
 
     </div>

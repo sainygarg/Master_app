@@ -23,11 +23,21 @@ export const getStageActualTime = (order, stageId) => {
   return entry ? new Date(entry.timestamp) : null;
 };
 
-// Planned completion = stage entry + Stage TAT (Master Hub > Stage TAT), default 2 days
+// Planned completion = stage entry + Stage TAT (Master Hub > Stage TAT)
+// Supports new tatType ('Days' | 'Hours' | 'Minutes') and timeValue, with backward fallback
 export const getStagePlannedTime = (order, stageId, tatConfig = []) => {
   const entry = getStageEntryTime(order, stageId);
   if (!entry) return null;
   const tat = tatConfig.find((t) => t.stageId === stageId);
+  
+  if (tat && tat.tatType && tat.timeValue !== undefined) {
+    const val = Number(tat.timeValue);
+    let ms = val * DAY;
+    if (tat.tatType === 'Hours') ms = val * 60 * 60 * 1000;
+    else if (tat.tatType === 'Minutes') ms = val * 60 * 1000;
+    return new Date(entry.getTime() + ms);
+  }
+
   const days = Number(tat?.standardDays ?? DEFAULT_TAT_DAYS);
   const hours = tat ? Number(tat.standardHours ?? 0) : 0;
   // Use whichever is set: days take priority, standardHours only when days are 0

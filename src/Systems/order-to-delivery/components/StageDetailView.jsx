@@ -189,7 +189,7 @@ export const StageDetailView = ({
                           key={order.id}
                           className={`transition-colors ${
                             isPcDatePassed
-                              ? 'bg-rose-50/70 hover:bg-rose-100/60 border-l-4 border-l-rose-500 animate-pulse'
+                              ? 'bg-rose-100/90 hover:bg-rose-200/80 border-l-[6px] border-l-rose-600 animate-pulse'
                               : 'hover:bg-[#FCFAF7]'
                           }`}
                         >
@@ -369,7 +369,7 @@ export const StageDetailView = ({
                     key={order.id}
                     className={`rounded-2xl border p-4 shadow-xs space-y-3 animate-in fade-in duration-150 transition-colors ${
                       isPcDatePassed
-                        ? 'bg-rose-50/70 border-rose-300 border-l-4 border-l-rose-500 animate-pulse'
+                        ? 'bg-rose-100/90 border-rose-400 border-l-[6px] border-l-rose-600 animate-pulse'
                         : 'bg-white border-[#E8DFD3]'
                     }`}
                   >

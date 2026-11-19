@@ -1474,6 +1474,14 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                           const prevStatus = index > 0 ? getTimeStatus(paginatedTasks[index - 1][statusDateColumn], paginatedTasks[index - 1].status) : null;
                           const showGroupHeader = currentStatus !== prevStatus;
 
+                          // Check if PC Target Date has passed current date and task is still not completed
+                          const todayStr = new Date().toISOString().split('T')[0];
+                          const isTaskCompleted = Boolean(
+                            task.status === "Done" || task.status === "yes" || task.status === "done" ||
+                            task.status === "approved" || task.status === "Approved" || task.status === "Completed"
+                          );
+                          const isPcDatePassed = Boolean(task.pc_target_date && task.pc_target_date < todayStr && !isTaskCompleted);
+
                           return (
                             <Fragment key={task.id}>
                               {showGroupHeader && (
@@ -1488,7 +1496,11 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                                   </td>
                                 </tr>
                               )}
-                              <tr className="hover:bg-gray-50">
+                              <tr className={`transition-colors ${
+                                isPcDatePassed
+                                  ? 'bg-rose-100/90 hover:bg-rose-200/80 border-l-[6px] border-l-rose-600 animate-pulse'
+                                  : 'hover:bg-gray-50'
+                              }`}>
                                 {!showHistory && (
                                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <input
@@ -1849,6 +1861,14 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                       const prevStatus = index > 0 ? getTimeStatus(paginatedTasks[index - 1][statusDateColumn], paginatedTasks[index - 1].status) : null;
                       const showGroupHeader = currentStatus !== prevStatus;
 
+                      // Check if PC Target Date has passed current date and task is still not completed
+                      const todayStr = new Date().toISOString().split('T')[0];
+                      const isTaskCompleted = Boolean(
+                        task.status === "Done" || task.status === "yes" || task.status === "done" ||
+                        task.status === "approved" || task.status === "Approved" || task.status === "Completed"
+                      );
+                      const isPcDatePassed = Boolean(task.pc_target_date && task.pc_target_date < todayStr && !isTaskCompleted);
+
                       return (
                         <Fragment key={task.id}>
                           {showGroupHeader && (
@@ -1859,7 +1879,11 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                               </span>
                             </div>
                           )}
-                          <div className="bg-white rounded-xl border border-purple-100 shadow-sm overflow-hidden animate-fade-in">
+                          <div className={`rounded-xl border shadow-sm overflow-hidden animate-fade-in transition-colors ${
+                            isPcDatePassed
+                              ? 'bg-rose-100/90 border-rose-400 border-l-[6px] border-l-rose-600 animate-pulse'
+                              : 'bg-white border-purple-100'
+                          }`}>
                             {/* Card Header */}
                             <div className="bg-purple-50/50 px-4 py-3 border-b border-purple-100 flex justify-between items-center">
                               <div className="flex items-center gap-2">

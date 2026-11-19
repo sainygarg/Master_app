@@ -633,13 +633,6 @@ export default function MasterShell({ children }) {
                         </div>
                         <span className="truncate text-[11px] font-medium">Dashboard</span>
                       </div>
-                      {activeOrdersCount > 0 && (
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                        }`}>
-                          {activeOrdersCount}
-                        </span>
-                      )}
                     </button>
 )}
 
@@ -964,11 +957,6 @@ export default function MasterShell({ children }) {
                         <LayoutDashboard className="w-3.5 h-3.5" />
                         <span>Dashboard</span>
                       </div>
-                      {activeOrdersCount > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
-                          {activeOrdersCount}
-                        </span>
-                      )}
                     </button>
 )}
 

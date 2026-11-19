@@ -591,10 +591,8 @@ export default function TaskNavigationTabs({
 
 
         {/* Task List / Table Rendering */}
-        (
-
-          <div>
-            {/* Desktop Table View */}
+        <div>
+          {/* Desktop Table View */}
             <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div
                 className="task-table-container overflow-x-auto"
@@ -914,8 +912,7 @@ export default function TaskNavigationTabs({
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
   )
 }

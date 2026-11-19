@@ -208,10 +208,8 @@ export default function StaffTasksTable({
         </div>
       </div>
 
-      (
-
-        <div className="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden relative group">
-          <div className="staff-table-container overflow-auto" style={{ maxHeight: "550px" }}>
+      <div className="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden relative group">
+        <div className="staff-table-container overflow-auto" style={{ maxHeight: "550px" }}>
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-blue-50/80 backdrop-blur-md sticky top-0 z-10 border-b border-blue-100">
                 <tr>
@@ -219,7 +217,7 @@ export default function StaffTasksTable({
                     <th key={header} scope="col" className={`px-4 py-4 text-left text-[11px] font-black text-blue-900 uppercase tracking-widest ${i === 1 ? 'min-w-[220px]' : ''}`}>
                       {header}
                     </th>
-                  ) || null)}
+                  ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-50">
@@ -330,7 +328,6 @@ export default function StaffTasksTable({
           {/* Scroll Indicator Overlay */}
           <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </div>
-      )}
-    </div>
+      </div>
   );
 }

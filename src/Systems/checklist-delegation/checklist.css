@@ -215,3 +215,86 @@ a::selection {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* ==============================================================================
+   COMPREHENSIVE ATELIER COLOR OVERRIDES FOR ALL SIDEBAR SUBPAGES
+   Forces all legacy gradients, cards, and buttons to match the Master System
+   ============================================================================== */
+
+/* Any linear gradient with purple, indigo, pink, or blue becomes luxurious Atelier Ivory or Royal Maroon */
+[class*='from-purple-50'],
+[class*='from-indigo-50'],
+[class*='from-blue-50'],
+[class*='from-violet-50'],
+[class*='to-pink-50'],
+[class*='to-purple-50'],
+[class*='to-indigo-50'],
+[class*='to-blue-50'],
+[class*='to-purple-100'],
+[class*='to-indigo-100'],
+[class*='to-blue-100'] {
+    background-image: none !important;
+    background-color: #FAF5EE !important;
+    border-color: #E8DFD3 !important;
+}
+
+/* Modal headers, primary action banners, and submit buttons */
+[class*='from-purple-600'],
+[class*='from-indigo-600'],
+[class*='from-blue-600'],
+[class*='from-violet-600'],
+[class*='to-indigo-600'],
+[class*='to-purple-600'],
+[class*='to-pink-600'],
+[class*='to-purple-700'],
+[class*='to-indigo-700'] {
+    background-image: none !important;
+    background-color: #5B172E !important;
+    color: #ffffff !important;
+}
+
+[class*='hover:from-purple-700']:hover,
+[class*='hover:from-indigo-700']:hover,
+[class*='hover:from-blue-700']:hover,
+[class*='hover:to-indigo-700']:hover,
+[class*='hover:to-purple-700']:hover,
+[class*='hover:to-pink-700']:hover {
+    background-image: none !important;
+    background-color: #431021 !important;
+    color: #ffffff !important;
+}
+
+/* Text badges and accent labels become Atelier Maroon */
+[class*='text-purple-600'],
+[class*='text-purple-700'],
+[class*='text-indigo-600'],
+[class*='text-indigo-700'] {
+    color: #5B172E !important;
+}
+
+/* Table header & card border harmonizing */
+.border-purple-100,
+.border-purple-200,
+.border-indigo-100,
+.border-blue-100 {
+    border-color: #E8DFD3 !important;
+}
+
+/* Primary badges and buttons */
+.bg-purple-600,
+.bg-indigo-600 {
+    background-color: #5B172E !important;
+    color: #ffffff !important;
+}
+
+.hover\:bg-purple-700:hover,
+.hover\:bg-indigo-700:hover {
+    background-color: #431021 !important;
+}
+
+/* Light tint backgrounds */
+.bg-purple-50,
+.bg-indigo-50,
+.bg-blue-50 {
+    background-color: #FAF5EE !important;
+}

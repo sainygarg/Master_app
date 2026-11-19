@@ -101,3 +101,32 @@ a::selection {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* ==============================================================================
+   STANDARDIZED SYSTEM LAYOUT & CONTAINER STABILITY
+   Prevents layout jumping, shaking, and clipping across all screen sizes
+   ============================================================================== */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+}
+
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+
+/* Standardized Responsive Table Container */
+.system-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Standardized Content Width Containment */
+.system-page-container {
+  width: 100%;
+  max-width: 80rem; /* 1280px (7xl) */
+  margin-left: auto;
+  margin-right: auto;
+}

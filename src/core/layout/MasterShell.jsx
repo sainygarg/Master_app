@@ -282,7 +282,8 @@ export default function MasterShell({ children }) {
     }
 
     const path = location.pathname;
-    if (path.includes('assign-task')) return 'Assign Task';
+    if (path.includes('bulk-import')) return 'Bulk Import';
+    if (path.includes('assign-task') || path.includes('/checklist/checklist') || path.includes('assign-delegation') || path.includes('maintenance') || path.includes('repair') || path.includes('ea-task')) return 'Assign Task';
     if (path.includes('quick-task')) return 'Quick Task';
     if (path.includes('delegation')) return 'Delegation';
     if (path.includes('holiday-list')) return 'Holiday List';
@@ -520,7 +521,16 @@ export default function MasterShell({ children }) {
                       }
 
                       // Regular Checklist Item
-                      const isSubActive = location.pathname === sub.href;
+                      const isSubActive = 
+                        location.pathname === sub.href || 
+                        (sub.href === '/checklist/assign-task' && [
+                          '/checklist/checklist',
+                          '/checklist/assign-delegation',
+                          '/checklist/maintenance',
+                          '/checklist/repair',
+                          '/checklist/ea-task',
+                          '/checklist/bulk-import'
+                        ].includes(location.pathname));
                       return (
                         <button
                           key={sub.href}
@@ -839,7 +849,16 @@ export default function MasterShell({ children }) {
                         );
                       }
 
-                      const isSubActive = location.pathname === sub.href;
+                      const isSubActive = 
+                        location.pathname === sub.href || 
+                        (sub.href === '/checklist/assign-task' && [
+                          '/checklist/checklist',
+                          '/checklist/assign-delegation',
+                          '/checklist/maintenance',
+                          '/checklist/repair',
+                          '/checklist/ea-task',
+                          '/checklist/bulk-import'
+                        ].includes(location.pathname));
                       return (
                         <button
                           key={sub.href}

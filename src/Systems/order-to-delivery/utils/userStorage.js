@@ -20,6 +20,7 @@ export const ALL_CHECKLIST_PAGE_IDS = [
   { id: '/checklist/calendar', label: 'Calendar' },
   { id: '/checklist/holiday-list', label: 'Holiday List' },
   { id: '/checklist/working-day-calendar', label: 'Working Day Calendar' },
+  { id: '/checklist/bulk-import', label: 'Bulk Import' },
   { id: '/checklist/admin-approval', label: 'Admin Approval' },
   { id: '/checklist/training-video', label: 'Training Video' }
 ];

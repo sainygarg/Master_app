@@ -19,6 +19,7 @@ import WorkingDayCalendarPage from './pages/admin/WorkingDayCalendarPage';
 import AdminApprovalPage from './pages/admin/AdminApprovalPage';
 import Setting from './pages/Setting';
 import TrainingVideo from './pages/admin/TrainingVideo';
+import BulkImport from './pages/BulkImport';
 
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
@@ -36,6 +37,7 @@ const checkPageAccess = (path) => {
     const PERMISSION_ALIASES = {
       '/checklist/checklist': '/checklist/assign-task',
       '/checklist/assign-delegation': '/checklist/assign-task',
+      '/checklist/bulk-import': '/checklist/assign-task',
     };
     const permissionPath = PERMISSION_ALIASES[path] || path;
     // Pages not in the permission list (maintenance, repair, EA...) are admin-only: no grant exists for them
@@ -275,6 +277,16 @@ export function ChecklistDelegationApp() {
           element={
             <ProtectedRoute>
               <TrainingVideo />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 12. Bulk Import */}
+        <Route
+          path="/checklist/bulk-import"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'HOD', 'user']}>
+              <BulkImport />
             </ProtectedRoute>
           }
         />

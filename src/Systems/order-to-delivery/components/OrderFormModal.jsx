@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Upload,
@@ -8,10 +8,12 @@ import {
   Ruler,
   Check,
   Image as ImageIcon,
-  ArrowRight
+  ArrowRight,
+  ChevronDown
 } from 'lucide-react';
 import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
 import { uploadOrderImage } from '../utils/imageUpload';
+import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
 
 export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) => {
   if (!isOpen) return null;
@@ -21,10 +23,20 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [mobile, setMobile] = useState('');
   const [city, setCity] = useState('');
   const [designName, setDesignName] = useState('');
+  const [skuCode, setSkuCode] = useState('');
+  const [description, setDescription] = useState('');
   const [size, setSize] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const [trialDate, setTrialDate] = useState('');
   const [embroidery, setEmbroidery] = useState('Yes'); // 'No' skips the two embroidery stages
+
+  // Design Master Options (with SKU & Description)
+  const [designOptions, setDesignOptions] = useState(() => getCachedMasters('design') || []);
+  useEffect(() => {
+    fetchMasters('design').then((data) => {
+      if (Array.isArray(data)) setDesignOptions(data);
+    }).catch(() => {});
+  }, []);
 
   // Images arrays
   const [designImages, setDesignImages] = useState([]);
@@ -105,6 +117,8 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       mobile: mobile.trim(),
       city: city.trim(),
       designName: designName.trim(),
+      skuCode: skuCode.trim(),
+      description: description.trim(),
       size,
       deliveryDate,
       trialDate,
@@ -252,23 +266,83 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                 />
               </div>
 
-              {/* Name Of Design */}
+              {/* Name Of Design & SKU (Dropdown or Custom) */}
               <div className="sm:col-span-2">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-stone-700">
+                    4. Name Of Design <span className="text-rose-500">*</span>
+                  </label>
+                  {designOptions.length > 0 && (
+                    <span className="text-[10px] text-stone-400">
+                      Select catalog design with SKU or type custom
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    list="design-master-list"
+                    value={designName}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDesignName(val);
+                      if (errors.designName) setErrors({ ...errors, designName: null });
+
+                      // Auto-fill SKU code and Description if matched with design master
+                      const matched = designOptions.find(
+                        (d) =>
+                          d.name?.toLowerCase() === val.toLowerCase() ||
+                          `${d.name} (${d.sku})`.toLowerCase() === val.toLowerCase()
+                      );
+                      if (matched) {
+                        setDesignName(matched.name);
+                        if (matched.sku) setSkuCode(matched.sku);
+                        if (matched.description) setDescription(matched.description);
+                      }
+                    }}
+                    placeholder="Choose from dropdown or enter design name..."
+                    className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
+                      errors.designName ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
+                    }`}
+                  />
+                  <datalist id="design-master-list">
+                    {designOptions.map((d) => (
+                      <option key={d.id || d.sku} value={d.name}>
+                        {d.sku ? `SKU: ${d.sku} • ${d.category || 'Couture'}` : d.name}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+                {errors.designName && <p className="text-[11px] text-rose-500 mt-1">{errors.designName}</p>}
+              </div>
+
+              {/* SKU Code */}
+              <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  4. Name Of Design <span className="text-rose-500">*</span>
+                  SKU Code
                 </label>
                 <input
                   type="text"
-                  value={designName}
-                  onChange={(e) => {
-                    setDesignName(e.target.value);
-                    if (errors.designName) setErrors({ ...errors, designName: null });
-                  }}
-                  placeholder="Design name"
-                  className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${errors.designName ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
-                    }`}
+                  value={skuCode}
+                  onChange={(e) => setSkuCode(e.target.value)}
+                  placeholder="e.g. SKU-101 / DSN-001"
+                  className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                 />
-                {errors.designName && <p className="text-[11px] text-rose-500 mt-1">{errors.designName}</p>}
+              </div>
+
+              {/* Description */}
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
+                  Design Description &amp; Specifications
+                </label>
+                <textarea
+                  rows={2}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter design details, fabric specifics, craftsmanship notes..."
+                  className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                />
               </div>
 
               {/* Size */}

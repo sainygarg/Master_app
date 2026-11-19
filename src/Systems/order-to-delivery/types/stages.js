@@ -1,7 +1,7 @@
 export const STAGES = [
   {
     id: 'material_check',
-    name: 'Material QC',
+    name: 'Material Check',
     code: 'MC',
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
     dotColor: 'bg-amber-500',

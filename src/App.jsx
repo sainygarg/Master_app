@@ -16,6 +16,7 @@ import MasterShell from './core/layout/MasterShell';
 import ProfilePage from './core/pages/ProfilePage';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
+import ProductionControlView from './Systems/pc/ProductionControlView';
 
 // The checklist app declares absolute routes (/checklist/...), so it must be
 // mounted at the router root; a "/checklist/*" parent would strip the prefix and
@@ -79,7 +80,10 @@ function AppRoutes() {
       {/* System 1: Order to Delivery */}
       <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
 
-      {/* System 2: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
+      {/* System 2: PC (Production Control) - Stage-Wise Pending Across All Modules */}
+      <Route path="/pc" element={<ProductionControlView />} />
+
+      {/* System 3: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
       <Route path="*" element={<ChecklistGate />} />
     </Routes>
   );

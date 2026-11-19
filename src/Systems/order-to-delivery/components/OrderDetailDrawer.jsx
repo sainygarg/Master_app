@@ -168,6 +168,11 @@ export const OrderDetailDrawer = ({
                     <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#EFE7DC]">
                       <span className="text-stone-400 block text-[10px]">Design Name</span>
                       <strong className="text-stone-800">{order.designName}</strong>
+                      {order.skuCode && (
+                        <span className="block text-[10px] text-[#9B783E] font-mono mt-0.5">
+                          SKU: {order.skuCode}
+                        </span>
+                      )}
                     </div>
 
                     <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#EFE7DC]">
@@ -198,6 +203,13 @@ export const OrderDetailDrawer = ({
                         {order.stageData?.material_check?.dyeStatus || '—'}
                       </span>
                     </div>
+
+                    {order.description && (
+                      <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#EFE7DC] col-span-2">
+                        <span className="text-stone-400 block text-[10px]">Description &amp; Specifications</span>
+                        <p className="text-stone-800 font-medium whitespace-pre-wrap">{order.description}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -68,12 +68,17 @@ export const PrintableJobSheet = ({ order, currentUser }) => {
               Outfit Specifications
             </h3>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-              <div><strong className="text-stone-500">Design Name:</strong> {order.designName}</div>
+              <div><strong className="text-stone-500">Design Name:</strong> {order.designName} {order.skuCode ? `(${order.skuCode})` : ''}</div>
               <div><strong className="text-stone-500">Size:</strong> {order.size}</div>
               <div><strong className="text-stone-500">Fabric:</strong> {order.designDetails?.fabric || 'Bespoke Couture Fabric'}</div>
               <div><strong className="text-stone-500">Colour:</strong> {order.designDetails?.colour || 'Custom Dye'}</div>
               <div><strong className="text-stone-500">Workmanship:</strong> {order.designDetails?.work || 'Hand Embroidery'}</div>
               <div><strong className="text-stone-500">Current Stage:</strong> {currentStage.name}</div>
+              {order.description && (
+                <div className="col-span-2 mt-1 pt-1 border-t border-dashed border-stone-200">
+                  <strong className="text-stone-500">Description:</strong> {order.description}
+                </div>
+              )}
             </div>
           </div>
 

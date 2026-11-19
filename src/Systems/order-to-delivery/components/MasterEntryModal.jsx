@@ -15,7 +15,8 @@ import {
   Clock,
   Briefcase,
   Layers,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchDepartmentNames } from '../../../core/services/departmentService';
@@ -68,6 +69,15 @@ export const MasterEntryModal = ({
           name: '',
           contactPerson: '',
           phone: ''
+        });
+      } else if (type === 'design') {
+        setFormData({
+          id: nextId || `DSN-${Date.now().toString().slice(-3)}`,
+          name: '',
+          sku: '',
+          category: 'Couture',
+          description: '',
+          price: ''
         });
       } else if (type === 'karigar') {
         setFormData({
@@ -126,8 +136,11 @@ export const MasterEntryModal = ({
       if (!formData.name?.trim()) {
         newErrors.name = 'Name is required';
       }
-      if (type !== 'department' && !formData.phone?.trim()) {
+      if (type !== 'department' && type !== 'design' && !formData.phone?.trim()) {
         newErrors.phone = 'Contact phone is required';
+      }
+      if (type === 'design' && !formData.sku?.trim()) {
+        newErrors.sku = 'SKU code is required';
       }
     }
 
@@ -154,6 +167,7 @@ export const MasterEntryModal = ({
       case 'tat': return `${action} Stage TAT / SLA Configuration`;
       case 'transporter': return `${action} Transporter / Logistics Partner`;
       case 'karigar': return `${action} Karigar / Artisan Master`;
+      case 'design': return `${action} Design Catalog & SKU`;
       default: return `${action} Master Record`;
     }
   };
@@ -166,6 +180,7 @@ export const MasterEntryModal = ({
       case 'tat': return <Clock className="w-5 h-5 text-[#C5A059]" />;
       case 'transporter': return <Truck className="w-5 h-5 text-[#C5A059]" />;
       case 'karigar': return <Scissors className="w-5 h-5 text-[#C5A059]" />;
+      case 'design': return <Sparkles className="w-5 h-5 text-[#C5A059]" />;
       default: return <Tag className="w-5 h-5 text-[#C5A059]" />;
     }
   };
@@ -209,7 +224,7 @@ export const MasterEntryModal = ({
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
-            {/* NAME FIELD (FOR CUSTOMER, VENDOR, TRANSPORTER, KARIGAR, DEPARTMENT) */}
+            {/* NAME FIELD (FOR CUSTOMER, VENDOR, TRANSPORTER, KARIGAR, DEPARTMENT, DESIGN) */}
             {type !== 'tat' && (
               <div className="sm:col-span-2">
                 <label className="block font-semibold text-stone-700 mb-1">
@@ -217,13 +232,14 @@ export const MasterEntryModal = ({
                    type === 'vendor' ? 'Vendor / Business Firm Name' :
                    type === 'department' ? 'Department Name' :
                    type === 'transporter' ? 'Courier / Logistics Company Name' :
+                   type === 'design' ? 'Name of Design' :
                    'Karigar / Artisan Master Name'} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name || ''}
                   onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="Enter name..."
+                  placeholder={type === 'design' ? 'e.g. Royal Maroon Velvet Lehenga' : 'Enter name...'}
                   className={`w-full px-3 py-2 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
                     errors.name ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                   }`}
@@ -233,7 +249,7 @@ export const MasterEntryModal = ({
             )}
 
             {/* PHONE FIELD (FOR CUSTOMER, VENDOR, TRANSPORTER, KARIGAR) */}
-            {type !== 'department' && type !== 'tat' && (
+            {type !== 'department' && type !== 'tat' && type !== 'design' && (
               <div>
                 <label className="block font-semibold text-stone-700 mb-1">
                   Contact Mobile <span className="text-rose-500">*</span>
@@ -484,6 +500,53 @@ export const MasterEntryModal = ({
                     value={formData.contactPerson || ''}
                     onChange={(e) => handleChange('contactPerson', e.target.value)}
                     placeholder="Contact person"
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* TYPE SPECIFIC FIELDS: DESIGN */}
+            {type === 'design' && (
+              <>
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    SKU Code <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.sku || ''}
+                    onChange={(e) => handleChange('sku', e.target.value)}
+                    placeholder="e.g. SKU-101, LHG-001"
+                    className={`w-full px-3 py-2 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
+                      errors.sku ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
+                    }`}
+                  />
+                  {errors.sku && <p className="text-[11px] text-rose-500 mt-1">{errors.sku}</p>}
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.category || ''}
+                    onChange={(e) => handleChange('category', e.target.value)}
+                    placeholder="e.g. Lehenga, Sherwani, Gown, Saree"
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Description / Specifications
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.description || ''}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                    placeholder="Detailed design description, fabric type, handwork elements..."
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
                 </div>

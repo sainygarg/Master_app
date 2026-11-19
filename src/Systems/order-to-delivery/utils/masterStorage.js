@@ -57,7 +57,8 @@ const ID_PREFIX = {
   department: 'DEPT',
   tat: 'TAT',
   transporter: 'TRN',
-  karigar: 'KRG'
+  karigar: 'KRG',
+  design: 'DSN'
 };
 
 // Next free id = highest existing numeric suffix + 1 (count+1 collides after a delete)

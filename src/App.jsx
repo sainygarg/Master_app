@@ -80,8 +80,17 @@ function AppRoutes() {
       {/* System 1: Order to Delivery */}
       <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
 
-      {/* System 2: PC (Production Control) - Stage-Wise Pending Across All Modules */}
-      <Route path="/pc" element={<ProductionControlView />} />
+      {/* System 2: PC (Production Control) - Stage-Wise Pending Across All Modules (Protected by RBAC) */}
+      <Route
+        path="/pc"
+        element={
+          canUserAccessPage(user, 'pc') ? (
+            <ProductionControlView />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
 
       {/* System 3: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
       <Route path="*" element={<ChecklistGate />} />

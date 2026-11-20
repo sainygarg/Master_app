@@ -266,6 +266,7 @@ export default function MasterShell({ children }) {
   // Order Flow pages this user may see (admins see everything)
   const canDash = canUserAccessPage(user, 'dashboard');
   const canOrders = canUserAccessPage(user, 'orders');
+  const canPc = canUserAccessPage(user, 'pc');
   const canSettings = canUserAccessPage(user, 'settings');
   const permittedStages = STAGES.filter((s) => canUserAccessStage(user, s.id));
   const showOrderFlow = canDash || canOrders || permittedStages.length > 0;
@@ -414,15 +415,17 @@ export default function MasterShell({ children }) {
 )}
 
               {/* PC Rail Icon - Just below Order to Delivery */}
-              <button
-                onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
-                title="PC"
-              >
-                <Layers className="w-5 h-5" />
-              </button>
+              {canPc && (
+                <button
+                  onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
+                    isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  }`}
+                  title="PC"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
+              )}
 
               {/* 3. Master Setting Icon */}
 {canSettings && (
@@ -704,22 +707,24 @@ export default function MasterShell({ children }) {
               {/* =========================================================================
                   PAGE: PC - JUST BELOW ORDER TO DELIVERY
               ========================================================================= */}
-              <button
-                type="button"
-                onClick={() => { handleNavigate('/pc'); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
-                  isPcActive
-                    ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                    <Layers className="w-3.5 h-3.5 shrink-0" />
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
+                    isPcActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Layers className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">PC</span>
                   </div>
-                  <span className="truncate font-semibold tracking-tight">PC</span>
-                </div>
-              </button>
+                </button>
+              )}
 
               {/* =========================================================================
                   PAGE 3: MASTER SETTING (MAIN PAGE)
@@ -1020,18 +1025,20 @@ export default function MasterShell({ children }) {
 )}
 
               {/* PC in Mobile Drawer - Just below Order to Delivery */}
-              <button
-                type="button"
-                onClick={() => { handleNavigate('/pc'); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 text-left ${
-                  isPcActive ? 'bg-[#F3ECE2] text-[#5B172E] font-bold' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Layers className="w-4 h-4 text-[#C5A059]" />
-                  <span>PC</span>
-                </div>
-              </button>
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 text-left ${
+                    isPcActive ? 'bg-[#F3ECE2] text-[#5B172E] font-bold' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="w-4 h-4 text-[#C5A059]" />
+                    <span>PC</span>
+                  </div>
+                </button>
+              )}
 
               {/* 3. Master Setting in Mobile */}
 {canSettings && (

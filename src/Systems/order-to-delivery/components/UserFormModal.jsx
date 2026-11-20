@@ -23,7 +23,7 @@ import { STAGES } from '../types/stages';
 import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userStorage';
 
 // Order to Delivery sub pages (stage access is separate, per stage)
-const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders');
+const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders' || p.id === 'pc');
 
 // One selectable permission card: click anywhere on it to allow / revoke
 const PermissionRow = ({ label, checked, onToggle, index }) => (

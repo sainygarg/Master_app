@@ -270,44 +270,64 @@ export function App() {
   const nextOrderId = generateNextOrderId(orders);
   const nextUserId = generateNextUserId(users);
 
-  // Create Order Handler (Tags entry with currentUser.id)
-  const handleCreateOrder = async (newOrder) => {
-    let orderWithCreator = {
-      ...newOrder,
-      createdByUserId: currentUser.id,
-      createdByName: currentUser.name
-    };
+  // Create Order Handler (Supports single order or multiple orders array)
+  const handleCreateOrder = async (orderOrOrders) => {
+    const ordersToCreate = Array.isArray(orderOrOrders) ? orderOrOrders : [orderOrOrders];
+    if (ordersToCreate.length === 0) return true;
 
     try {
-      try {
+      // 1. Fetch fresh list of orders to ensure strict auto-incrementing ID safety
+      const fresh = await fetchOrders();
+      let currentHighest = 1000;
+      fresh.forEach((order) => {
+        const match = order.id?.match(/SG-(\d+)/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > currentHighest) currentHighest = num;
+        }
+      });
+
+      const insertedOrders = [];
+
+      for (let i = 0; i < ordersToCreate.length; i++) {
+        currentHighest += 1;
+        const assignedId = `SG-${currentHighest}`;
+        const orderItem = ordersToCreate[i];
+
+        const orderWithCreator = {
+          ...orderItem,
+          id: assignedId,
+          createdByUserId: currentUser.id,
+          createdByName: currentUser.name
+        };
+
         await insertOrder(orderWithCreator);
-      } catch (e) {
-        if (e.code !== '23505') throw e;
-        // ID taken by another session: regenerate from the latest DB state and retry once
-        const fresh = await fetchOrders();
-        orderWithCreator = { ...orderWithCreator, id: generateNextOrderId(fresh) };
-        await insertOrder(orderWithCreator);
+        insertedOrders.push(orderWithCreator);
       }
-      setOrders((prev) => [orderWithCreator, ...prev]);
-      newOrder = orderWithCreator;
+
+      setOrders((prev) => [...insertedOrders, ...prev]);
+
+      confetti({
+        particleCount: 90,
+        spread: 75,
+        origin: { y: 0.6 }
+      });
+
+      if (insertedOrders.length === 1) {
+        showToast(`Order ${insertedOrders[0].id} created! Saved to your personal account.`, 'success');
+      } else {
+        showToast(`Successfully created ${insertedOrders.length} orders (${insertedOrders[0].id} to ${insertedOrders[insertedOrders.length - 1].id})!`, 'success');
+      }
+
+      // Automatically navigate to Stage 1: Material Check
+      setSelectedStageId(STAGES[0].id);
+      setCurrentView('stages');
+      return true;
     } catch (e) {
-      console.error('Failed to create order', e);
-      showToast('Could not save order to database: ' + e.message, 'error');
+      console.error('Failed to create order(s)', e);
+      showToast('Could not save order(s) to database: ' + (e.message || 'unknown error'), 'error');
       return false;
     }
-
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-
-    showToast(`Order ${newOrder.id} created! Saved to your personal account.`, 'success');
-
-    // Automatically navigate to Stage 1: Material Check
-    setSelectedStageId(STAGES[0].id);
-    setCurrentView('stages');
-    return true;
   };
 
   // Update stage fields

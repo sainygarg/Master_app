@@ -30,7 +30,8 @@ import {
   Clock, 
   Briefcase, 
   Database,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterStorage';

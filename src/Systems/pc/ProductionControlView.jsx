@@ -100,21 +100,23 @@ export default function ProductionControlView() {
     try {
       const [chkRes, delRes] = await Promise.all([
         supabase
-          .from('tasks')
+          .from('checklist')
           .select('*')
-          .neq('status', 'Done')
-          .order('task_date', { ascending: true }),
+          .is('submission_date', null)
+          .order('planned_date', { ascending: true })
+          .catch(() => ({ data: [] })),
         supabase
           .from('delegation')
           .select('*')
           .neq('status', 'Done')
           .order('task_start_date', { ascending: true })
+          .catch(() => ({ data: [] }))
       ]);
 
       if (chkRes?.data) setChecklistTasks(chkRes.data);
       if (delRes?.data) setDelegationTasks(delRes.data);
     } catch (err) {
-      console.error('Failed to fetch pending tasks for PC', err);
+      console.warn('Failed to fetch pending tasks for PC', err);
     } finally {
       setTasksLoading(false);
     }

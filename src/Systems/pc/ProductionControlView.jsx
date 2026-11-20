@@ -27,7 +27,9 @@ import {
   Save,
   Check,
   CalendarDays,
-  MessageSquare
+  MessageSquare,
+  Edit3,
+  X
 } from 'lucide-react';
 import { STAGES } from '../order-to-delivery/types/stages';
 import { fetchOrders, getCachedOrders, saveOrder } from '../order-to-delivery/utils/storage';
@@ -39,8 +41,16 @@ export default function ProductionControlView() {
   const navigate = useNavigate();
   const { user } = useUnifiedAuth();
   
-  // Navigation: null = Main PC Dashboard (Showing only the 2 systems), 'otd' = Order to Delivery System Details, 'checklist' = Checklist & Delegation System Details
+  // Navigation:
+  // activeSystemView: null = Main PC Dashboard (Showing the 2 system cards: Order to Delivery & Checklist)
+  // activeSystemView = 'otd' | 'chk_del'
+  // activeStageView: null = Show list of stages for that system (only stages, no order details!)
+  // activeStageView = stageId (when user clicks a stage card, opens that stage's detailed orders/tasks!)
   const [activeSystemView, setActiveSystemView] = useState(null); 
+  const [activeStageView, setActiveStageView] = useState(null);
+
+  // Modal State for updating PC Date & Remark
+  const [editingItem, setEditingItem] = useState(null); // { type: 'order'|'task', item, table: 'tasks'|'delegation' }
 
   const [filterStatus, setFilterStatus] = useState('All'); // 'All' | 'Critical' | 'Delayed' | 'On Track'
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,10 +65,7 @@ export default function ProductionControlView() {
   const [tatMasters, setTatMasters] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(true);
 
-  // Selected stage filter inside detail view
-  const [selectedStageFilter, setSelectedStageFilter] = useState('All');
-
-  // Saving state indicator for remarks and dates
+  // Saving state indicator for modal
   const [savingId, setSavingId] = useState(null);
   const [saveSuccessId, setSaveSuccessId] = useState(null);
 
@@ -167,6 +174,7 @@ export default function ProductionControlView() {
         index: idx + 1,
         id: stg.id,
         name: stg.name,
+        description: stg.description,
         owner: owner,
         avgDelay: stgDelay.text,
         todayPending: todayPendingOrders.length > 0 ? `${todayPendingOrders.length} pending` : (overdue.length > 0 ? `${overdue.length} overdue` : (stageOrders.length > 0 ? `${stageOrders.length} in stage` : '—')),
@@ -212,6 +220,7 @@ export default function ProductionControlView() {
         index: 1,
         id: 'checklist_ops',
         name: 'Checklist Operations',
+        description: 'Daily routine checklist tasks and verification workflows',
         owner: getStageOwner('Checklist Operations', 'Daily Routine', 'Operations Team'),
         avgDelay: chkDelay.text,
         todayPending: chkTodayPending > 0 ? `${chkTodayPending} pending` : (chkOverdue.length > 0 ? `${chkOverdue.length} overdue` : (checklistTasks.length > 0 ? `${checklistTasks.length} in stage` : '—')),
@@ -223,6 +232,7 @@ export default function ProductionControlView() {
         index: 2,
         id: 'delegation_tasks',
         name: 'Delegation Follow-up',
+        description: 'Assigned delegation actions, deadlines and accountability logs',
         owner: getStageOwner('Delegation Tasks', 'Delegation', 'Executive Admin'),
         avgDelay: delDelay.text,
         todayPending: delTodayPending > 0 ? `${delTodayPending} pending` : (delOverdue.length > 0 ? `${delOverdue.length} overdue` : (delegationTasks.length > 0 ? `${delegationTasks.length} in stage` : '—')),
@@ -234,6 +244,7 @@ export default function ProductionControlView() {
         index: 3,
         id: 'approval_gate',
         name: 'Approval Pending',
+        description: 'Executive management review and task sign-off gate',
         owner: getStageOwner('Approval Gate', 'Admin Approval', 'Management'),
         avgDelay: 'No delay',
         todayPending: '—',
@@ -294,20 +305,24 @@ export default function ProductionControlView() {
 
       const updated = {
         ...order,
-        // Delivery date remains untouched and original!
         pcTargetDate: pcTargetDate || order.pcTargetDate || '',
         pcRemarks: remark ?? order.pcRemarks ?? '',
         pcLastUpdated: new Date().toISOString(),
         pcUpdatedBy: user?.name || 'PC In-Charge'
       };
 
-      // Await real submission to database: do not show Saved until it actually gets saved
+      // Await real submission to database
       await saveOrder(updated);
 
       // Once confirmed saved in DB:
       setOrders(prev => prev.map(o => o.id === orderId ? updated : o));
       setSaveSuccessId(orderId);
-      setTimeout(() => setSaveSuccessId(null), 2500);
+      
+      // Auto close modal on successful submit
+      setTimeout(() => {
+        setSaveSuccessId(null);
+        setEditingItem(null);
+      }, 900);
     } catch (err) {
       console.error('Failed to save PC order update', err);
       alert('Error updating order: ' + err.message);
@@ -342,7 +357,12 @@ export default function ProductionControlView() {
       }
 
       setSaveSuccessId(taskId);
-      setTimeout(() => setSaveSuccessId(null), 2500);
+
+      // Auto close modal on successful submit
+      setTimeout(() => {
+        setSaveSuccessId(null);
+        setEditingItem(null);
+      }, 900);
     } catch (err) {
       console.error('Failed to update task', err);
       alert('Error updating task: ' + err.message);
@@ -351,8 +371,10 @@ export default function ProductionControlView() {
     }
   };
 
-  // Active detail system object
+  // Active system object
   const currentSystem = systemsData.find(s => s.id === activeSystemView);
+  // Active stage object (if user drilled down into a specific stage)
+  const currentStage = currentSystem?.stages.find(st => st.id === activeStageView);
 
   return (
     <div className="w-full min-w-0 bg-[#F8F9FA] min-h-screen text-[#1A1A1A]">
@@ -360,22 +382,36 @@ export default function ProductionControlView() {
       <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            {activeSystemView && (
+            {/* Back button logic */}
+            {activeStageView ? (
               <button
-                onClick={() => { setActiveSystemView(null); setSelectedStageFilter('All'); }}
+                onClick={() => setActiveStageView(null)}
                 className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer mr-1"
-                title="Back to All Systems"
+                title="Back to Stages List"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
-            )}
+            ) : activeSystemView ? (
+              <button
+                onClick={() => { setActiveSystemView(null); setActiveStageView(null); }}
+                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer mr-1"
+                title="Back to Systems"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            ) : null}
+
             <div className="w-10 h-10 rounded-xl bg-[#5B172E] text-white flex items-center justify-center font-bold text-sm shadow-xs">
               PC
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-                  {activeSystemView ? currentSystem?.title : 'Process Control'}
+                  {activeStageView
+                    ? `${currentStage?.name} (Stage ${currentStage?.index})`
+                    : activeSystemView
+                    ? currentSystem?.title
+                    : 'Process Control'}
                 </h1>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -383,22 +419,32 @@ export default function ProductionControlView() {
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-0.5">
-                {activeSystemView
-                  ? 'Stage-wise detail view · save remarks & new completion dates'
+                {activeStageView
+                  ? 'Active garment & task entries · Click Update to set PC date and remarks in modal'
+                  : activeSystemView
+                  ? 'Select a stage to view its active items, delays and accountability'
                   : 'Company-wide system health · delay tracking · stage-wise accountability'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
-            {activeSystemView && (
+            {activeStageView ? (
               <button
-                onClick={() => { setActiveSystemView(null); setSelectedStageFilter('All'); }}
+                onClick={() => setActiveStageView(null)}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-stone-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                ← Back to Stages
+              </button>
+            ) : activeSystemView ? (
+              <button
+                onClick={() => { setActiveSystemView(null); setActiveStageView(null); }}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-stone-700 bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 ← Back to Systems
               </button>
-            )}
+            ) : null}
+
             <button
               onClick={loadData}
               disabled={ordersLoading || tasksLoading}
@@ -414,7 +460,7 @@ export default function ProductionControlView() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* ========================================================================= */}
-        {/* VIEW A: MAIN PC DASHBOARD (EXACTLY 2 SEPARATE SYSTEM DIVS)                */}
+        {/* VIEW 1: MAIN PC DASHBOARD (EXACTLY 2 SYSTEM CARDS)                        */}
         {/* ========================================================================= */}
         {!activeSystemView && (
           <>
@@ -504,7 +550,7 @@ export default function ProductionControlView() {
               </div>
             </div>
 
-            {/* ONLY THE 2 REQUESTED SYSTEM CARDS (EXACT SCREENSHOT LAYOUT & THEMING) */}
+            {/* ONLY THE 2 SYSTEM CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {systemsData
                 .filter(sys => {
@@ -527,7 +573,7 @@ export default function ProductionControlView() {
                       key={sys.id}
                       onClick={() => {
                         setActiveSystemView(sys.id);
-                        setSelectedStageFilter('All');
+                        setActiveStageView(null);
                       }}
                       className="bg-white rounded-[24px] border border-[#E8DFD3] p-6 shadow-sm hover:shadow-md hover:border-[#5B172E]/40 transition-all cursor-pointer flex flex-col justify-between group"
                     >
@@ -640,11 +686,11 @@ export default function ProductionControlView() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW B: SEPARATE SYSTEM STAGE-WISE DETAIL PAGE WITH REMARK & PC TARGET DATE */}
+        {/* VIEW 2: STAGES LIST ONLY (NO ORDER DETAILS HERE - USER CLICKS TO OPEN!)     */}
         {/* ========================================================================= */}
-        {activeSystemView && currentSystem && (
+        {activeSystemView && !activeStageView && currentSystem && (
           <div className="space-y-6">
-            {/* System Info Banner with Luxury Styling */}
+            {/* System Info Banner */}
             <div className="bg-white rounded-[24px] p-6 border border-[#E8DFD3] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8]">
@@ -652,291 +698,431 @@ export default function ProductionControlView() {
                 </span>
                 <h2 className="text-2xl font-serif font-bold text-[#431021] mt-1.5">{currentSystem.title}</h2>
                 <p className="text-xs text-stone-500 mt-1">
-                  Stage-wise accountability: review delay metrics, assign PC target dates, and document process remarks.
+                  Select any stage below to inspect active garments/tasks and assign PC Target Dates with remarks.
                 </p>
               </div>
 
-              {/* Stage Filter Dropdown Styled matching Atelier Theme */}
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs font-bold text-[#5B172E] uppercase tracking-wider shrink-0">
-                  Filter Stage:
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-semibold px-3.5 py-1.5 rounded-xl bg-[#FAF8F5] text-stone-700 border border-[#DECDB8]">
+                  Total Stages: <strong className="text-[#5B172E]">{currentSystem.stages.length}</strong>
                 </span>
-                <div className="relative min-w-[240px] sm:min-w-[280px]">
-                  <select
-                    value={selectedStageFilter}
-                    onChange={(e) => setSelectedStageFilter(e.target.value)}
-                    className="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl text-xs font-bold bg-[#FAF8F5] text-[#431021] border border-[#DECDB8] hover:border-[#5B172E] focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 transition-all cursor-pointer shadow-xs"
-                  >
-                    <option value="All">
-                      All Stages ({currentSystem.stages.reduce((sum, s) => sum + s.pendingRaw, 0)} items)
-                    </option>
-                    {currentSystem.stages.map((st) => (
-                      <option key={st.id} value={st.id}>
-                        Stage {st.index}: {st.name} ({st.pendingRaw} items)
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#9B783E] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
               </div>
             </div>
 
-            {/* Stage Item Cards */}
-            <div className="space-y-6">
-              {currentSystem.stages
-                .filter(st => selectedStageFilter === 'All' || selectedStageFilter === st.id)
-                .map(stage => {
-                  return (
-                    <div key={stage.id} className="bg-white rounded-[24px] border border-[#E8DFD3] shadow-xs overflow-hidden">
-                      {/* Stage Sub-Header */}
-                      <div className="px-6 py-4 bg-[#FAF8F5] border-b border-[#F0E6D8] flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-xl bg-[#5B172E] text-[#FAF6F0] font-serif text-xs font-bold flex items-center justify-center shadow-xs">
-                            {stage.index}
-                          </span>
-                          <div>
-                            <h3 className="text-sm font-serif font-bold text-[#431021]">{stage.name}</h3>
-                            <div className="text-[11px] text-stone-500 flex items-center gap-2 mt-0.5">
-                              <span>In-Charge: <strong className="text-stone-800">{stage.owner}</strong></span>
-                              <span>·</span>
-                              <span>Avg Delay: <strong className={stage.avgDelay !== 'No delay' ? 'text-rose-600' : 'text-stone-700'}>{stage.avgDelay}</strong></span>
-                            </div>
-                          </div>
-                        </div>
+            {/* Stage Row-Wise Table / List - CLICK TO OPEN DETAILS */}
+            <div className="bg-white rounded-[24px] border border-[#E8DFD3] shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#FAF8F5] border-b border-[#F0E6D8] text-[11px] font-bold uppercase tracking-wider text-stone-600">
+                      <th className="py-3.5 px-6 w-14 text-center">#</th>
+                      <th className="py-3.5 px-4 min-w-[220px]">Stage Name &amp; Description</th>
+                      <th className="py-3.5 px-4 min-w-[150px]">In-Charge / Owner</th>
+                      <th className="py-3.5 px-4 min-w-[130px]">Avg Delay</th>
+                      <th className="py-3.5 px-4 min-w-[140px]">Pending Items</th>
+                      <th className="py-3.5 px-4 min-w-[110px]">Status</th>
+                      <th className="py-3.5 px-6 text-right min-w-[130px]">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F0E6D8] text-xs">
+                    {currentSystem.stages.map((stage) => {
+                      const isCrit = stage.status === 'Critical';
+                      const isDel = stage.status === 'Delayed';
 
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wide ${
-                            stage.status === 'Critical'
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : stage.status === 'Delayed'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          }`}
+                      return (
+                        <tr
+                          key={stage.id}
+                          onClick={() => setActiveStageView(stage.id)}
+                          className="hover:bg-[#FAF8F5]/80 transition-colors cursor-pointer group"
                         >
-                          {stage.pendingRaw} Active Items ({stage.status})
-                        </span>
-                      </div>
+                          <td className="py-4 px-6 text-center">
+                            <span className="w-8 h-8 rounded-xl bg-[#5B172E] text-white font-serif font-bold text-xs inline-flex items-center justify-center shadow-xs">
+                              {stage.index}
+                            </span>
+                          </td>
 
-                      {/* Items in this stage */}
-                      {stage.items.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-stone-400 font-medium">
-                          No pending tasks or orders in this stage. All items on track!
-                        </div>
-                      ) : (
-                        <div className="divide-y divide-[#F0E6D8]">
-                          {stage.items.map((item, itemIdx) => {
-                            if (activeSystemView === 'otd') {
-                              return (
-                                <OrderStageItemRow
-                                  key={item.id || itemIdx}
-                                  order={item}
-                                  saving={savingId === item.id}
-                                  saveSuccess={saveSuccessId === item.id}
-                                  onSave={(pcTargetDate, remark) => handleSaveOrderUpdate(item.id, pcTargetDate, remark)}
-                                />
-                              );
-                            }
+                          <td className="py-4 px-4">
+                            <div className="font-serif font-bold text-sm text-[#431021] group-hover:text-[#5B172E] transition-colors">
+                              {stage.name}
+                            </div>
+                            {stage.description && (
+                              <p className="text-[11px] text-stone-400 mt-0.5 line-clamp-1 max-w-md">
+                                {stage.description}
+                              </p>
+                            )}
+                          </td>
 
-                            const isChecklist = stage.id === 'checklist_ops';
-                            const table = isChecklist ? 'tasks' : 'delegation';
-                            return (
-                              <TaskStageItemRow
-                                key={item.id || itemIdx}
-                                task={item}
-                                isChecklist={isChecklist}
-                                saving={savingId === item.id}
-                                saveSuccess={saveSuccessId === item.id}
-                                onSave={(pcTargetDate, remark) => handleSaveTaskUpdate(item.id, table, pcTargetDate, remark)}
-                              />
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                          <td className="py-4 px-4 font-semibold text-stone-700">
+                            <div className="flex items-center gap-1.5">
+                              <User className="w-3.5 h-3.5 text-stone-400" />
+                              <span>{stage.owner}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4">
+                            <span className={`font-bold ${stage.avgDelay !== 'No delay' ? 'text-rose-600' : 'text-stone-700'}`}>
+                              {stage.avgDelay}
+                            </span>
+                          </td>
+
+                          <td className="py-4 px-4">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-base font-serif font-bold text-[#5B172E]">
+                                {stage.pendingRaw}
+                              </span>
+                              <span className="text-[11px] text-stone-500 font-medium">pending</span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4">
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                isCrit
+                                  ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                                  : isDel
+                                  ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                                  : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                              }`}
+                            >
+                              {stage.status}
+                            </span>
+                          </td>
+
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveStageView(stage.id);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] hover:bg-[#5B172E] hover:text-white text-xs font-bold transition-all shadow-2xs group-hover:bg-[#5B172E] group-hover:text-white"
+                            >
+                              <span>Open Stage</span>
+                              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
+
+        {/* ========================================================================= */}
+        {/* VIEW 3: STAGE DETAILS PAGE (GARMENT / TASK LIST WITH UPDATE MODAL BUTTON)  */}
+        {/* ========================================================================= */}
+        {activeSystemView && activeStageView && currentStage && (
+          <div className="space-y-6">
+            {/* Stage Detail Header Banner */}
+            <div className="bg-white rounded-[24px] p-6 border border-[#E8DFD3] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <span className="w-11 h-11 rounded-2xl bg-[#5B172E] text-white font-serif font-bold text-base flex items-center justify-center shadow-xs shrink-0">
+                  {currentStage.index}
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-serif font-bold text-[#431021]">{currentStage.name}</h2>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        currentStage.status === 'Critical'
+                          ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                          : currentStage.status === 'Delayed'
+                          ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                          : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      {currentStage.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-stone-500 mt-1">
+                    <span>In-Charge: <strong className="text-stone-800">{currentStage.owner}</strong></span>
+                    <span>·</span>
+                    <span>Avg Delay: <strong className={currentStage.avgDelay !== 'No delay' ? 'text-rose-600' : 'text-stone-800'}>{currentStage.avgDelay}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => setActiveStageView(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-stone-700 bg-[#FAF8F5] border border-[#DECDB8] hover:bg-[#F3ECE2] transition-colors"
+                >
+                  ← Change Stage
+                </button>
+              </div>
+            </div>
+
+            {/* List of Orders / Tasks in this Stage */}
+            <div className="bg-white rounded-[24px] border border-[#E8DFD3] shadow-xs overflow-hidden">
+              <div className="px-6 py-4 bg-[#FAF8F5] border-b border-[#F0E6D8] flex items-center justify-between">
+                <span className="text-xs font-bold text-[#5B172E] uppercase tracking-wider">
+                  Active Items in Stage ({currentStage.items.length})
+                </span>
+                <span className="text-xs text-stone-400">
+                  Click Update to open PC date &amp; remark modal
+                </span>
+              </div>
+
+              {currentStage.items.length === 0 ? (
+                <div className="p-12 text-center text-xs text-stone-400 font-medium">
+                  No pending tasks or orders in this stage. All items on track!
+                </div>
+              ) : (
+                <div className="divide-y divide-[#F0E6D8]">
+                  {currentStage.items.map((item, itemIdx) => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const isOrder = activeSystemView === 'otd';
+                    
+                    const isPcPastDue = isOrder 
+                      ? Boolean(item.pcTargetDate && item.pcTargetDate < todayStr)
+                      : Boolean(item.pc_target_date && item.pc_target_date < todayStr);
+
+                    return (
+                      <div
+                        key={item.id || itemIdx}
+                        className={`p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
+                          isPcPastDue
+                            ? 'bg-rose-100/90 hover:bg-rose-200/80 border-l-[6px] border-l-rose-600 animate-pulse'
+                            : 'hover:bg-[#FAF8F5]/80'
+                        }`}
+                      >
+                        {/* Item Details */}
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="font-mono text-xs font-bold text-[#5B172E] bg-[#FAF5EE] px-2.5 py-0.5 rounded-lg border border-[#DECDB8]">
+                              {isOrder ? item.id : `#${item.id}`}
+                            </span>
+                            <h4 className="text-base font-serif font-bold text-[#431021]">
+                              {isOrder ? (item.clientName || 'Unnamed Client') : (item.task_name || item.task_description || 'Checklist Item')}
+                            </h4>
+                            {isOrder && item.designNumber && (
+                              <span className="text-xs text-[#9B783E] font-semibold bg-[#FAF5EE] px-2 py-0.5 rounded-md border border-[#DECDB8]">
+                                Design #{item.designNumber}
+                              </span>
+                            )}
+                          </div>
+
+                          {isOrder ? (
+                            <p className="text-xs text-stone-600">
+                              <strong className="text-stone-800">Garment:</strong> {item.nameOfDesign || item.garmentType || 'Bespoke Order'} · <strong className="text-stone-800">Size:</strong> {item.size || 'Custom'}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-stone-600">
+                              <strong className="text-stone-800">Assigned To:</strong> {item.assigned_to || item.doer_name || item.name || 'Unassigned'} · <strong className="text-stone-800">Department:</strong> {item.department || 'Operations'}
+                            </p>
+                          )}
+
+                          {/* Dates & Last Update info */}
+                          <div className="flex items-center gap-3 text-[11px] text-stone-500 pt-1 flex-wrap">
+                            {isOrder ? (
+                              <>
+                                <span>Original Delivery: <strong className="text-stone-800">{item.deliveryDate || 'Not set'}</strong></span>
+                                {item.trialDate && <span>· Trial: <strong className="text-stone-800">{item.trialDate}</strong></span>}
+                              </>
+                            ) : (
+                              <span>Scheduled Date: <strong className="text-stone-800">{item.task_date || item.task_start_date || 'Not set'}</strong></span>
+                            )}
+
+                            {(item.pcTargetDate || item.pc_target_date) && (
+                              <span className="text-[#5B172E] font-bold">
+                                · PC Date: <strong>{item.pcTargetDate || item.pc_target_date}</strong>
+                              </span>
+                            )}
+
+                            {(item.pcRemarks || item.remark) && (
+                              <span className="text-stone-600 truncate max-w-xs" title={item.pcRemarks || item.remark}>
+                                · Remark: <em>"{item.pcRemarks || item.remark}"</em>
+                              </span>
+                            )}
+
+                            {item.pcLastUpdated && (
+                              <span className="text-[#9B783E]">
+                                · Updated by {item.pcUpdatedBy || 'Staff'} on {new Date(item.pcLastUpdated).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action: Open Modal to Update PC Date & Remark */}
+                        <div className="shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingItem({
+                                type: isOrder ? 'order' : 'task',
+                                item: item,
+                                table: isOrder ? null : (currentStage.id === 'checklist_ops' ? 'tasks' : 'delegation')
+                              });
+                            }}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#5B172E] hover:bg-[#431021] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Update PC Date / Remark</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
+
+      {/* ========================================================================= */}
+      {/* UPDATE MODAL (AUTO CLOSES ON SUBMIT OR CLICKING OUTSIDE)                  */}
+      {/* ========================================================================= */}
+      {editingItem && (
+        <PCUpdateModal
+          editingItem={editingItem}
+          saving={savingId === editingItem.item.id}
+          saveSuccess={saveSuccessId === editingItem.item.id}
+          onClose={() => setEditingItem(null)}
+          onSave={(pcTargetDate, remark) => {
+            if (editingItem.type === 'order') {
+              handleSaveOrderUpdate(editingItem.item.id, pcTargetDate, remark);
+            } else {
+              handleSaveTaskUpdate(editingItem.item.id, editingItem.table, pcTargetDate, remark);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
 
-// Subcomponent: Order Row for Order to Delivery Stage Detail View
-function OrderStageItemRow({ order, onSave, saving, saveSuccess }) {
-  const [remark, setRemark] = useState(order.pcRemarks || order.notes || '');
-  const [pcTargetDate, setPcTargetDate] = useState(order.pcTargetDate || '');
+// Subcomponent: PC Date & Remark Update Modal (Auto-closes on submit or outside click)
+function PCUpdateModal({ editingItem, onClose, onSave, saving, saveSuccess }) {
+  const { item, type } = editingItem;
+  const isOrder = type === 'order';
 
-  return (
-    <div className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 hover:bg-[#FAF8F5]/80 transition-colors">
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="font-mono text-xs font-bold text-[#5B172E] bg-[#FAF5EE] px-2.5 py-0.5 rounded-lg border border-[#DECDB8]">
-            {order.id}
-          </span>
-          <h4 className="text-base font-serif font-bold text-[#431021]">{order.clientName || 'Unnamed Client'}</h4>
-          {order.designNumber && (
-            <span className="text-xs text-[#9B783E] font-semibold bg-[#FAF5EE] px-2 py-0.5 rounded-md border border-[#DECDB8]">
-              Design #{order.designNumber}
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-stone-600">
-          <strong className="text-stone-800">Garment:</strong> {order.nameOfDesign || order.garmentType || 'Bespoke Order'} · <strong className="text-stone-800">Size:</strong> {order.size || 'Custom'}
-        </p>
-        <div className="flex items-center gap-3 text-[11px] text-stone-500 pt-1 flex-wrap">
-          <span>Original Target Delivery: <strong className="text-stone-800">{order.deliveryDate || 'Not set'}</strong></span>
-          {order.trialDate && <span>· Trial Date: <strong className="text-stone-800">{order.trialDate}</strong></span>}
-          {order.pcLastUpdated && (
-            <span className="text-[#9B783E] font-medium">
-              · Last PC update by {order.pcUpdatedBy || 'Staff'} on {new Date(order.pcLastUpdated).toLocaleDateString()}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Input controls: PC Target Date + Remark + Save Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 shrink-0 w-full lg:w-auto">
-        <div className="flex flex-col">
-          <label className="text-[10px] font-bold text-[#5B172E] uppercase tracking-wider mb-1 flex items-center gap-1">
-            <CalendarDays className="w-3 h-3 text-[#9B783E]" />
-            <span>PC Target Date</span>
-          </label>
-          <input
-            type="date"
-            value={pcTargetDate}
-            onChange={(e) => setPcTargetDate(e.target.value)}
-            className="px-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 font-medium shadow-xs"
-          />
-        </div>
-
-        <div className="flex flex-col flex-1 sm:w-72">
-          <label className="text-[10px] font-bold text-[#5B172E] uppercase tracking-wider mb-1 flex items-center gap-1">
-            <MessageSquare className="w-3 h-3 text-[#9B783E]" />
-            <span>PC Stage Remark</span>
-          </label>
-          <input
-            type="text"
-            value={remark}
-            onChange={(e) => setRemark(e.target.value)}
-            placeholder="Document stage progress, issues or remarks..."
-            className="px-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 shadow-xs placeholder:text-stone-400"
-          />
-        </div>
-
-        <div>
-          <button
-            type="button"
-            onClick={() => onSave(pcTargetDate, remark)}
-            disabled={saving}
-            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
-              saveSuccess
-                ? 'bg-emerald-600 text-white'
-                : 'bg-[#5B172E] hover:bg-[#431021] text-white active:scale-95'
-            }`}
-          >
-            {saving ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            ) : saveSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                <span>Saved!</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>Save</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+  const [pcTargetDate, setPcTargetDate] = useState(
+    isOrder ? (item.pcTargetDate || '') : (item.pc_target_date || '')
   );
-}
-
-// Subcomponent: Task Row for Checklist & Delegation Stage Detail View
-function TaskStageItemRow({ task, isChecklist, onSave, saving, saveSuccess }) {
-  const currentDate = isChecklist ? task.task_date : task.task_start_date;
-  const [remark, setRemark] = useState(task.remark || task.notes || '');
-  const [pcTargetDate, setPcTargetDate] = useState(task.pc_target_date || '');
+  const [remark, setRemark] = useState(
+    isOrder ? (item.pcRemarks || item.notes || '') : (item.remark || item.notes || '')
+  );
 
   return (
-    <div className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 hover:bg-[#FAF8F5]/80 transition-colors">
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="font-mono text-xs font-bold text-[#5B172E] bg-[#FAF5EE] px-2.5 py-0.5 rounded-lg border border-[#DECDB8]">
-            #{task.id}
-          </span>
-          <h4 className="text-base font-serif font-bold text-[#431021]">
-            {task.task_name || task.task_description || 'Checklist Item'}
-          </h4>
-        </div>
-        <p className="text-xs text-stone-600">
-          <strong className="text-stone-800">Assigned To:</strong> {task.assigned_to || task.doer_name || task.name || 'Unassigned'} · <strong className="text-stone-800">Department:</strong> {task.department || 'Operations'}
-        </p>
-        <div className="flex items-center gap-3 text-[11px] text-stone-500 pt-1">
-          <span>Original Schedule: <strong className="text-stone-800">{currentDate || 'Not set'}</strong></span>
-          <span>· Status: <strong className="text-amber-700">{task.status || 'Pending'}</strong></span>
-        </div>
-      </div>
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()} // Prevent close when clicking inside modal
+        className="bg-white rounded-[24px] border border-[#DECDB8] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150"
+      >
+        {/* Modal Header */}
+        <div className="p-6 bg-[#FAF8F5] border-b border-[#F0E6D8] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-xl bg-[#5B172E] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              PC
+            </span>
+            <div>
+              <h3 className="font-serif font-bold text-base text-[#431021]">
+                Update PC Target Date &amp; Remark
+              </h3>
+              <p className="text-xs text-stone-500">
+                {isOrder ? `Order: ${item.id} (${item.clientName || 'Client'})` : `Task: #${item.id}`}
+              </p>
+            </div>
+          </div>
 
-      {/* Input controls: PC Target Date + Remark + Save Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 shrink-0 w-full lg:w-auto">
-        <div className="flex flex-col">
-          <label className="text-[10px] font-bold text-[#5B172E] uppercase tracking-wider mb-1 flex items-center gap-1">
-            <CalendarDays className="w-3 h-3 text-[#9B783E]" />
-            <span>PC Target Date</span>
-          </label>
-          <input
-            type="date"
-            value={pcTargetDate}
-            onChange={(e) => setPcTargetDate(e.target.value)}
-            className="px-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 font-medium shadow-xs"
-          />
-        </div>
-
-        <div className="flex flex-col flex-1 sm:w-72">
-          <label className="text-[10px] font-bold text-[#5B172E] uppercase tracking-wider mb-1 flex items-center gap-1">
-            <MessageSquare className="w-3 h-3 text-[#9B783E]" />
-            <span>PC Task Remark</span>
-          </label>
-          <input
-            type="text"
-            value={remark}
-            onChange={(e) => setRemark(e.target.value)}
-            placeholder="Add update note or postponement reason..."
-            className="px-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 shadow-xs placeholder:text-stone-400"
-          />
-        </div>
-
-        <div>
           <button
             type="button"
-            onClick={() => onSave(pcTargetDate, remark)}
-            disabled={saving}
-            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
-              saveSuccess
-                ? 'bg-emerald-600 text-white'
-                : 'bg-[#5B172E] hover:bg-[#431021] text-white active:scale-95'
-            }`}
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors cursor-pointer"
           >
-            {saving ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            ) : saveSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                <span>Saved!</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>Save</span>
-              </>
-            )}
+            <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Modal Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSave(pcTargetDate, remark);
+          }}
+          className="p-6 space-y-4"
+        >
+          {/* Target Date Input */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[#5B172E] uppercase tracking-wider flex items-center gap-1.5">
+              <CalendarDays className="w-4 h-4 text-[#9B783E]" />
+              <span>PC Target Date</span>
+            </label>
+            <input
+              type="date"
+              value={pcTargetDate}
+              onChange={(e) => setPcTargetDate(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 font-medium shadow-xs"
+            />
+            <p className="text-[11px] text-stone-400">
+              {isOrder
+                ? `Original Delivery Date: ${item.deliveryDate || 'Not set'}`
+                : `Original Schedule: ${item.task_date || item.task_start_date || 'Not set'}`}
+            </p>
+          </div>
+
+          {/* Remark Input */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[#5B172E] uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-[#9B783E]" />
+              <span>PC Stage Remark</span>
+            </label>
+            <textarea
+              rows={3}
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              placeholder="Add progress update, delay reason, or stage remark..."
+              className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/20 text-stone-800 shadow-xs placeholder:text-stone-400 resize-none"
+            />
+          </div>
+
+          {/* Modal Actions */}
+          <div className="pt-3 border-t border-[#F0E6D8] flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                saveSuccess
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#5B172E] hover:bg-[#431021] text-white active:scale-95'
+              }`}
+            >
+              {saving ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Changes</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

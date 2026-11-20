@@ -706,8 +706,8 @@ export default function MasterShell({ children }) {
               ========================================================================= */}
               <button
                 type="button"
-                onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${
+                onClick={() => { handleNavigate('/pc'); }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
                   isPcActive
                     ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                     : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
@@ -719,7 +719,6 @@ export default function MasterShell({ children }) {
                   </div>
                   <span className="truncate font-semibold tracking-tight">PC</span>
                 </div>
-                <ChevronRight className={`w-3.5 h-3.5 ${isPcActive ? 'text-white' : 'text-stone-400'}`} />
               </button>
 
               {/* =========================================================================
@@ -1023,8 +1022,8 @@ export default function MasterShell({ children }) {
               {/* PC in Mobile Drawer - Just below Order to Delivery */}
               <button
                 type="button"
-                onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors text-left ${
+                onClick={() => { handleNavigate('/pc'); }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 text-left ${
                   isPcActive ? 'bg-[#F3ECE2] text-[#5B172E] font-bold' : 'text-stone-700 hover:bg-[#F3ECE2]'
                 }`}
               >
@@ -1032,7 +1031,6 @@ export default function MasterShell({ children }) {
                   <Layers className="w-4 h-4 text-[#C5A059]" />
                   <span>PC</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
               </button>
 
               {/* 3. Master Setting in Mobile */}

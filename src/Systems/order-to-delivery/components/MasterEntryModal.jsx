@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, 
   Check, 
@@ -16,7 +16,10 @@ import {
   Briefcase,
   Layers,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Upload,
+  Link as LinkIcon,
+  Image as ImageIcon
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchDepartmentNames } from '../../../core/services/departmentService';
@@ -35,6 +38,8 @@ export const MasterEntryModal = ({
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [departmentOptions, setDepartmentOptions] = useState([]);
+  const [imageUploadMode, setImageUploadMode] = useState('upload'); // 'upload' | 'url'
+  const fileInputRef = useRef(null);
 
   // Department choices come from the database (Master Hub departments)
   useEffect(() => {
@@ -77,8 +82,10 @@ export const MasterEntryModal = ({
           name: '',
           sku: '',
           category: 'Couture',
+          type: '',
+          color: '',
           description: '',
-          price: ''
+          imageUrl: ''
         });
       } else if (type === 'karigar') {
         setFormData({
@@ -544,9 +551,138 @@ export const MasterEntryModal = ({
                     type="text"
                     value={formData.category || ''}
                     onChange={(e) => handleChange('category', e.target.value)}
-                    placeholder="e.g. Lehenga, Sherwani, Gown, Saree"
+                    placeholder="e.g. Western Wear, Ethnic Wear, Couture"
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Type / Silhouette
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.type || ''}
+                    onChange={(e) => handleChange('type', e.target.value)}
+                    placeholder="e.g. Sleeveless, Fit & Flare, Full Sleeves"
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">
+                    Color
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.color || ''}
+                    onChange={(e) => handleChange('color', e.target.value)}
+                    placeholder="e.g. Black, Electric Blue, Ivory"
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  />
+                </div>
+
+                {/* DESIGN IMAGE SELECTION: LOCAL DEVICE FILE OR URL / LINK */}
+                <div className="sm:col-span-2 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-semibold text-stone-700 text-xs">
+                      Design Image Asset
+                    </label>
+                    <div className="flex items-center gap-1 bg-[#FAF5EE] p-0.5 rounded-lg border border-[#DECDB8] text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadMode('upload')}
+                        className={`px-2 py-0.5 rounded-md font-semibold transition-all ${
+                          imageUploadMode === 'upload'
+                            ? 'bg-[#5B172E] text-white shadow-2xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        Local File / Device
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadMode('url')}
+                        className={`px-2 py-0.5 rounded-md font-semibold transition-all ${
+                          imageUploadMode === 'url'
+                            ? 'bg-[#5B172E] text-white shadow-2xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        Direct URL / Link
+                      </button>
+                    </div>
+                  </div>
+
+                  {imageUploadMode === 'upload' ? (
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              handleChange('imageUrl', event.target.result);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#DECDB8] hover:border-[#5B172E] rounded-xl bg-[#FAF8F5] text-stone-600 hover:text-[#5B172E] transition-all text-xs font-semibold"
+                      >
+                        <Upload className="w-4 h-4 text-[#C5A059]" />
+                        <span>Choose photo from local device / FTP storage</span>
+                      </button>
+
+                      {formData.imageUrl && (
+                        <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-[#DECDB8] shrink-0 bg-stone-100">
+                          <img
+                            src={formData.imageUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleChange('imageUrl', '')}
+                            className="absolute top-0 right-0 bg-rose-600 text-white rounded-bl p-0.5"
+                            title="Remove image"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <LinkIcon className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={formData.imageUrl || ''}
+                          onChange={(e) => handleChange('imageUrl', e.target.value)}
+                          placeholder="https://... or /designs/SKU.jpg"
+                          className="w-full pl-8 pr-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                        />
+                      </div>
+                      {formData.imageUrl && (
+                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#DECDB8] shrink-0 bg-stone-100">
+                          <img
+                            src={formData.imageUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">

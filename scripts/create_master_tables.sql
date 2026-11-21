@@ -1,12 +1,10 @@
 -- ============================================================================
--- MASTER TABLES SCHEMA FOR SAINY GARG COUTURE (TRANSACTIONAL WITH AUTO-ROLLBACK)
--- Only strictly required columns. Wrapped in BEGIN...COMMIT transaction.
+-- MASTER TABLES SCHEMA FOR SAINY GARG COUTURE
+-- Naming standard: master_design, master_vendor, master_customer, etc.
 -- Run in Supabase SQL Editor: https://supabase.com/dashboard/project/cagibmportrxcvoerutv/sql
 -- ============================================================================
 
-BEGIN;
-
--- 1. DESIGNS MASTER TABLE (Only required columns for couture catalog)
+-- 1. DESIGNS MASTER TABLE
 CREATE TABLE IF NOT EXISTS public.master_design (
     id TEXT PRIMARY KEY,
     sku TEXT UNIQUE,
@@ -16,7 +14,10 @@ CREATE TABLE IF NOT EXISTS public.master_design (
     color TEXT,
     description TEXT,
     image_url TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    images JSONB DEFAULT '[]'::jsonb,
+    source_sheet TEXT DEFAULT 'Data',
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
 -- 2. VENDORS MASTER TABLE
@@ -27,7 +28,8 @@ CREATE TABLE IF NOT EXISTS public.master_vendor (
     phone TEXT,
     address TEXT,
     gst_no TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
 -- 3. CUSTOMERS MASTER TABLE
@@ -39,7 +41,8 @@ CREATE TABLE IF NOT EXISTS public.master_customer (
     city TEXT,
     address TEXT,
     gst_no TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
 -- 4. DEPARTMENTS MASTER TABLE
@@ -47,10 +50,11 @@ CREATE TABLE IF NOT EXISTS public.master_department (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     code TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
--- 5. STAGE TAT MASTER TABLE (Strictly Order to Delivery stages)
+-- 5. STAGE TAT MASTER TABLE
 CREATE TABLE IF NOT EXISTS public.master_tat (
     id TEXT PRIMARY KEY,
     module_name TEXT NOT NULL DEFAULT 'Order to Delivery',
@@ -62,7 +66,8 @@ CREATE TABLE IF NOT EXISTS public.master_tat (
     assigned_person TEXT,
     assigned_person_id TEXT,
     notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
 -- 6. TRANSPORTERS MASTER TABLE
@@ -71,7 +76,8 @@ CREATE TABLE IF NOT EXISTS public.master_transporter (
     name TEXT NOT NULL,
     contact_person TEXT,
     phone TEXT,
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
 -- 7. KARIGARS MASTER TABLE
@@ -80,10 +86,13 @@ CREATE TABLE IF NOT EXISTS public.master_karigar (
     name TEXT NOT NULL,
     phone TEXT,
     status TEXT DEFAULT 'Active (On Duty)',
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
 
--- ENABLE ROW LEVEL SECURITY
+-- ============================================================================
+-- ROW LEVEL SECURITY & PUBLIC ACCESS POLICIES
+-- ============================================================================
 ALTER TABLE public.master_design ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.master_vendor ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.master_customer ENABLE ROW LEVEL SECURITY;
@@ -92,7 +101,7 @@ ALTER TABLE public.master_tat ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.master_transporter ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.master_karigar ENABLE ROW LEVEL SECURITY;
 
--- POLICIES (Full CRUD access for authenticated and anonymous app users)
+-- Allow full read/write access for authenticated and anonymous users
 DO $$
 DECLARE
     tbl TEXT;
@@ -112,7 +121,3 @@ BEGIN
         EXECUTE format('CREATE POLICY "Public access on %I" ON public.%I FOR ALL USING (true) WITH CHECK (true)', tbl, tbl);
     END LOOP;
 END $$;
-
--- If any statement fails above, PostgreSQL will automatically ROLLBACK everything.
--- Otherwise, commit the changes atomically.
-COMMIT;

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import supabase from '../config/supabaseClient';
-import { fromRow } from '../../Systems/order-to-delivery/utils/userStorage';
+import { fromRow } from '../../Systems/order-to-delivery/utils/userAuthService';
 
 const UnifiedAuthContext = createContext(null);
 
@@ -173,4 +173,3 @@ export function useUnifiedAuth() {
 }
 
 export default UnifiedAuthContext;
-

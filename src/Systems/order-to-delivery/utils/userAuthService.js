@@ -3,11 +3,11 @@ import supabase from '../../../core/config/supabaseClient';
 const TABLE = 'users';
 
 export const ALL_PAGE_IDS = [
-  { id: 'dashboard', label: 'Dashboard (Production Tracking)' },
-  { id: 'orders', label: 'Orders Page (All Orders & Create Order)' },
-  { id: 'stages', label: 'Production Stages Workflows' },
-  { id: 'pc', label: 'PC (Production Control / Target Dates & Remarks)' },
-  { id: 'settings', label: 'Master Hub (Users, Vendors, Clients, Dept, TAT)' }
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'orders', label: 'Orders' },
+  { id: 'stages', label: 'Production Stages' },
+  { id: 'pc', label: 'PC (Production Control)' },
+  { id: 'settings', label: 'Settings' }
 ];
 
 // Checklist & Delegation sub pages (route href is the permission id)

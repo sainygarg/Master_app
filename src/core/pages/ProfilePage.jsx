@@ -33,7 +33,7 @@ import {
   ALL_CHECKLIST_PAGE_IDS,
   canUserAccessChecklistPage,
   isApexAdmin
-} from '../../Systems/order-to-delivery/utils/userStorage';
+} from '../../Systems/order-to-delivery/utils/userAuthService';
 
 const card = 'bg-white rounded-2xl border border-[#E8DFD3] shadow-xs p-5 sm:p-6 transition-all';
 const label = 'block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1.5 flex items-center gap-1.5';

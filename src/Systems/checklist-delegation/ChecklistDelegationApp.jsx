@@ -24,7 +24,7 @@ import BulkImport from './pages/BulkImport';
 // --- Context & Listeners ---
 import { MagicToastProvider } from './context/MagicToastContext';
 import RealtimeLogoutListener from './components/RealtimeLogoutListener';
-import { ALL_CHECKLIST_PAGE_IDS, canUserAccessChecklistPage, canUserAccessPage } from '../order-to-delivery/utils/userStorage';
+import { ALL_CHECKLIST_PAGE_IDS, canUserAccessChecklistPage, canUserAccessPage } from '../order-to-delivery/utils/userAuthService';
 
 
 // Blocks direct URL access to checklist pages the user was not granted in Master Hub

@@ -1,0 +1,1920 @@
+[
+  {
+    "tabName": "FINAL Images",
+    "totalRows": 12,
+    "totalCols": 7,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "Design Image"
+      },
+      {
+        "colNum": 2,
+        "name": "SKU Code"
+      },
+      {
+        "colNum": 3,
+        "name": "Name Of Design"
+      },
+      {
+        "colNum": 4,
+        "name": "Category"
+      },
+      {
+        "colNum": 5,
+        "name": "Type"
+      },
+      {
+        "colNum": 6,
+        "name": "Color"
+      },
+      {
+        "colNum": 7,
+        "name": "Design Description"
+      }
+    ],
+    "sampleRow": [
+      "IMAGE",
+      "SKU CODE",
+      "PRODUCT NAME ",
+      "Category ",
+      "SLEEVE TYPE",
+      "PRODUCT DESCRIPTION",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet1 (1)",
+    "totalRows": 19,
+    "totalCols": 37,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 4,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 5,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 6,
+        "name": "Category"
+      },
+      {
+        "colNum": 7,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 8,
+        "name": "COLOUR"
+      },
+      {
+        "colNum": 9,
+        "name": "EMBELLISHMENTS"
+      },
+      {
+        "colNum": 10,
+        "name": "SLEEVE TYPE"
+      },
+      {
+        "colNum": 11,
+        "name": "NECK LINE TYPE"
+      },
+      {
+        "colNum": 12,
+        "name": "LENGTH IN INCHES"
+      },
+      {
+        "colNum": 13,
+        "name": "COMPONENTS"
+      },
+      {
+        "colNum": 14,
+        "name": "OCCASION"
+      },
+      {
+        "colNum": 15,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 16,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 17,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 18,
+        "name": "WEARING SIZE"
+      },
+      {
+        "colNum": 19,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 20,
+        "name": "PRODUCT DESCRIPTION"
+      },
+      {
+        "colNum": 21,
+        "name": "(Col_21)"
+      },
+      {
+        "colNum": 22,
+        "name": "(Col_22)"
+      },
+      {
+        "colNum": 23,
+        "name": "(Col_23)"
+      },
+      {
+        "colNum": 24,
+        "name": "(Col_24)"
+      },
+      {
+        "colNum": 25,
+        "name": "(Col_25)"
+      },
+      {
+        "colNum": 26,
+        "name": "(Col_26)"
+      },
+      {
+        "colNum": 27,
+        "name": "(Col_27)"
+      },
+      {
+        "colNum": 28,
+        "name": "(Col_28)"
+      },
+      {
+        "colNum": 29,
+        "name": "(Col_29)"
+      },
+      {
+        "colNum": 30,
+        "name": "(Col_30)"
+      },
+      {
+        "colNum": 31,
+        "name": "(Col_31)"
+      },
+      {
+        "colNum": 32,
+        "name": "(Col_32)"
+      },
+      {
+        "colNum": 33,
+        "name": "(Col_33)"
+      },
+      {
+        "colNum": 34,
+        "name": "(Col_34)"
+      },
+      {
+        "colNum": 35,
+        "name": "(Col_35)"
+      },
+      {
+        "colNum": 36,
+        "name": "(Col_36)"
+      },
+      {
+        "colNum": 37,
+        "name": "(Col_37)"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "",
+      "Midnight Affair Link ",
+      "Glass tissue and Luxe Crepe",
+      "Iconique ",
+      "Western Wear ",
+      "Tops & Bib ",
+      "Black",
+      "Embellished with Sculpted tissue Moulded Across Shoulder and Waist",
+      "Sleeveless ",
+      "U Neck ",
+      "29\"",
+      "Top - 1 , Top & Pant - 2 , Top,Bustier & Pant - 3",
+      "Party Wear ",
+      "Dry Clean Only",
+      "sgmaffair",
+      "5'8\"",
+      "S",
+      "Top 14500/- , coord 20500/- , full set 23000/-",
+      "Sculptural black crop top featuring elegant pleated draping for a bold, modern silhouette.\nPaired with a high-waisted skirt with a sleek front zipper, blending structure and minimalism.\nPerfect for statement evening wear or elevated contemporary styling.",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet2",
+    "totalRows": 118,
+    "totalCols": 21,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 4,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 5,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 6,
+        "name": "(Col_6)"
+      },
+      {
+        "colNum": 7,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 8,
+        "name": "(Col_8)"
+      },
+      {
+        "colNum": 9,
+        "name": "(Col_9)"
+      },
+      {
+        "colNum": 10,
+        "name": "(Col_10)"
+      },
+      {
+        "colNum": 11,
+        "name": "(Col_11)"
+      },
+      {
+        "colNum": 12,
+        "name": "(Col_12)"
+      },
+      {
+        "colNum": 13,
+        "name": "(Col_13)"
+      },
+      {
+        "colNum": 14,
+        "name": "(Col_14)"
+      },
+      {
+        "colNum": 15,
+        "name": "(Col_15)"
+      },
+      {
+        "colNum": 16,
+        "name": "(Col_16)"
+      },
+      {
+        "colNum": 17,
+        "name": "(Col_17)"
+      },
+      {
+        "colNum": 18,
+        "name": "(Col_18)"
+      },
+      {
+        "colNum": 19,
+        "name": "(Col_19)"
+      },
+      {
+        "colNum": 20,
+        "name": "(Col_20)"
+      },
+      {
+        "colNum": 21,
+        "name": "(Col_21)"
+      }
+    ],
+    "sampleRow": [
+      "",
+      "",
+      "Golden Drama Link ",
+      "",
+      "ICONIQUE",
+      "",
+      "Tops & Bibs , Co -ord ",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet3",
+    "totalRows": 5,
+    "totalCols": 18,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "Design Image"
+      },
+      {
+        "colNum": 2,
+        "name": "Product Name"
+      },
+      {
+        "colNum": 3,
+        "name": "Price"
+      },
+      {
+        "colNum": 4,
+        "name": "Colour"
+      },
+      {
+        "colNum": 5,
+        "name": "Fabric"
+      },
+      {
+        "colNum": 6,
+        "name": "Collection"
+      },
+      {
+        "colNum": 7,
+        "name": "Category"
+      },
+      {
+        "colNum": 8,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 9,
+        "name": "Type"
+      },
+      {
+        "colNum": 10,
+        "name": "Clouse"
+      },
+      {
+        "colNum": 11,
+        "name": "Length In Inches"
+      },
+      {
+        "colNum": 12,
+        "name": "Component"
+      },
+      {
+        "colNum": 13,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 14,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 15,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 16,
+        "name": "WEARING SIZE"
+      },
+      {
+        "colNum": 17,
+        "name": "(Col_17)"
+      },
+      {
+        "colNum": 18,
+        "name": "PRODUCT DESCRIPTION"
+      }
+    ],
+    "sampleRow": [
+      "",
+      "Luna Luxe Pant ",
+      "4000/- ",
+      "Black ",
+      " Luxe Crepe",
+      "Iconique ",
+      "Western Wear ",
+      "Bottom Wear, Iconique,New Arrivals ",
+      "Fit & Flare Pant ",
+      "invisble zip on left side ",
+      " 42 ''",
+      "1",
+      "Dry Clean Only",
+      "sglpant",
+      "5'8\"",
+      "S",
+      "",
+      "A modern straight-fit pant tailored with a clean silhouette for effortless sophistication. Designed to sit comfortably at the waist with a streamlined leg shape, these pants offer a polished look suitable for both formal and smart casual wear. Minimal detailing keeps the design timeless and versatile for everyday styling."
+    ]
+  },
+  {
+    "tabName": "Sheet4",
+    "totalRows": 39,
+    "totalCols": 7,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "SHOP BY OCCASSIONS"
+      },
+      {
+        "colNum": 2,
+        "name": "(Col_2)"
+      },
+      {
+        "colNum": 3,
+        "name": "(Col_3)"
+      },
+      {
+        "colNum": 4,
+        "name": "(Col_4)"
+      },
+      {
+        "colNum": 5,
+        "name": "(Col_5)"
+      },
+      {
+        "colNum": 6,
+        "name": "(Col_6)"
+      },
+      {
+        "colNum": 7,
+        "name": "(Col_7)"
+      }
+    ],
+    "sampleRow": [
+      " Office Chic ",
+      "Brunch Dates ",
+      "Resort Wear ",
+      "Cocktail Nights",
+      "Party Edit ",
+      "",
+      "Airport Look "
+    ]
+  },
+  {
+    "tabName": "Sheet6",
+    "totalRows": 36,
+    "totalCols": 21,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 4,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 5,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 6,
+        "name": "Category"
+      },
+      {
+        "colNum": 7,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 8,
+        "name": "COLOUR"
+      },
+      {
+        "colNum": 9,
+        "name": "EMBELLISHMENTS"
+      },
+      {
+        "colNum": 10,
+        "name": "SLEEVE TYPE"
+      },
+      {
+        "colNum": 11,
+        "name": "NECK LINE TYPE"
+      },
+      {
+        "colNum": 12,
+        "name": "LENGTH IN INCHES"
+      },
+      {
+        "colNum": 13,
+        "name": "COMPONENTS"
+      },
+      {
+        "colNum": 14,
+        "name": "OCCASION"
+      },
+      {
+        "colNum": 15,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 16,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 17,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 18,
+        "name": "WEARING SIZE"
+      },
+      {
+        "colNum": 19,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 20,
+        "name": "PRODUCT DESCRIPTION"
+      },
+      {
+        "colNum": 21,
+        "name": "(Col_21)"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "",
+      "Midnight Contrast Shirt ",
+      "cotton",
+      "The Modern Heir ",
+      "Menswear all,Shirts ",
+      "Shirt ",
+      "Black ",
+      "Concealed Double-Placket Detailing\nContrast Panel Construction\nMinimal Topstitch Finish\nNo Embroidery",
+      "Full Sleeves ",
+      "Classic Shirt Collar (Point Collar)",
+      "29''",
+      "1",
+      "Party wear,casual wear,sangeet,cocktail ",
+      "Dry Clean Only ",
+      "sgmidcon",
+      "5'10 ",
+      "L ",
+      "8,000/-",
+      "A contemporary statement crafted for the modern gentleman, this shirt features a refined navy front panel contrasted with black sleeves, shoulders, and back. Designed with a concealed double front placket, it offers a clean, uninterrupted silhouette while adding subtle architectural detailing. Expert tailoring and premium fabric ensure a smooth drape, making it suitable for both formal occasions and elevated evening dressing.\nPerfect for cocktail evenings, receptions, luxury dinners, destination celebrations, and festive occasions where understated sophistication stands out.",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet7",
+    "totalRows": 106,
+    "totalCols": 21,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 4,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 5,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 6,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 7,
+        "name": "Category"
+      },
+      {
+        "colNum": 8,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 9,
+        "name": "COLOUR"
+      },
+      {
+        "colNum": 10,
+        "name": "EMBELLISHMENTS"
+      },
+      {
+        "colNum": 11,
+        "name": "SLEEVE TYPE"
+      },
+      {
+        "colNum": 12,
+        "name": "NECK LINE TYPE"
+      },
+      {
+        "colNum": 13,
+        "name": "(Col_13)"
+      },
+      {
+        "colNum": 14,
+        "name": "COMPONENTS"
+      },
+      {
+        "colNum": 15,
+        "name": "OCCASION"
+      },
+      {
+        "colNum": 16,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 17,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 18,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 19,
+        "name": "wearing size acc to age group"
+      },
+      {
+        "colNum": 20,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 21,
+        "name": "PRODUCT DESCRIPTION"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "",
+      "",
+      "Little Wave Co-ord Set ",
+      "Pure Organza and Luxe Crepe",
+      "Nil ",
+      "Western Wear ",
+      "Kids wear ",
+      "Blue ",
+      "Embellished with Sculpted Organza Moulded Across Shoulder and Waist",
+      "Sleevesless ",
+      "V Neck ",
+      "",
+      "Top - 1 ",
+      "Party Wear ",
+      "Dry Clean Only",
+      "sglittwav",
+      "4'3 ",
+      "10 - 12 year old ",
+      "",
+      "A stylish top with a pleated, textured fabric in rich teal tones with subtle striped accents.\nIt features a V-neckline and cap sleeves for a sleek, modern look.\nThe soft drape and structured waist detail create an elegant, flattering silhouette."
+    ]
+  },
+  {
+    "tabName": "sejal set",
+    "totalRows": 1,
+    "totalCols": 19,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 4,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 5,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 6,
+        "name": "Category"
+      },
+      {
+        "colNum": 7,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 8,
+        "name": "COLOUR"
+      },
+      {
+        "colNum": 9,
+        "name": "EMBELLISHMENTS"
+      },
+      {
+        "colNum": 10,
+        "name": "SLEEVE TYPE"
+      },
+      {
+        "colNum": 11,
+        "name": "NECK LINE TYPE"
+      },
+      {
+        "colNum": 12,
+        "name": "COMPONENTS"
+      },
+      {
+        "colNum": 13,
+        "name": "OCCASION"
+      },
+      {
+        "colNum": 14,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 15,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 16,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 17,
+        "name": "wearing size"
+      },
+      {
+        "colNum": 18,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 19,
+        "name": "PRODUCT DESCRIPTION"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "",
+      "SEJAL SET",
+      "pure tissue , glass tissue",
+      "nil",
+      "Indowestern",
+      "skirt set",
+      "Black",
+      "",
+      "",
+      "v neck",
+      "1 cape, 1 skirt, 1 bustier",
+      "festive",
+      "dry clean only",
+      "sgsejal",
+      "5'10\"",
+      "M",
+      "20000/-",
+      "Make a statement in timeless elegance with this exquisite cape set, featuring a beautifully structured silhouette. Perfect for weddings, festive celebrations, and grand evening occasions, this ensemble blends traditional craftsmanship with contemporary glamour."
+    ]
+  },
+  {
+    "tabName": "Sheet8",
+    "totalRows": 26,
+    "totalCols": 37,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "IMAGE"
+      },
+      {
+        "colNum": 3,
+        "name": "PRODUCT NAME"
+      },
+      {
+        "colNum": 4,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 5,
+        "name": "Collection name"
+      },
+      {
+        "colNum": 6,
+        "name": "Category"
+      },
+      {
+        "colNum": 7,
+        "name": "Sub category"
+      },
+      {
+        "colNum": 8,
+        "name": "COLOUR"
+      },
+      {
+        "colNum": 9,
+        "name": "EMBELLISHMENTS"
+      },
+      {
+        "colNum": 10,
+        "name": "SLEEVE TYPE"
+      },
+      {
+        "colNum": 11,
+        "name": "NECK LINE TYPE"
+      },
+      {
+        "colNum": 12,
+        "name": "LENGTH IN INCHES"
+      },
+      {
+        "colNum": 13,
+        "name": "COMPONENTS"
+      },
+      {
+        "colNum": 14,
+        "name": "OCCASION"
+      },
+      {
+        "colNum": 15,
+        "name": "CARE INSTRUCTIONS"
+      },
+      {
+        "colNum": 16,
+        "name": "SKU CODE"
+      },
+      {
+        "colNum": 17,
+        "name": "MODEL HEIGHT"
+      },
+      {
+        "colNum": 18,
+        "name": "WEARING SIZE"
+      },
+      {
+        "colNum": 19,
+        "name": "PRICE"
+      },
+      {
+        "colNum": 20,
+        "name": "PRODUCT DESCRIPTION"
+      },
+      {
+        "colNum": 21,
+        "name": "(Col_21)"
+      },
+      {
+        "colNum": 22,
+        "name": "(Col_22)"
+      },
+      {
+        "colNum": 23,
+        "name": "(Col_23)"
+      },
+      {
+        "colNum": 24,
+        "name": "(Col_24)"
+      },
+      {
+        "colNum": 25,
+        "name": "(Col_25)"
+      },
+      {
+        "colNum": 26,
+        "name": "(Col_26)"
+      },
+      {
+        "colNum": 27,
+        "name": "(Col_27)"
+      },
+      {
+        "colNum": 28,
+        "name": "(Col_28)"
+      },
+      {
+        "colNum": 29,
+        "name": "(Col_29)"
+      },
+      {
+        "colNum": 30,
+        "name": "(Col_30)"
+      },
+      {
+        "colNum": 31,
+        "name": "(Col_31)"
+      },
+      {
+        "colNum": 32,
+        "name": "(Col_32)"
+      },
+      {
+        "colNum": 33,
+        "name": "(Col_33)"
+      },
+      {
+        "colNum": 34,
+        "name": "(Col_34)"
+      },
+      {
+        "colNum": 35,
+        "name": "(Col_35)"
+      },
+      {
+        "colNum": 36,
+        "name": "(Col_36)"
+      },
+      {
+        "colNum": 37,
+        "name": "(Col_37)"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "",
+      "Neel Nazam ",
+      "Modal ",
+      "Rangreez ",
+      "Ethnic Wear ",
+      "Kurta Set ",
+      "Blue ",
+      "gold zardozi appliqué",
+      "Full bell Sleeves",
+      "Scallop Neckline ",
+      "",
+      "Bib,Kurti & Pant - 3 ",
+      "Festive Wear ",
+      "Dry Clean Only ",
+      "sgneelnazam ",
+      "5'7 ",
+      "S ",
+      "",
+      "Make a statement in this royal blue satin co-ord set,with gold Zardari appliqué work.The kaftan-style tunic has a soft scalloped neckline, flowing bell sleeves and a flared hem, with side tassel tie-ups that add movement and a defined waist.",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet1",
+    "totalRows": 109,
+    "totalCols": 36,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "PSL SKU CODE\nto be filled by PSL"
+      },
+      {
+        "colNum": 2,
+        "name": "S. No."
+      },
+      {
+        "colNum": 3,
+        "name": "Image- has to be Pernia's Pop up shop's Photoshoot"
+      },
+      {
+        "colNum": 4,
+        "name": "Designer Unique code - code by which you can identify the product"
+      },
+      {
+        "colNum": 5,
+        "name": "Product Category : E.g skirt,trouser,anakarli, lehenga set, saree etc.\n\nFor Better Search, please select from our list"
+      },
+      {
+        "colNum": 6,
+        "name": "Short description : 5 imp keywords of the product.\nUSP. Colour-Embroidery-Fabric-Silhouette"
+      },
+      {
+        "colNum": 7,
+        "name": "Long description : 2-3 lines brief description of the product. Include inspiration/collection name."
+      },
+      {
+        "colNum": 8,
+        "name": "primary color: main colour of the product"
+      },
+      {
+        "colNum": 9,
+        "name": "Fabric Composition : please list all. If blend, please list %\nSpecify fabric of all the pieces in a set"
+      },
+      {
+        "colNum": 10,
+        "name": "Emboridery & Embellishments\nSpecify embroidery of all the pieces in a set"
+      },
+      {
+        "colNum": 11,
+        "name": "Prints/Patterns\nSpecify print of all the pieces in a set"
+      },
+      {
+        "colNum": 12,
+        "name": "No. of pieces in a set"
+      },
+      {
+        "colNum": 13,
+        "name": "Delivery Time: Mention in Days or weeks\n\nCOLUMN F"
+      },
+      {
+        "colNum": 14,
+        "name": "Size : Mention the quanity available/reproducible against each size.\nIncase it is reproducible indefinitely, please put 1000 XS\nWaist: 26\nBust: 32\nHIP: 36"
+      },
+      {
+        "colNum": 15,
+        "name": "S\nWaist: 28\nBust: 34\nHIP: 38"
+      },
+      {
+        "colNum": 16,
+        "name": "M\nWaist: 30\nBust: 36\nHIP: 40"
+      },
+      {
+        "colNum": 17,
+        "name": "L\nWaist: 32\nBust: 38\nHIP: 42"
+      },
+      {
+        "colNum": 18,
+        "name": "XL\nWaist: 34\nBust: 40\nHIP: 44"
+      },
+      {
+        "colNum": 19,
+        "name": "XXL\nWaist: 36\nBust: 42\nHIP: 46"
+      },
+      {
+        "colNum": 20,
+        "name": "3XL\nWaist: 38\nBust: 44\nHIP: 48"
+      },
+      {
+        "colNum": 21,
+        "name": "4XL\nWaist: 40\nBust: 46\nHIP: 50"
+      },
+      {
+        "colNum": 22,
+        "name": "5XL\nWaist: 42\nBust: 48\nHIP: 52"
+      },
+      {
+        "colNum": 23,
+        "name": "6XL\nWaist: 44\nBust: 50\nHIP: 54"
+      },
+      {
+        "colNum": 24,
+        "name": "CUSTOM TAILORED"
+      },
+      {
+        "colNum": 25,
+        "name": "Free Size"
+      },
+      {
+        "colNum": 26,
+        "name": "Retail price (MRP) Including GST"
+      },
+      {
+        "colNum": 27,
+        "name": "INT Price if Applicable"
+      },
+      {
+        "colNum": 28,
+        "name": "Fit"
+      },
+      {
+        "colNum": 29,
+        "name": "Lining Material"
+      },
+      {
+        "colNum": 30,
+        "name": "Blouse:\nPlease select the option"
+      },
+      {
+        "colNum": 31,
+        "name": "Collection\n(Season-Year)"
+      },
+      {
+        "colNum": 32,
+        "name": "Wash/Care"
+      },
+      {
+        "colNum": 33,
+        "name": "Model Height & what size is she/he wearing"
+      },
+      {
+        "colNum": 34,
+        "name": "Keywords by Designer"
+      },
+      {
+        "colNum": 35,
+        "name": "Styling Tips by designer"
+      },
+      {
+        "colNum": 36,
+        "name": "Suitable for which Occasion"
+      }
+    ],
+    "sampleRow": [
+      "",
+      "",
+      "",
+      "sgmaffair",
+      "Co-ord Set ",
+      "An elevated co-ord set featuring artistic pleats and a contemporary silhouette—designed for effortless luxury.",
+      "Sculptural black crop top featuring elegant pleated draping for a bold, modern silhouette.\nPaired with a high-waisted skirt with a sleek front zipper, blending structure and minimalism.\nPerfect for statement evening wear or elevated contemporary styling.",
+      "Black",
+      "Top - Glass Tissue ",
+      "Embellished with Sculpted Organza Moulded Across Shoulder and Waist",
+      "No print ",
+      "Top - 1 ",
+      "25 Days ",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "Yes",
+      "N/A",
+      "Top 14500/-",
+      "N/A",
+      "Body ",
+      "N/A",
+      "N/A",
+      "Iconique",
+      "Dry Clean Only ",
+      "5'8 INCH",
+      "Co-rd Set ",
+      "Designed to make an effortless statement, every ICONIQUE piece is best styled with minimal accessories, elegant footwear, and timeless confidence. Let the craftsmanship, luxurious textures, and contemporary silhouettes define your look.",
+      "Party Wear "
+    ]
+  },
+  {
+    "tabName": "Sheet1 (2)",
+    "totalRows": 66,
+    "totalCols": 69,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "Nykaa Sku"
+      },
+      {
+        "colNum": 3,
+        "name": "Category"
+      },
+      {
+        "colNum": 4,
+        "name": "Sub Category"
+      },
+      {
+        "colNum": 5,
+        "name": "Sub Sub-Category"
+      },
+      {
+        "colNum": 6,
+        "name": "Gender"
+      },
+      {
+        "colNum": 7,
+        "name": "Brand Name"
+      },
+      {
+        "colNum": 8,
+        "name": "Product Name"
+      },
+      {
+        "colNum": 9,
+        "name": "Product Description"
+      },
+      {
+        "colNum": 10,
+        "name": "Vendor SKU Code"
+      },
+      {
+        "colNum": 11,
+        "name": "Vendor Code"
+      },
+      {
+        "colNum": 12,
+        "name": "Style Code ( Group id )"
+      },
+      {
+        "colNum": 13,
+        "name": "Design Code (colorways)"
+      },
+      {
+        "colNum": 14,
+        "name": "HSN Code"
+      },
+      {
+        "colNum": 15,
+        "name": "MRP(₹)"
+      },
+      {
+        "colNum": 16,
+        "name": "UPC / EAN Code"
+      },
+      {
+        "colNum": 17,
+        "name": "Pack Contains"
+      },
+      {
+        "colNum": 18,
+        "name": "Net QTY"
+      },
+      {
+        "colNum": 19,
+        "name": "Ships in(days)"
+      },
+      {
+        "colNum": 20,
+        "name": "Is it Returnable?"
+      },
+      {
+        "colNum": 21,
+        "name": "is it Replaceable?"
+      },
+      {
+        "colNum": 22,
+        "name": "Business Model"
+      },
+      {
+        "colNum": 23,
+        "name": "Manufacturer/Importer Name"
+      },
+      {
+        "colNum": 24,
+        "name": "Manufacturer/Importer Address"
+      },
+      {
+        "colNum": 25,
+        "name": "Country of origin"
+      },
+      {
+        "colNum": 26,
+        "name": "Is the product Made to Order?"
+      },
+      {
+        "colNum": 27,
+        "name": "About Brand"
+      },
+      {
+        "colNum": 28,
+        "name": "Material"
+      },
+      {
+        "colNum": 29,
+        "name": "Pattern"
+      },
+      {
+        "colNum": 30,
+        "name": "Fit"
+      },
+      {
+        "colNum": 31,
+        "name": "Closure"
+      },
+      {
+        "colNum": 32,
+        "name": "Pocket description"
+      },
+      {
+        "colNum": 33,
+        "name": "Sleeve length Type"
+      },
+      {
+        "colNum": 34,
+        "name": "Neckline Type"
+      },
+      {
+        "colNum": 35,
+        "name": "Leg Style"
+      },
+      {
+        "colNum": 36,
+        "name": "Rise Style"
+      },
+      {
+        "colNum": 37,
+        "name": "Type of work"
+      },
+      {
+        "colNum": 38,
+        "name": "Embroidery"
+      },
+      {
+        "colNum": 39,
+        "name": "If Saree, Is blouse attached"
+      },
+      {
+        "colNum": 40,
+        "name": "If Blouse attached, blouse type"
+      },
+      {
+        "colNum": 41,
+        "name": "Blouse Padding"
+      },
+      {
+        "colNum": 42,
+        "name": "Primary Color"
+      },
+      {
+        "colNum": 43,
+        "name": "Occasion"
+      },
+      {
+        "colNum": 44,
+        "name": "Season"
+      },
+      {
+        "colNum": 45,
+        "name": "Collection Name"
+      },
+      {
+        "colNum": 46,
+        "name": "Prepaid Only"
+      },
+      {
+        "colNum": 47,
+        "name": "Care Instructions"
+      },
+      {
+        "colNum": 48,
+        "name": "Model Details"
+      },
+      {
+        "colNum": 49,
+        "name": "Measurement Type"
+      },
+      {
+        "colNum": 50,
+        "name": "Size"
+      },
+      {
+        "colNum": 51,
+        "name": "Size chart Tag"
+      },
+      {
+        "colNum": 52,
+        "name": "Bust (in)"
+      },
+      {
+        "colNum": 53,
+        "name": "Front Length (in)"
+      },
+      {
+        "colNum": 54,
+        "name": "Waist (in)"
+      },
+      {
+        "colNum": 55,
+        "name": "Hip (in)"
+      },
+      {
+        "colNum": 56,
+        "name": "Across Shoulder (in)"
+      },
+      {
+        "colNum": 57,
+        "name": "Front Image"
+      },
+      {
+        "colNum": 58,
+        "name": "Side Image"
+      },
+      {
+        "colNum": 59,
+        "name": "Back Image"
+      },
+      {
+        "colNum": 60,
+        "name": "Detail Angle"
+      },
+      {
+        "colNum": 61,
+        "name": "Look Shot Image"
+      },
+      {
+        "colNum": 62,
+        "name": "Additional Image Link-1"
+      },
+      {
+        "colNum": 63,
+        "name": "Additional Image Link-2"
+      },
+      {
+        "colNum": 64,
+        "name": "Additional Image Link-3"
+      },
+      {
+        "colNum": 65,
+        "name": "Additional Image Link-4"
+      },
+      {
+        "colNum": 66,
+        "name": "primary_data_l1"
+      },
+      {
+        "colNum": 67,
+        "name": "primary_data_l2"
+      },
+      {
+        "colNum": 68,
+        "name": "primary_data_l3"
+      },
+      {
+        "colNum": 69,
+        "name": "Comment"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "nymaffair",
+      "Western wear",
+      "Co-ord sets ",
+      "Sculpted Top",
+      "Female ",
+      "SAINY GARG COUTURE",
+      "Midnight Affair Link ",
+      "Sculptural black crop top featuring elegant pleated draping for a bold, modern silhouette.\nPaired with a high-waisted skirt with a sleek front zipper, blending structure and minimalism.\nPerfect for statement evening wear or elevated contemporary styling.",
+      "sgmaffair",
+      "sgmaffair",
+      "sgmaffair - S",
+      "",
+      "6204",
+      "26,000/- ",
+      "NA",
+      "Top - 1",
+      "1",
+      "25",
+      " No ",
+      "Yes ",
+      "JIT",
+      "SAINY GARG COUTURE",
+      "Sainy garg Sainy garg couture 27/634 Lane, 6A, ",
+      "India ",
+      "Yes ",
+      "In 2021, in the vibrant city of Pune, the journey of Sainy Garg Couture began. This journey reached a remarkable milestone in October 2022 ",
+      "Glass tissue and Luxe Crepe",
+      "Plain ",
+      "Body ",
+      "Skirt - Side Zip ",
+      "Na ",
+      "Sleeveless ",
+      "Round ",
+      "A - line ",
+      "High Waist ",
+      "Sculpted ",
+      "Na ",
+      "Na ",
+      "Na ",
+      "Na ",
+      "Black ",
+      "Party Wear/Statement Piece ",
+      "SS'26 ",
+      "Iconique ",
+      "Yes ",
+      "Dry Clean Only ",
+      "5'8 INCH",
+      "Body ",
+      "M ",
+      "Yes ",
+      "36\"",
+      "Top - 15''",
+      "32''",
+      "41''",
+      "15''",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "tabName": "Sheet2 (1)",
+    "totalRows": 87,
+    "totalCols": 69,
+    "headers": [
+      {
+        "colNum": 1,
+        "name": "S.NO"
+      },
+      {
+        "colNum": 2,
+        "name": "Nykaa Sku"
+      },
+      {
+        "colNum": 3,
+        "name": "Category"
+      },
+      {
+        "colNum": 4,
+        "name": "Sub Category"
+      },
+      {
+        "colNum": 5,
+        "name": "Sub Sub-Category"
+      },
+      {
+        "colNum": 6,
+        "name": "Gender"
+      },
+      {
+        "colNum": 7,
+        "name": "Brand Name"
+      },
+      {
+        "colNum": 8,
+        "name": "Product Name"
+      },
+      {
+        "colNum": 9,
+        "name": "Product Description"
+      },
+      {
+        "colNum": 10,
+        "name": "Vendor SKU Code"
+      },
+      {
+        "colNum": 11,
+        "name": "Vendor Code"
+      },
+      {
+        "colNum": 12,
+        "name": "Style Code ( Group id )"
+      },
+      {
+        "colNum": 13,
+        "name": "Design Code (colorways)"
+      },
+      {
+        "colNum": 14,
+        "name": "HSN Code"
+      },
+      {
+        "colNum": 15,
+        "name": "MRP(₹)"
+      },
+      {
+        "colNum": 16,
+        "name": "UPC / EAN Code"
+      },
+      {
+        "colNum": 17,
+        "name": "Pack Contains"
+      },
+      {
+        "colNum": 18,
+        "name": "Net QTY"
+      },
+      {
+        "colNum": 19,
+        "name": "Ships in(days)"
+      },
+      {
+        "colNum": 20,
+        "name": "Is it Returnable?"
+      },
+      {
+        "colNum": 21,
+        "name": "is it Replaceable?"
+      },
+      {
+        "colNum": 22,
+        "name": "Business Model"
+      },
+      {
+        "colNum": 23,
+        "name": "Manufacturer/Importer Name"
+      },
+      {
+        "colNum": 24,
+        "name": "Manufacturer/Importer Address"
+      },
+      {
+        "colNum": 25,
+        "name": "Country of origin"
+      },
+      {
+        "colNum": 26,
+        "name": "Is the product Made to Order?"
+      },
+      {
+        "colNum": 27,
+        "name": "About Brand"
+      },
+      {
+        "colNum": 28,
+        "name": "FABRIC"
+      },
+      {
+        "colNum": 29,
+        "name": "Pattern"
+      },
+      {
+        "colNum": 30,
+        "name": "Fit"
+      },
+      {
+        "colNum": 31,
+        "name": "Closure"
+      },
+      {
+        "colNum": 32,
+        "name": "Pocket description"
+      },
+      {
+        "colNum": 33,
+        "name": "Sleeve length Type"
+      },
+      {
+        "colNum": 34,
+        "name": "Neckline Type"
+      },
+      {
+        "colNum": 35,
+        "name": "Leg Style"
+      },
+      {
+        "colNum": 36,
+        "name": "Rise Style"
+      },
+      {
+        "colNum": 37,
+        "name": "Type of work"
+      },
+      {
+        "colNum": 38,
+        "name": "Embroidery"
+      },
+      {
+        "colNum": 39,
+        "name": "If Saree, Is blouse attached"
+      },
+      {
+        "colNum": 40,
+        "name": "If Blouse attached, blouse type"
+      },
+      {
+        "colNum": 41,
+        "name": "Blouse Padding"
+      },
+      {
+        "colNum": 42,
+        "name": "Primary Color"
+      },
+      {
+        "colNum": 43,
+        "name": "Occasion"
+      },
+      {
+        "colNum": 44,
+        "name": "Season"
+      },
+      {
+        "colNum": 45,
+        "name": "Collection Name"
+      },
+      {
+        "colNum": 46,
+        "name": "Prepaid Only"
+      },
+      {
+        "colNum": 47,
+        "name": "Care Instructions"
+      },
+      {
+        "colNum": 48,
+        "name": "Model Details"
+      },
+      {
+        "colNum": 49,
+        "name": "Measurement Type"
+      },
+      {
+        "colNum": 50,
+        "name": "Size"
+      },
+      {
+        "colNum": 51,
+        "name": "Size chart Tag"
+      },
+      {
+        "colNum": 52,
+        "name": "Bust (in)"
+      },
+      {
+        "colNum": 53,
+        "name": "Front Length (in)"
+      },
+      {
+        "colNum": 54,
+        "name": "Waist (in)"
+      },
+      {
+        "colNum": 55,
+        "name": "Hip (in)"
+      },
+      {
+        "colNum": 56,
+        "name": "Across Shoulder (in)"
+      },
+      {
+        "colNum": 57,
+        "name": "Front Image"
+      },
+      {
+        "colNum": 58,
+        "name": "Side Image"
+      },
+      {
+        "colNum": 59,
+        "name": "Back Image"
+      },
+      {
+        "colNum": 60,
+        "name": "Detail Angle"
+      },
+      {
+        "colNum": 61,
+        "name": "Look Shot Image"
+      },
+      {
+        "colNum": 62,
+        "name": "Additional Image Link-1"
+      },
+      {
+        "colNum": 63,
+        "name": "Additional Image Link-2"
+      },
+      {
+        "colNum": 64,
+        "name": "Additional Image Link-3"
+      },
+      {
+        "colNum": 65,
+        "name": "Additional Image Link-4"
+      },
+      {
+        "colNum": 66,
+        "name": "primary_data_l1"
+      },
+      {
+        "colNum": 67,
+        "name": "primary_data_l2"
+      },
+      {
+        "colNum": 68,
+        "name": "primary_data_l3"
+      },
+      {
+        "colNum": 69,
+        "name": "Comment"
+      }
+    ],
+    "sampleRow": [
+      "1",
+      "nyneelnazam ",
+      "Ethnic Wear ",
+      "Kurta Set ",
+      "",
+      "Female",
+      "SAINY GARG COUTURE",
+      "Neel Nazam ",
+      "Make a statement in this royal blue satin co-ord set,with gold Zardari appliqué work.The kaftan-style tunic has a soft scalloped neckline, flowing bell sleeves and a flared hem, with side tassel tie-ups that add movement and a defined waist.",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Bib-1 Kurti-1 Pant-1",
+      "1",
+      "25",
+      "No",
+      "yes",
+      "JIT",
+      "SAINY GARG COUTURE",
+      "",
+      "India ",
+      "YES",
+      "In 2021, in the vibrant city of Pune, the journey of Sainy Garg Couture began. This journey reached a remarkable milestone in October 2022 ",
+      "Modal ",
+      "",
+      "Body ",
+      "",
+      "NA",
+      "Full bell Sleeves",
+      "Scallop Neckline ",
+      "",
+      "",
+      "gold zardozi appliqué",
+      "",
+      "Na",
+      "Na",
+      "",
+      "Blue",
+      "Festive Wear ",
+      "",
+      "Rangreez",
+      "yes",
+      "Dry Clean Only ",
+      "5'7 inch",
+      "body",
+      "M",
+      "yes",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
+]

@@ -369,22 +369,17 @@ export const MasterEntryModal = ({
             {/* TYPE SPECIFIC FIELDS: TAT */}
             {type === 'tat' && (
               <>
-                {/* 1. Module Name */}
+                {/* 1. Module Name (Strictly Order to Delivery) */}
                 <div>
                   <label className="block font-semibold text-stone-700 mb-1">
                     Module Name <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    value={formData.moduleName || 'Order to Delivery'}
-                    onChange={(e) => handleChange('moduleName', e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                    value="Order to Delivery"
+                    disabled
+                    className="w-full px-3 py-2 text-sm bg-stone-100 text-stone-800 border border-[#DECDB8] rounded-lg cursor-not-allowed focus:outline-none"
                   >
-                    <option value="Order to Delivery">Order to Delivery (10 Stages)</option>
-                    <option value="Checklist Operations">Checklist Operations</option>
-                    <option value="Delegation Tasks">Delegation Tasks</option>
-                    <option value="Maintenance Tasks">Maintenance Tasks</option>
-                    <option value="Repair Tasks">Repair Tasks</option>
-                    <option value="EA Tasks">EA Tasks</option>
+                    <option value="Order to Delivery">Order to Delivery</option>
                   </select>
                 </div>
 
@@ -393,34 +388,24 @@ export const MasterEntryModal = ({
                   <label className="block font-semibold text-stone-700 mb-1">
                     Stage Name <span className="text-rose-500">*</span>
                   </label>
-                  {(!formData.moduleName || formData.moduleName === 'Order to Delivery') ? (
-                    <select
-                      value={formData.stageName || STAGES[0]?.name}
-                      onChange={(e) => {
-                        const selectedStg = STAGES.find(s => s.name === e.target.value);
-                        handleChange('stageName', e.target.value);
-                        if (selectedStg) {
-                          handleChange('stageId', selectedStg.id);
-                          handleChange('stageIndex', STAGES.findIndex(s => s.id === selectedStg.id) + 1);
-                        }
-                      }}
-                      className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                    >
-                      {STAGES.map((s, idx) => (
-                        <option key={s.id} value={s.name}>
-                          Stage {idx + 1}: {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      value={formData.stageName || ''}
-                      onChange={(e) => handleChange('stageName', e.target.value)}
-                      placeholder="e.g. Daily Review, Verification, Initial Call..."
-                      className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
-                    />
-                  )}
+                  <select
+                    value={formData.stageName || STAGES[0]?.name}
+                    onChange={(e) => {
+                      const selectedStg = STAGES.find(s => s.name === e.target.value);
+                      handleChange('stageName', e.target.value);
+                      if (selectedStg) {
+                        handleChange('stageId', selectedStg.id);
+                        handleChange('stageIndex', STAGES.findIndex(s => s.id === selectedStg.id) + 1);
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                  >
+                    {STAGES.map((s, idx) => (
+                      <option key={s.id} value={s.name}>
+                        Stage {idx + 1}: {s.name}
+                      </option>
+                    ))}
+                  </select>
                   {errors.stageName && <p className="text-[11px] text-rose-500 mt-1">{errors.stageName}</p>}
                 </div>
 

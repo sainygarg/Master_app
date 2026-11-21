@@ -20,41 +20,44 @@ import {
   PackageCheck
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userStorage';
+import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userAuthService';
 
 // Order to Delivery sub pages (stage access is separate, per stage)
-const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders' || p.id === 'pc');
+const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders');
 
-// One selectable permission card: click anywhere on it to allow / revoke
-const PermissionRow = ({ label, checked, onToggle, index }) => (
-  <button
-    type="button"
-    role="checkbox"
-    aria-checked={checked}
+// One selectable permission row with modern toggle switch
+const PermissionRow = ({ label, checked, onToggle }) => (
+  <div
     onClick={onToggle}
-    className={`select-text flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all ${
+    className={`select-text flex items-center justify-between gap-3 p-2.5 px-3 rounded-xl border text-left cursor-pointer transition-all ${
       checked
         ? 'bg-[#FAF5EE] border-[#C5A059] text-stone-900 shadow-2xs ring-1 ring-[#C5A059]/30'
         : 'bg-white border-[#E8DFD3] text-stone-500 hover:bg-[#FAF8F5] hover:border-stone-400'
     }`}
   >
-    <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border transition-all ${
-      checked ? 'bg-[#5B172E] text-white border-[#5B172E]' : 'bg-white border-stone-300'
-    }`}>
-      {checked && <Check className="w-3 h-3 stroke-[3]" />}
+    <div className="flex items-center gap-2.5 min-w-0">
+      <span className="truncate text-xs font-semibold text-stone-800">{label}</span>
     </div>
-    {index !== undefined && (
-      <span className="w-5 h-5 rounded-full bg-[#EAE2D5] text-stone-700 font-bold text-[10px] flex items-center justify-center shrink-0">
-        {index}
-      </span>
-    )}
-    <span className="truncate text-xs font-semibold text-stone-700">{label}</span>
-  </button>
+
+    {/* Modern Toggle Switch */}
+    <div
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+        checked ? 'bg-[#5B172E]' : 'bg-stone-300'
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </div>
+  </div>
 );
 
-// Collapsible card: header shows "x / y selected"; body lists the selectable permission cards
+// Collapsible card: clean header with title and toggle arrow
 const PermissionSection = ({
-  icon, title, subtitle, enabledCount, totalCount, isAdmin, adminNote, onSelectAll, onDeselectAll, children
+  icon, title, isAdmin, adminNote, onSelectAll, onDeselectAll, children
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -73,13 +76,9 @@ const PermissionSection = ({
             {icon}
             <span className="truncate">{title}</span>
           </h3>
-          <p className="text-[11px] text-stone-500 mt-0.5">{subtitle}</p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#9B783E] border border-[#DECDB8]">
-            {isAdmin ? 'All' : `${enabledCount} / ${totalCount}`}
-          </span>
           <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${open ? 'rotate-180' : ''}`} />
         </div>
       </div>
@@ -362,8 +361,8 @@ export const UserFormModal = ({
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold bg-[#FAF8F5] border border-[#DECDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 text-[#5B172E] cursor-pointer transition-all"
                 >
-                  <option value="Admin">Admin (Full Apex Access)</option>
-                  <option value="User">User (Granular Access)</option>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
                 </select>
               </div>
 
@@ -411,41 +410,12 @@ export const UserFormModal = ({
             </div>
           </div>
 
-          {/* Settings (Master Hub) access: off unless explicitly granted. Admins always have it. */}
-          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
-            <div>
-              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#9B783E]" />
-                <span>Settings / Master Hub Access</span>
-              </h3>
-              <p className="text-[11px] text-stone-500 mt-0.5">
-                Users, vendors, customers, departments, TAT and checklist settings. Hidden from anyone not granted access.
-              </p>
-            </div>
-            {isAdmin ? (
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                Admins always have Settings access.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <PermissionRow
-                  label="Allow access to Settings"
-                  checked={allowedPages.includes('settings')}
-                  onToggle={() => togglePage('settings')}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: CHECKLIST & DELEGATION SUB-PAGE PERMISSIONS (collapsible, toggles) */}
+          {/* Section 1: CHECKLIST PERMISSIONS (collapsible, toggles) */}
           <PermissionSection
             icon={<CheckSquare className="w-4 h-4 text-[#9B783E]" />}
-            title="Checklist Pages"
-            subtitle="Control access across all Checklist pages: Tasks, Calendar, Delegation and more."
-            enabledCount={allowedChecklistPages.length}
-            totalCount={ALL_CHECKLIST_PAGE_IDS.length}
+            title="Checklist"
             isAdmin={isAdmin}
-            adminNote="All Checklist Pages: Admins automatically access every Checklist page unconditionally."
+            adminNote="Admins automatically access every Checklist page unconditionally."
             onSelectAll={() => setAllowedChecklistPages(allChecklistIds)}
             onDeselectAll={() => setAllowedChecklistPages([])}
           >
@@ -459,15 +429,12 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
-          {/* Section 3: PRODUCTION STAGES ACCESS (collapsible, toggles) */}
+          {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, toggles) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
-            title={`Order to Delivery (Dashboard, Orders & ${STAGES.length} Stages)`}
-            subtitle="Control the Dashboard, All Orders page and which atelier pipeline stages this staff member can view and update."
-            enabledCount={allowedStages.length + OTD_PAGES.filter((p) => allowedPages.includes(p.id)).length}
-            totalCount={STAGES.length + OTD_PAGES.length}
+            title="Order to Delivery"
             isAdmin={isAdmin}
-            adminNote={`Full access: Admins can open the Dashboard, All Orders and every one of the ${STAGES.length} stages.`}
+            adminNote="Full access: Admins can open the Dashboard, All Orders and every atelier stage."
             onSelectAll={() => {
               handleSelectAllStages();
               setAllowedPages((prev) => Array.from(new Set([...prev, ...OTD_PAGES.map((p) => p.id)])));
@@ -485,10 +452,9 @@ export const UserFormModal = ({
                 onToggle={() => togglePage(p.id)}
               />
             ))}
-            {STAGES.map((stage, idx) => (
+            {STAGES.map((stage) => (
               <PermissionRow
                 key={stage.id}
-                index={idx + 1}
                 label={stage.name}
                 checked={allowedStages.includes(stage.id)}
                 onToggle={() => toggleStage(stage.id)}
@@ -496,17 +462,64 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
-          {/* Section 4: Data Privacy Rule info */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FAF2E6] to-[#FAF8F5] border border-[#DECDB8] text-xs text-stone-700 space-y-1.5 shadow-2xs">
-            <div className="font-bold text-[#5B172E] flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-[#9B783E]" />
-              <span>Data Privacy & Isolation Rule:</span>
+          {/* Section 3: PC (Production Control) Access (Placed after Order to Delivery) */}
+          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <PackageCheck className="w-4 h-4 text-[#9B783E]" />
+                <span>PC (Production Control)</span>
+              </h3>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                isAdmin || allowedPages.includes('pc')
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  : 'bg-stone-50 text-stone-500 border-stone-200'
+              }`}>
+                {isAdmin || allowedPages.includes('pc') ? 'Enabled' : 'Disabled'}
+              </span>
             </div>
-            <p className="leading-relaxed">
-              {role === 'Admin'
-                ? '• As an Admin, this user will possess apex authority with full visibility across all orders, checklists, tasks, and system master data.'
-                : '• As a User, this staff member will ONLY see and manage orders created by them. Their entries will remain private from other users.'}
-            </p>
+            {isAdmin ? (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                Admins always have PC (Production Control) access.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <PermissionRow
+                  label="Allow access to PC"
+                  checked={allowedPages.includes('pc')}
+                  onToggle={() => togglePage('pc')}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Section 4: Settings Access (Placed after Order to Delivery & PC) */}
+          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#9B783E]" />
+                <span>Settings</span>
+              </h3>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                isAdmin || allowedPages.includes('settings')
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  : 'bg-stone-50 text-stone-500 border-stone-200'
+              }`}>
+                {isAdmin || allowedPages.includes('settings') ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+            {isAdmin ? (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                Admins always have Settings access.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <PermissionRow
+                  label="Allow access to Settings"
+                  checked={allowedPages.includes('settings')}
+                  onToggle={() => togglePage('settings')}
+                />
+              </div>
+            )}
           </div>
 
           {/* Footer Actions */}

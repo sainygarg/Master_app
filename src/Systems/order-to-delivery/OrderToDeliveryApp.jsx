@@ -23,7 +23,7 @@ import {
   canUserAccessPage,
   canUserAccessStage,
   isApexAdmin
-} from './utils/userStorage';
+} from './utils/userAuthService';
 import { 
   Sparkles, 
   Lock, 

@@ -26,7 +26,7 @@ import {
   Database
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { canUserAccessPage, canUserAccessStage } from '../utils/userStorage';
+import { canUserAccessPage, canUserAccessStage } from '../utils/userAuthService';
 import { SystemNavGroup, OtherSystemGroup } from '../../../core/layout/SystemNavGroup';
 
 const stageIcons = {

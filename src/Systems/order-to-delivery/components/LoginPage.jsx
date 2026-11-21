@@ -7,7 +7,7 @@ import {
   ArrowRight,
   ShieldCheck
 } from 'lucide-react';
-import { loginUser } from '../utils/userStorage';
+import { loginUser } from '../utils/userAuthService';
 
 export const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState('');

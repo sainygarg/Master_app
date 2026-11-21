@@ -11,7 +11,7 @@ import {
   canUserAccessPage,
   canUserAccessStage,
   isApexAdmin
-} from './Systems/order-to-delivery/utils/userStorage';
+} from './Systems/order-to-delivery/utils/userAuthService';
 import MasterShell from './core/layout/MasterShell';
 import ProfilePage from './core/pages/ProfilePage';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';

@@ -37,7 +37,7 @@ import {
   Layers
 } from 'lucide-react';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
-import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userStorage';
+import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userAuthService';
 import { STAGES } from '../../Systems/order-to-delivery/types/stages';
 import { fetchOrders } from '../../Systems/order-to-delivery/utils/storage';
 import { useChecklistDelegationPendingCounts } from '../../Systems/checklist-delegation/hooks/usePendingCounts';

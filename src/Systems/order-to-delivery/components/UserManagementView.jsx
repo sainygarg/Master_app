@@ -8,6 +8,7 @@ import {
   Edit, 
   Trash2, 
   Check, 
+  Eye,
   X, 
   Lock, 
   Search, 
@@ -35,7 +36,7 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterStorage';
-import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userStorage';
+import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
@@ -73,6 +74,9 @@ export const UserManagementView = ({
   const [isMasterModalOpen, setIsMasterModalOpen] = useState(false);
   const [editingMasterItem, setEditingMasterItem] = useState(null);
   const [masterModalType, setMasterModalType] = useState('customer');
+
+  // Preview Image Modal state for high-res zoom
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Filtered Users
   const filteredUsers = users.filter((u) =>
@@ -569,7 +573,7 @@ export const UserManagementView = ({
                         {isApexAdmin(user) ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 shadow-2xs">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>All 10 Stages</span>
+                            <span>All Stages</span>
                           </span>
                         ) : (
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border shadow-2xs ${
@@ -579,7 +583,7 @@ export const UserManagementView = ({
                               ? 'bg-amber-50 text-amber-800 border-amber-200'
                               : 'bg-stone-50 text-stone-500 border-stone-200'
                           }`}>
-                            <span>{(user.allowedStages || []).length} / 10 Stages</span>
+                            <span>{(user.allowedStages || []).length} / {10} Stages</span>
                           </span>
                         )}
                       </td>
@@ -1180,9 +1184,12 @@ export const UserManagementView = ({
                   <th className="py-3.5 px-4 bg-[#FAF7F2] border-r border-[#DECDB8] text-[#431021] font-extrabold min-w-[150px]">
                     ⚡ Actions
                   </th>
+                  <th className="py-3.5 px-4 min-w-[70px]">Image</th>
                   <th className="py-3.5 px-4 min-w-[200px]">Design Name</th>
                   <th className="py-3.5 px-4 min-w-[130px]">SKU Code</th>
                   <th className="py-3.5 px-4 min-w-[120px]">Category</th>
+                  <th className="py-3.5 px-4 min-w-[130px]">Type / Silhouette</th>
+                  <th className="py-3.5 px-4 min-w-[100px]">Color</th>
                   <th className="py-3.5 px-4 min-w-[220px]">Description</th>
                 </tr>
               </thead>
@@ -1227,6 +1234,40 @@ export const UserManagementView = ({
                           </div>
                         )}
                       </td>
+                      <td className="py-2 px-3 align-middle">
+                        <div
+                          onClick={() => {
+                            const img = d.imageUrl || d.images?.[0];
+                            if (img) setPreviewImage({ url: img, name: d.name, sku: d.sku });
+                          }}
+                          className={`w-12 h-12 rounded-xl overflow-hidden bg-[#FAF5EE] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs group relative ${
+                            d.imageUrl || d.images?.[0] ? 'cursor-pointer hover:border-[#5B172E] hover:ring-2 hover:ring-[#5B172E]/20 transition-all' : ''
+                          }`}
+                          title={d.imageUrl || d.images?.[0] ? 'Click to view full image' : 'No image'}
+                        >
+                          {d.imageUrl || d.images?.[0] ? (
+                            <>
+                              <img
+                                src={d.imageUrl || d.images?.[0]}
+                                alt={d.name}
+                                loading="lazy"
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  if (e.currentTarget.parentElement) {
+                                    e.currentTarget.parentElement.innerHTML = '<span class="text-[9px] font-bold text-stone-400">NO IMG</span>';
+                                  }
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Eye className="w-4 h-4 text-white drop-shadow" />
+                              </div>
+                            </>
+                          ) : (
+                            <Sparkles className="w-4 h-4 text-[#C5A059]" />
+                          )}
+                        </div>
+                      </td>
                       <td className="py-3 px-4 align-middle">
                         <div className="font-bold text-stone-900 text-xs">{d.name}</div>
                         <span className="text-[10px] font-mono text-[#9B783E]">{d.id}</span>
@@ -1239,6 +1280,18 @@ export const UserManagementView = ({
                       <td className="py-3 px-4 align-middle font-medium text-stone-600">
                         {d.category || 'Couture'}
                       </td>
+                      <td className="py-3 px-4 align-middle font-medium text-stone-600">
+                        {d.type || '—'}
+                      </td>
+                      <td className="py-3 px-4 align-middle">
+                        {d.color ? (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-stone-100 text-stone-700 border border-stone-200">
+                            {d.color}
+                          </span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
                       <td className="py-3 px-4 align-middle text-stone-600 line-clamp-2 max-w-xs">
                         {d.description || '—'}
                       </td>
@@ -1246,10 +1299,10 @@ export const UserManagementView = ({
                   );
                 })}
               
-                {loadingKind("design") && <LoadingRow colSpan={5} />}
+                {loadingKind("design") && <LoadingRow colSpan={8} />}
                 {!loadingKind("design") && filteredDesigns.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No design records found</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Add design templates with SKU codes to easily select them when creating bespoke orders.</p>
                     </td>
@@ -1274,6 +1327,62 @@ export const UserManagementView = ({
         nextId={generateNextMasterId(masterModalType, MASTER_KINDS[masterModalType]?.items || [])}
         users={users}
       />
+
+      {/* LIGHTBOX MODAL FOR FULL RESOLUTION IMAGE PREVIEW */}
+      {previewImage && (
+        <div
+          onClick={() => setPreviewImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-[#DECDB8] animate-in zoom-in-95 duration-200"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-[#DECDB8] bg-[#FAF8F5]">
+              <div>
+                <h4 className="font-serif font-bold text-stone-900 text-sm sm:text-base">
+                  {previewImage.name}
+                </h4>
+                <span className="text-[11px] font-mono font-bold text-[#5B172E] bg-[#FAF5EE] px-2 py-0.5 rounded-full border border-[#DECDB8]">
+                  {previewImage.sku}
+                </span>
+              </div>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="p-1.5 rounded-full hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors"
+                title="Close (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* High-Res Image Display */}
+            <div className="relative p-4 flex items-center justify-center bg-stone-950 min-h-[350px] max-h-[75vh] overflow-hidden">
+              <img
+                src={previewImage.url}
+                alt={previewImage.name}
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg select-none"
+              />
+            </div>
+
+            {/* Footer with actions */}
+            <div className="p-3 bg-white border-t border-[#DECDB8] flex items-center justify-between">
+              <span className="text-xs text-stone-500">
+                Original High-Resolution Design Asset
+              </span>
+              <a
+                href={previewImage.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5B172E] bg-[#FAF5EE] border border-[#DECDB8] hover:bg-[#FAF8F5] transition-colors"
+              >
+                Open in Full Tab
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

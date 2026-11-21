@@ -407,9 +407,9 @@ export const MasterEntryModal = ({
                     }}
                     className="w-full px-3 py-2 text-sm bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                   >
-                    {STAGES.map((s, idx) => (
+                    {STAGES.map((s) => (
                       <option key={s.id} value={s.name}>
-                        Stage {idx + 1}: {s.name}
+                        {s.name}
                       </option>
                     ))}
                   </select>

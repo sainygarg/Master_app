@@ -49,6 +49,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       description: prefillSource?.description || '',
       size: prefillSource?.size || '',
       embroidery: prefillSource?.embroidery || 'Yes',
+      catalogImageUrl: prefillSource?.catalogImageUrl || null,
       designImages: prefillSource?.designImages ? [...prefillSource.designImages] : [],
       inspirationImages: prefillSource?.inspirationImages ? [...prefillSource.inspirationImages] : [],
       // Measurement Chart - prefilled from previous item
@@ -75,11 +76,64 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [submitting, setSubmitting] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
 
+  // Active design search dropdown state per item UID
+  const [activeSearchUid, setActiveSearchUid] = useState(null);
+
+  // Select design from dropdown: auto-prefills Name, SKU, Description, and swaps the catalog image
+  const handleSelectDesign = (uid, selectedDesign) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.uid !== uid) return item;
+
+        // Strip previous catalog image from designImages if present
+        const currentImgs = Array.isArray(item.designImages) ? [...item.designImages] : [];
+        const filteredImgs = item.catalogImageUrl
+          ? currentImgs.filter((img) => img !== item.catalogImageUrl)
+          : currentImgs;
+
+        const newCatalogImg = selectedDesign.imageUrl || selectedDesign.images?.[0] || null;
+        let finalImages = filteredImgs;
+
+        if (newCatalogImg && !finalImages.includes(newCatalogImg)) {
+          finalImages = [newCatalogImg, ...finalImages];
+        }
+
+        return {
+          ...item,
+          designName: selectedDesign.name || item.designName,
+          skuCode: selectedDesign.sku || item.skuCode,
+          description: selectedDesign.description || item.description,
+          catalogImageUrl: newCatalogImg,
+          designImages: finalImages
+        };
+      })
+    );
+
+    setActiveSearchUid(null);
+  };
+
   // Field update handler for a specific item
   const updateItemField = (uid, field, value) => {
     setItems((prev) =>
       prev.map((item) => {
         if (item.uid !== uid) return item;
+
+        // If user clears the design name completely, also clean up the associated catalog image
+        if (field === 'designName' && (!value || value.trim() === '')) {
+          const currentImgs = Array.isArray(item.designImages) ? item.designImages : [];
+          const cleanedImgs = item.catalogImageUrl
+            ? currentImgs.filter((img) => img !== item.catalogImageUrl)
+            : currentImgs;
+
+          return {
+            ...item,
+            designName: '',
+            skuCode: '',
+            catalogImageUrl: null,
+            designImages: cleanedImgs
+          };
+        }
+
         return { ...item, [field]: value };
       })
     );
@@ -428,7 +482,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                       />
                     </div>
 
-                    {/* Name Of Design & SKU (Dropdown or Custom) */}
+                    {/* Name Of Design & SKU (Interactive Search & Autocomplete) */}
                     <div className="sm:col-span-2">
                       <div className="flex items-center justify-between mb-1">
                         <label className="block text-xs font-semibold text-stone-700">
@@ -436,7 +490,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                         </label>
                         {designOptions.length > 0 && (
                           <span className="text-[10px] text-stone-400">
-                            Select catalog design or type custom
+                            Search catalog designs or type custom
                           </span>
                         )}
                       </div>
@@ -444,36 +498,108 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                       <div className="relative">
                         <input
                           type="text"
-                          list={`design-master-list-${item.uid}`}
                           value={item.designName}
+                          onFocus={() => setActiveSearchUid(item.uid)}
                           onChange={(e) => {
                             const val = e.target.value;
                             updateItemField(item.uid, 'designName', val);
+                            setActiveSearchUid(item.uid);
 
-                            // Auto-fill SKU code and Description if matched
+                            // Exact match check
                             const matched = designOptions.find(
                               (d) =>
                                 d.name?.toLowerCase() === val.toLowerCase() ||
-                                `${d.name} (${d.sku})`.toLowerCase() === val.toLowerCase()
+                                d.sku?.toLowerCase() === val.toLowerCase()
                             );
                             if (matched) {
-                              updateItemField(item.uid, 'designName', matched.name);
-                              if (matched.sku) updateItemField(item.uid, 'skuCode', matched.sku);
-                              if (matched.description) updateItemField(item.uid, 'description', matched.description);
+                              handleSelectDesign(item.uid, matched);
                             }
                           }}
-                          placeholder="Choose from dropdown or enter design name..."
+                          placeholder="Search from 92 designs by name or SKU..."
                           className={`w-full px-3 py-2 text-sm bg-[#FAF8F5] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 ${
                             itemErrs.designName ? 'border-rose-400 bg-rose-50/50' : 'border-[#DECDB8]'
                           }`}
                         />
-                        <datalist id={`design-master-list-${item.uid}`}>
-                          {designOptions.map((d) => (
-                            <option key={d.id || d.sku} value={d.name}>
-                              {d.sku ? `SKU: ${d.sku} • ${d.category || 'Couture'}` : d.name}
-                            </option>
-                          ))}
-                        </datalist>
+
+                        {/* Interactive Dropdown Results with Image Previews */}
+                        {activeSearchUid === item.uid && (
+                          <>
+                            {/* Backdrop to close dropdown on outside click */}
+                            <div
+                              className="fixed inset-0 z-30"
+                              onClick={() => setActiveSearchUid(null)}
+                            />
+
+                            <div className="absolute left-0 right-0 top-full mt-1.5 z-40 max-h-64 overflow-y-auto bg-white border border-[#DECDB8] rounded-xl shadow-xl divide-y divide-[#F2EAE1] animate-in fade-in duration-150">
+                              {(() => {
+                                const q = (item.designName || '').toLowerCase().trim();
+                                const filtered = designOptions.filter(
+                                  (d) =>
+                                    !q ||
+                                    d.name?.toLowerCase().includes(q) ||
+                                    d.sku?.toLowerCase().includes(q) ||
+                                    d.category?.toLowerCase().includes(q) ||
+                                    d.type?.toLowerCase().includes(q)
+                                );
+
+                                if (filtered.length === 0) {
+                                  return (
+                                    <div className="p-3 text-xs text-stone-500 text-center">
+                                      No catalog design matching "{item.designName}". Custom name will be kept.
+                                    </div>
+                                  );
+                                }
+
+                                return filtered.map((d) => {
+                                  const img = d.imageUrl || d.images?.[0];
+                                  return (
+                                    <div
+                                      key={d.id || d.sku}
+                                      onClick={() => handleSelectDesign(item.uid, d)}
+                                      className="flex items-center gap-3 p-2.5 hover:bg-[#FAF5EE] cursor-pointer transition-colors"
+                                    >
+                                      {/* Thumbnail Image */}
+                                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 border border-[#DECDB8] shrink-0 flex items-center justify-center">
+                                        {img ? (
+                                          <img
+                                            src={img}
+                                            alt={d.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              e.currentTarget.style.display = 'none';
+                                              if (e.currentTarget.parentElement) {
+                                                e.currentTarget.parentElement.innerHTML = '<span class="text-[8px] font-bold text-stone-400">NO IMG</span>';
+                                              }
+                                            }}
+                                          />
+                                        ) : (
+                                          <Sparkles className="w-4 h-4 text-[#C5A059]" />
+                                        )}
+                                      </div>
+
+                                      {/* Info */}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center justify-between gap-2">
+                                          <div className="font-bold text-xs text-stone-900 truncate">
+                                            {d.name}
+                                          </div>
+                                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] shrink-0">
+                                            {d.sku}
+                                          </span>
+                                        </div>
+                                        <div className="text-[10px] text-stone-500 flex items-center gap-2 mt-0.5">
+                                          <span>{d.category || 'Couture'}</span>
+                                          {d.type && <span>• {d.type}</span>}
+                                          {d.color && <span>• {d.color}</span>}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          </>
+                        )}
                       </div>
                       {itemErrs.designName && <p className="text-[11px] text-rose-500 mt-1">{itemErrs.designName}</p>}
                     </div>

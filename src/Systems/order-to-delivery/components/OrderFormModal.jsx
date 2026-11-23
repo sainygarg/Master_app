@@ -11,7 +11,9 @@ import {
   ArrowRight,
   ChevronDown,
   PlusCircle,
-  Layers
+  Layers,
+  Eye,
+  ZoomIn
 } from 'lucide-react';
 import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
 import { uploadOrderImage } from '../utils/imageUpload';
@@ -78,6 +80,9 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
 
   // Active design search dropdown state per item UID
   const [activeSearchUid, setActiveSearchUid] = useState(null);
+
+  // Full-size image preview modal state: { url: string, title?: string } | null
+  const [previewModalImage, setPreviewModalImage] = useState(null);
 
   // Select design from dropdown: auto-prefills Name, SKU, Description, and swaps the catalog image
   const handleSelectDesign = (uid, selectedDesign) => {
@@ -728,12 +733,24 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                         {item.designImages?.length > 0 && (
                           <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-[#DECDB8]">
                             {item.designImages.map((img, idx) => (
-                              <div key={idx} className="relative group rounded-lg overflow-hidden h-16 border border-[#DECDB8]">
-                                <img src={img} alt="Design preview" className="w-full h-full object-cover" />
+                              <div
+                                key={idx}
+                                onClick={() => setPreviewModalImage({ url: img, title: `${item.designName || 'Design Image'} (${idx + 1})` })}
+                                className="relative group rounded-lg overflow-hidden h-16 border border-[#DECDB8] cursor-pointer hover:ring-2 hover:ring-[#5B172E]/40 transition-all bg-stone-100"
+                                title="Click to view full image"
+                              >
+                                <img src={img} alt="Design preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                                <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <Eye className="w-4 h-4 text-white drop-shadow" />
+                                </div>
                                 <button
                                   type="button"
-                                  onClick={() => removeImage(item.uid, idx, 'design')}
-                                  className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeImage(item.uid, idx, 'design');
+                                  }}
+                                  className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
+                                  title="Delete photo"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -771,12 +788,24 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                         {item.inspirationImages?.length > 0 && (
                           <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-[#DECDB8]">
                             {item.inspirationImages.map((img, idx) => (
-                              <div key={idx} className="relative group rounded-lg overflow-hidden h-16 border border-[#DECDB8]">
-                                <img src={img} alt="Inspiration preview" className="w-full h-full object-cover" />
+                              <div
+                                key={idx}
+                                onClick={() => setPreviewModalImage({ url: img, title: `Inspiration Image (${idx + 1})` })}
+                                className="relative group rounded-lg overflow-hidden h-16 border border-[#DECDB8] cursor-pointer hover:ring-2 hover:ring-[#5B172E]/40 transition-all bg-stone-100"
+                                title="Click to view full image"
+                              >
+                                <img src={img} alt="Inspiration preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                                <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <Eye className="w-4 h-4 text-white drop-shadow" />
+                                </div>
                                 <button
                                   type="button"
-                                  onClick={() => removeImage(item.uid, idx, 'inspiration')}
-                                  className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeImage(item.uid, idx, 'inspiration');
+                                  }}
+                                  className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
+                                  title="Delete photo"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -990,6 +1019,57 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         </form>
 
       </div>
+
+      {/* LIGHTBOX MODAL: FULL RESOLUTION PREVIEW (CLICK OUTSIDE CLOSES) */}
+      {previewModalImage && (
+        <div
+          onClick={() => setPreviewModalImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-[#DECDB8] cursor-default animate-in zoom-in-95 duration-200"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-3.5 border-b border-[#DECDB8] bg-[#FAF8F5]">
+              <div className="font-serif font-bold text-stone-900 text-sm truncate pr-2">
+                {previewModalImage.title || 'Image Preview'}
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewModalImage(null)}
+                className="p-1 rounded-full hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer shrink-0"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Image Container */}
+            <div className="p-4 flex items-center justify-center bg-stone-950 min-h-[300px] max-h-[75vh] overflow-hidden select-none">
+              <img
+                src={previewModalImage.url}
+                alt="Full resolution preview"
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+              />
+            </div>
+
+            {/* Footer */}
+            <div className="p-3 bg-white border-t border-[#DECDB8] flex items-center justify-between">
+              <span className="text-[11px] text-stone-500">
+                Click anywhere outside this window to close
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewModalImage(null)}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#5B172E] bg-[#FAF5EE] border border-[#DECDB8] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

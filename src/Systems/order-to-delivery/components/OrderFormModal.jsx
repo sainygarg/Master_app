@@ -938,14 +938,14 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
           })}
 
           {/* "+ Add Another Garment / Order for this Client" Button */}
-          <div className="pt-2">
+          <div className="pt-2 flex justify-end">
             <button
               type="button"
               onClick={() => handleAddItem()}
-              className="w-full py-3.5 border-2 border-dashed border-[#5B172E]/50 hover:border-[#5B172E] text-[#5B172E] hover:text-[#431021] font-bold text-xs sm:text-sm rounded-2xl flex items-center justify-center gap-2 bg-[#FAF5EE] hover:bg-[#F3ECE2] transition-all cursor-pointer shadow-2xs group"
+              className="w-auto px-5 py-3 border-2 border-dashed border-[#5B172E]/50 hover:border-[#5B172E] text-[#5B172E] hover:text-[#431021] font-bold text-xs sm:text-sm rounded-2xl flex items-center justify-center gap-2 bg-[#FAF5EE] hover:bg-[#F3ECE2] transition-all cursor-pointer shadow-2xs group"
             >
               <PlusCircle className="w-5 h-5 text-[#5B172E] group-hover:scale-110 transition-transform" />
-              <span>+ Add Another Garment / Order for this Client (Auto-Prefilled from Above)</span>
+              <span>+ Add Another</span>
             </button>
           </div>
 

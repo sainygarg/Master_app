@@ -503,19 +503,6 @@ export const StageDetailView = ({
         (
 
           <>
-            {/* History Read-Only Notice Bar */}
-            <div className="bg-[#FAF8F5] border border-[#DECDB8] px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-stone-600 shadow-2xs">
-              <div className="flex items-center gap-2">
-                <HistoryIcon className="w-4 h-4 text-[#9B783E]" />
-                <span>
-                  <strong>Historical Archive:</strong> Orders listed here have already cleared this stage and cannot be updated. Any stage updates can only be performed from the <strong>Pending Orders</strong> tab.
-                </span>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-200 text-stone-700 shrink-0">
-                🔒 Read-Only
-              </span>
-            </div>
-
             {/* DESKTOP HISTORY TABLE (HIDDEN ON PHONES < md) */}
             <div className="hidden md:block bg-white rounded-2xl border border-[#E8DFD3] shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
@@ -528,25 +515,21 @@ export const StageDetailView = ({
                         ⚡ Actions
                       </th>
 
+                      {/* BASE COLUMNS */}
                       <th className="py-3.5 px-4 min-w-[170px]">Order ID & Client</th>
                       <th className="py-3.5 px-4 min-w-[180px]">Design & Size</th>
+
+                      {/* STAGE-SPECIFIC PARAMETER COLUMNS (Always displayed for this stage) */}
+                      {currentStage.fields.map((field) => (
+                        <th key={field.key} className="py-3.5 px-4 min-w-[150px] bg-[#F7F2EB] border-l border-[#DECDB8] text-[#5B172E] font-bold">
+                          {field.label}
+                        </th>
+                      ))}
+
                       <th className="py-3.5 px-4 min-w-[150px]">Current Status</th>
-                      <th className="py-3.5 px-4 min-w-[170px]">Planned</th>
-                      <th className="py-3.5 px-4 min-w-[170px]">Actual</th>
-                      <th className="py-3.5 px-4 min-w-[130px]">Time Delay</th>
-
-                      {/* DEDICATED COLUMNS FOR STAGE PARAMETERS (ONLY FILLED FIELDS) */}
-                      {currentStage.fields
-                        .filter((field) => historyOrders.some((order) => {
-                          const val = order.stageData?.[selectedStageId]?.[field.key];
-                          return val !== undefined && val !== null && String(val).trim() !== '';
-                        }))
-                        .map((field) => (
-                          <th key={field.key} className="py-3.5 px-4 min-w-[170px] bg-stone-50/70 border-l border-[#EFE7DC]">
-                            <span className="text-stone-700 font-bold">{field.label}</span>
-                          </th>
-                        ))}
-
+                      <th className="py-3.5 px-4 min-w-[160px]">Planned</th>
+                      <th className="py-3.5 px-4 min-w-[160px]">Actual</th>
+                      <th className="py-3.5 px-4 min-w-[120px]">Time Delay</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EFE7DC]">
@@ -596,10 +579,62 @@ export const StageDetailView = ({
                               )}
                               <div>
                                 <div className="font-semibold text-stone-800 text-xs">{order.designName}</div>
-                                <span className="text-[10px] text-stone-500">Size: {order.size}</span>
+                                <span className="text-[10px] text-stone-500">Size: {order.size || '—'}</span>
                               </div>
                             </div>
                           </td>
+
+                          {/* STAGE-SPECIFIC RECORDED DATA (Filled in pending stage) */}
+                          {currentStage.fields.map((field) => {
+                            const rawVal = stageVals[field.key] ?? order[field.key] ?? order.stageData?.[field.key];
+                            const valStr = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '';
+
+                            if (!valStr) {
+                              return (
+                                <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle text-stone-400">
+                                  —
+                                </td>
+                              );
+                            }
+
+                            // Render badges for status/select type fields
+                            if (field.type === 'select') {
+                              const isPositive = ['Yes', 'Received', 'Approved by Designer', 'Approved by Client', 'Completed', 'Yes - Stitching Completed', 'Cleared', 'Approved'].some(p => valStr.toLowerCase().includes(p.toLowerCase()));
+                              const isWarning = ['In Process', 'Partially Received', 'In Progress', 'In Transit', 'On Adda Frame', 'Allotted', 'Pending'].some(p => valStr.toLowerCase().includes(p.toLowerCase()));
+                              
+                              return (
+                                <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle whitespace-nowrap">
+                                  <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                                    isPositive
+                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                      : isWarning
+                                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                      : 'bg-stone-100 text-stone-700 border-stone-200'
+                                  }`}>
+                                    {valStr}
+                                  </span>
+                                </td>
+                              );
+                            }
+
+                            // Render dates cleanly
+                            if (field.type === 'date') {
+                              return (
+                                <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle whitespace-nowrap font-medium text-stone-800">
+                                  {valStr}
+                                </td>
+                              );
+                            }
+
+                            // Text / Textarea remarks
+                            return (
+                              <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle max-w-[220px]">
+                                <div className="text-xs text-stone-800 line-clamp-2" title={valStr}>
+                                  {valStr}
+                                </div>
+                              </td>
+                            );
+                          })}
 
                           {/* Current Status */}
                           <td className="py-3 px-4 align-middle whitespace-nowrap">
@@ -636,28 +671,14 @@ export const StageDetailView = ({
                             );
                           })()}
 
-                          {/* STAGE DATA VALUES (ONLY FILLED FIELDS IN HISTORY) */}
-                          {currentStage.fields
-                            .filter((field) => historyOrders.some((o) => {
-                              const val = o.stageData?.[selectedStageId]?.[field.key];
-                              return val !== undefined && val !== null && String(val).trim() !== '';
-                            }))
-                            .map((field) => (
-                            <td key={field.key} className="py-3 px-4 border-l border-[#EFE7DC] align-middle">
-                              <span className="font-medium text-stone-800">
-                                {stageVals[field.key] || '—'}
-                              </span>
-                            </td>
-                          ))}
-
                         </tr>
                       );
                     })}
                   
-                {loading && <LoadingRow colSpan={8} />}
+                {loading && <LoadingRow colSpan={7 + currentStage.fields.length} />}
                 {!loading && historyOrders.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="py-12 px-4 text-center bg-white">
+                    <td colSpan={7 + currentStage.fields.length} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No Historical Orders</div>
                       <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">Orders that advance from this stage will be preserved in this history log.</p>
                     </td>
@@ -698,7 +719,7 @@ export const StageDetailView = ({
 
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-stone-700 font-medium truncate max-w-[200px]">{order.designName}</span>
-                      <span className="text-stone-500 font-bold">Size: {order.size}</span>
+                      <span className="text-stone-500 font-bold">Size: {order.size || '—'}</span>
                     </div>
 
                     {/* Planned / Actual / Time Delay */}
@@ -716,13 +737,18 @@ export const StageDetailView = ({
                     })()}
 
                     {/* Past Stage Values */}
-                    <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EAE2D5] space-y-1 text-xs">
-                      {currentStage.fields.map((field) => (
-                        <div key={field.key} className="flex justify-between text-[11px]">
-                          <span className="text-stone-500">{field.label}:</span>
-                          <span className="font-medium text-stone-800">{stageVals[field.key] || '—'}</span>
-                        </div>
-                      ))}
+                    <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EAE2D5] space-y-1.5 text-xs">
+                      <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Stage Inputs Recorded</div>
+                      {currentStage.fields.map((field) => {
+                        const rawVal = stageVals[field.key] ?? order[field.key] ?? order.stageData?.[field.key];
+                        const valStr = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '—';
+                        return (
+                          <div key={field.key} className="flex justify-between text-[11px] gap-2">
+                            <span className="text-stone-500 shrink-0">{field.label}:</span>
+                            <span className="font-medium text-stone-800 text-right truncate max-w-[180px]">{valStr}</span>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {/* Actions (History Read-Only) */}

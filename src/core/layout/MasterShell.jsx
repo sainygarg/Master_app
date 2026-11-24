@@ -836,8 +836,7 @@ export default function MasterShell({ children }) {
             <button
               onClick={() => {
                 logout();
-                localStorage.clear();
-                window.location.href = '/login';
+                window.location.replace('/login');
               }}
               className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
               title="Sign Out"
@@ -1160,8 +1159,7 @@ export default function MasterShell({ children }) {
               <button
                 onClick={() => {
                   logout();
-                  localStorage.clear();
-                  window.location.href = '/login';
+                  window.location.replace('/login');
                 }}
                 className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
               >
@@ -1256,8 +1254,7 @@ export default function MasterShell({ children }) {
             <button
               onClick={() => {
                 logout();
-                localStorage.clear();
-                window.location.href = '/login';
+                window.location.replace('/login');
               }}
               className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0 cursor-pointer"
               title="Sign Out"

@@ -126,12 +126,9 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("user-name");
-    localStorage.removeItem("role");
-    localStorage.removeItem("email_id");
-    localStorage.removeItem("token");
-    localStorage.removeItem("profile_image");
-    window.location.href = "/login";
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.replace("/login");
   };
 
   // No data categories needed as Task is now a main route

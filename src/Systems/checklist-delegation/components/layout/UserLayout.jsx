@@ -57,11 +57,9 @@ const UserLayout = ({ children }) => {
 
   // Logout handler
   const handleLogout = () => {
-    localStorage.removeItem("user-name");
-    localStorage.removeItem('role')
-    localStorage.removeItem('email_id')
-    localStorage.removeItem('profile_image')
-    navigate('/order-to-delivery')
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.replace("/login");
   }
 
   const routes = isAdmin

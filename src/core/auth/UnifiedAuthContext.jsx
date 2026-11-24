@@ -50,6 +50,12 @@ export function UnifiedAuthProvider({ children }) {
       localStorage.removeItem('role');
       localStorage.removeItem('can_self_assign');
       localStorage.removeItem('user_id');
+      localStorage.removeItem('email_id');
+      localStorage.removeItem('token');
+      localStorage.removeItem('profile_image');
+      localStorage.removeItem('is-super-admin');
+      localStorage.removeItem('allowed-pages');
+      localStorage.removeItem('allowed-systems');
     }
   };
 
@@ -64,6 +70,10 @@ export function UnifiedAuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     syncToLocalStorage(null);
+    try {
+      sessionStorage.clear();
+      localStorage.clear();
+    } catch { }
     try {
       window.dispatchEvent(new Event('unified-auth-changed'));
     } catch { }

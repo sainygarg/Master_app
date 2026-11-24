@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  Eye, 
-  EyeOff, 
-  Lock, 
+import {
+  Eye,
+  EyeOff,
+  Lock,
   User,
   ArrowRight,
   ShieldCheck
@@ -46,7 +46,7 @@ export const LoginPage = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-[#FAF6F0] flex flex-col justify-center items-center p-4 sm:p-6 text-stone-800">
-      
+
       {/* Background Decorative Blur */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40 overflow-hidden">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#EADCCB] blur-3xl"></div>
@@ -54,7 +54,7 @@ export const LoginPage = ({ onLogin }) => {
       </div>
 
       <div className="relative w-full max-w-md bg-white rounded-3xl border border-[#E8DFD3] shadow-2xl p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-200">
-        
+
         {/* Brand Emblem & Logo */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-2xl shadow-md border-2 border-[#C5A059]/40">
@@ -82,7 +82,7 @@ export const LoginPage = ({ onLogin }) => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           {/* Username Input */}
           <div>
             <label className="block text-xs font-bold text-stone-700 mb-1">
@@ -143,10 +143,10 @@ export const LoginPage = ({ onLogin }) => {
         </form>
 
         {/* Footer Guarantee */}
-        <div className="text-center text-[11px] text-stone-400 pt-2 flex items-center justify-center gap-1.5">
+        {/* <div className="text-center text-[11px] text-stone-400 pt-2 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-[#9B783E]" />
           <span>Database-backed accounts • Strict User Isolation</span>
-        </div>
+        </div> */}
 
       </div>
     </div>

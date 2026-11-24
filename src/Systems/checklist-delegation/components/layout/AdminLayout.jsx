@@ -131,7 +131,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     localStorage.removeItem("email_id");
     localStorage.removeItem("token");
     localStorage.removeItem("profile_image");
-    window.location.href = "/order-to-delivery";
+    window.location.href = "/login";
   };
 
   // No data categories needed as Task is now a main route

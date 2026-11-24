@@ -47,7 +47,7 @@ const RealtimeLogoutListener = () => {
             }
 
             localStorage.clear();
-            window.location.href = "/order-to-delivery";
+            window.location.href = "/login";
           }
         }
       )
@@ -113,7 +113,7 @@ const RealtimeLogoutListener = () => {
       // If user doesn't exist (deleted) or is inactive, logout
       if (!userDataResult || userDataResult.status === "inactive") {
         localStorage.clear();
-        window.location.href = "/order-to-delivery";
+        window.location.href = "/login";
       }
     };
 

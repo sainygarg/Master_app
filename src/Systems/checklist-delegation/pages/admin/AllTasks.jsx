@@ -160,7 +160,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
     const user = localStorage.getItem("user-name");
 
     if (!user) {
-      window.location.href = "/order-to-delivery";
+      window.location.href = "/login";
       return;
     }
 

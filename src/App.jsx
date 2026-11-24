@@ -17,20 +17,16 @@ import ProfilePage from './core/pages/ProfilePage';
 import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
 import ProductionControlView from './Systems/pc/ProductionControlView';
+import MasterExecutiveDashboard from './core/pages/MasterExecutiveDashboard';
 
 // The checklist app declares absolute routes (/checklist/...), so it must be
 // mounted at the router root; a "/checklist/*" parent would strip the prefix and
 // make every page fall through to its "/checklist/*" redirect (blank page).
-// Old URL prefix, redirected to /checklist so existing bookmarks keep working
-const LEGACY_PREFIX = "/dashboard";
 const CHECKLIST_PREFIXES = ['/checklist'];
 function ChecklistGate() {
   const { pathname } = useLocation();
-  if (pathname === LEGACY_PREFIX || pathname.startsWith(LEGACY_PREFIX + "/")) {
-    return <Navigate to={pathname.replace(LEGACY_PREFIX, "/checklist")} replace />;
-  }
   const isChecklist = CHECKLIST_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  return isChecklist ? <ChecklistDelegationApp /> : <Navigate to="/order-to-delivery" replace />;
+  return isChecklist ? <ChecklistDelegationApp /> : <Navigate to="/dashboard" replace />;
 }
 
 function AppRoutes() {
@@ -43,7 +39,7 @@ function AppRoutes() {
     return <OrderToDeliveryApp />;
   }
   // Signed-in users have no reason to be on /login
-  if (pathname === '/login') return <Navigate to="/checklist/admin" replace />;
+  if (pathname === '/login') return <Navigate to="/dashboard" replace />;
 
   // RBAC: a user with nothing granted gets no pages at all
   const hasAnyAccess =
@@ -71,28 +67,29 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Default root path redirects to Checklist Dashboard */}
-      <Route path="/" element={<Navigate to="/checklist/admin" replace />} />
+      {/* 1. Default Root & Main Landing Page: Dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard" element={<MasterExecutiveDashboard />} />
 
       {/* My Profile (opened from the header avatar) */}
       <Route path="/profile" element={<ProfilePage />} />
 
-      {/* System 1: Order to Delivery */}
-      <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
-
-      {/* System 2: PC (Production Control) - Stage-Wise Pending Across All Modules (Protected by RBAC) */}
+      {/* System 1: PC (Production Control) */}
       <Route
         path="/pc"
         element={
           canUserAccessPage(user, 'pc') ? (
             <ProductionControlView />
           ) : (
-            <Navigate to="/" replace />
+            <Navigate to="/dashboard" replace />
           )
         }
       />
 
-      {/* System 3: Checklist & Delegation (/dashboard/*); anything else falls back to Order to Delivery */}
+      {/* System 2: Order to Delivery */}
+      <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
+
+      {/* System 3: Checklist & Delegation (/checklist/*); anything else falls back to Dashboard */}
       <Route path="*" element={<ChecklistGate />} />
     </Routes>
   );

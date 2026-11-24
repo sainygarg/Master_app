@@ -108,11 +108,13 @@ export default function MasterShell({ children }) {
 
   // System detection
   const isProfile = location.pathname === '/profile';
+  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
   const isPc = location.pathname.startsWith('/pc');
-  const isOrderFlow = (location.pathname.startsWith('/order-to-delivery') || location.pathname === '/') && !isPc;
-  const isChecklist = (location.pathname.startsWith('/checklist') || location.pathname.startsWith('/checklist')) && !isPc;
+  const isOrderFlow = location.pathname.startsWith('/order-to-delivery') && !isPc;
+  const isChecklist = location.pathname.startsWith('/checklist') && !isPc;
 
   // Active helpers
+  const isDashboardActive = isDashboard;
   const isPcActive = isPc;
   const isOrderFlowActive = isOrderFlow && currentViewParam !== 'settings';
   const isChecklistActive = isChecklist;
@@ -378,7 +380,31 @@ export default function MasterShell({ children }) {
                 <PanelLeftOpen className="w-5 h-5" />
               </button>
 
-              {/* 2. Checklist Icon */}
+              {/* 1. Dashboard Icon */}
+              <button
+                onClick={() => { handleNavigate('/dashboard'); setChecklistOpen(false); setOrderFlowOpen(false); }}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
+                  isDashboardActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                }`}
+                title="Dashboard"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+              </button>
+
+              {/* 2. PC Rail Icon */}
+              {canPc && (
+                <button
+                  onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
+                    isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  }`}
+                  title="PC"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
+              )}
+
+              {/* 3. Checklist Icon */}
 {showChecklist && (
               <button
                 onClick={() => { handleNavigate('/checklist/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
@@ -396,10 +422,10 @@ export default function MasterShell({ children }) {
               </button>
 )}
 
-              {/* 1. Order Flow Icon */}
+              {/* 4. Order Flow Icon */}
 {showOrderFlow && (
               <button
-                onClick={() => handleNavigate('/order-to-delivery/dashboard')}
+                onClick={() => handleNavigate('/order-to-delivery/orders')}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
                   isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
@@ -413,19 +439,6 @@ export default function MasterShell({ children }) {
                 )}
               </button>
 )}
-
-              {/* PC Rail Icon - Just below Order to Delivery */}
-              {canPc && (
-                <button
-                  onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                    isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                  }`}
-                  title="PC"
-                >
-                  <Layers className="w-5 h-5" />
-                </button>
-              )}
 
               {/* 3. Master Setting Icon */}
 {canSettings && (
@@ -441,11 +454,53 @@ export default function MasterShell({ children }) {
 )}
             </div>
           ) : (
-            /* Full Expanded Navigation: Exactly 3 Main Sections */
+            /* Full Expanded Navigation: Dashboard -> PC -> Checklist & Delegation -> OTD -> Settings */
             <div className="space-y-3">
               
               {/* =========================================================================
-                  PAGE 1: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
+                  PAGE 1: MAIN DASHBOARD
+              ========================================================================= */}
+              <button
+                type="button"
+                onClick={() => handleNavigate('/dashboard')}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
+                  isDashboardActive
+                    ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`p-1.5 rounded-lg ${isDashboardActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                    <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                  </div>
+                  <span className="truncate font-semibold tracking-tight">Dashboard</span>
+                </div>
+              </button>
+
+              {/* =========================================================================
+                  PAGE 2: PC (PRODUCTION CONTROL)
+              ========================================================================= */}
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
+                    isPcActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Layers className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">PC</span>
+                  </div>
+                </button>
+              )}
+
+              {/* =========================================================================
+                  PAGE 3: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
               ========================================================================= */}
 {showChecklist && (
               <div className="flex flex-col">
@@ -705,29 +760,7 @@ export default function MasterShell({ children }) {
 )}
 
               {/* =========================================================================
-                  PAGE: PC - JUST BELOW ORDER TO DELIVERY
-              ========================================================================= */}
-              {canPc && (
-                <button
-                  type="button"
-                  onClick={() => { handleNavigate('/pc'); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
-                    isPcActive
-                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <Layers className="w-3.5 h-3.5 shrink-0" />
-                    </div>
-                    <span className="truncate font-semibold tracking-tight">PC</span>
-                  </div>
-                </button>
-              )}
-
-              {/* =========================================================================
-                  PAGE 3: MASTER SETTING (MAIN PAGE)
+                  PAGE 5: MASTER SETTING (MAIN PAGE)
               ========================================================================= */}
 {canSettings && (
               <button
@@ -776,7 +809,7 @@ export default function MasterShell({ children }) {
               onClick={() => {
                 logout();
                 localStorage.clear();
-                window.location.href = '/order-to-delivery';
+                window.location.href = '/login';
               }}
               className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
               title="Sign Out"
@@ -815,10 +848,40 @@ export default function MasterShell({ children }) {
               </button>
             </div>
 
-            {/* Mobile Navigation List */}
+            {/* Mobile Navigation List: Dashboard -> PC -> Checklist & Delegation -> OTD -> Settings */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
+
+              {/* 1. Dashboard in Mobile */}
+              <button
+                type="button"
+                onClick={() => { handleNavigate('/dashboard'); setIsMobileOpen(false); }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  isDashboardActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
+                  <span>Dashboard</span>
+                </div>
+              </button>
+
+              {/* 2. PC in Mobile */}
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); setIsMobileOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${
+                    isPcActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="w-4 h-4 text-[#C5A059]" />
+                    <span>PC</span>
+                  </div>
+                </button>
+              )}
               
-              {/* 2. Checklist & Delegation in Mobile */}
+              {/* 3. Checklist & Delegation in Mobile */}
 {showChecklist && (
               <div className="flex flex-col">
                 <button
@@ -1024,23 +1087,7 @@ export default function MasterShell({ children }) {
               </div>
 )}
 
-              {/* PC in Mobile Drawer - Just below Order to Delivery */}
-              {canPc && (
-                <button
-                  type="button"
-                  onClick={() => { handleNavigate('/pc'); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 text-left ${
-                    isPcActive ? 'bg-[#F3ECE2] text-[#5B172E] font-bold' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-[#C5A059]" />
-                    <span>PC</span>
-                  </div>
-                </button>
-              )}
-
-              {/* 3. Master Setting in Mobile */}
+              {/* 5. Master Setting in Mobile */}
 {canSettings && (
               <button
                 type="button"
@@ -1065,7 +1112,7 @@ export default function MasterShell({ children }) {
                 onClick={() => {
                   logout();
                   localStorage.clear();
-                  window.location.href = '/order-to-delivery';
+                  window.location.href = '/login';
                 }}
                 className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
               >
@@ -1161,7 +1208,7 @@ export default function MasterShell({ children }) {
               onClick={() => {
                 logout();
                 localStorage.clear();
-                window.location.href = '/order-to-delivery';
+                window.location.href = '/login';
               }}
               className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0 cursor-pointer"
               title="Sign Out"

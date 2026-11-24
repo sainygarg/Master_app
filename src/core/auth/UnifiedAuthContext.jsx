@@ -58,7 +58,7 @@ export function UnifiedAuthProvider({ children }) {
     syncToLocalStorage(userData);
     try {
       window.dispatchEvent(new Event('unified-auth-changed'));
-    } catch {}
+    } catch { }
   };
 
   const logout = () => {
@@ -66,7 +66,7 @@ export function UnifiedAuthProvider({ children }) {
     syncToLocalStorage(null);
     try {
       window.dispatchEvent(new Event('unified-auth-changed'));
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export function UnifiedAuthProvider({ children }) {
           return;
         }
         const next = { ...fresh, password: undefined };
-        const changed = ['role', 'isAdmin', 'allowedPages', 'allowedStages', 'allowedChecklistPages', 'name'].some(
+        const changed = ['role', 'isAdmin', 'allowedPages', 'allowedStages', 'allowedChecklistPages', 'permissions', 'canAccessAllOrders', 'name'].some(
           (k) => JSON.stringify(user?.[k]) !== JSON.stringify(next[k])
         );
         if (changed) login({ ...user, ...next });

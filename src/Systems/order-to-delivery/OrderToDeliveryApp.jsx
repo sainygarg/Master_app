@@ -245,14 +245,19 @@ export function App() {
   };
 
   // =========================================================================
-  // DATA ISOLATION PER ROLE (AS REQUESTED):
-  // "ager main entry kar raha hu toh mere me wo entry show karega lekin dusre me nhi"
-  // If User: ONLY see entries created by this user!
-  // If Admin / Superadmin: see ALL entries across the system!
+  // DATA ISOLATION & TEAM DATA SCOPE:
+  // - If Admin / Superadmin OR canAccessAllOrders is ON: see & manage ALL orders!
+  // - If User (and canAccessAllOrders is OFF): strictly see ONLY orders created by this user!
   // =========================================================================
-  const scopedOrders = isApexAdmin(currentUser)
+  const canAccessAll = isApexAdmin(currentUser) || Boolean(currentUser?.canAccessAllOrders);
+
+  const scopedOrders = canAccessAll
     ? orders
-    : orders.filter((o) => o.createdByUserId === currentUser?.id || o.createdByUserId === currentUser?.username);
+    : orders.filter((o) => 
+        o.createdByUserId === currentUser?.id || 
+        o.createdByUserId === currentUser?.username ||
+        (currentUser?.name && o.createdByName === currentUser.name)
+      );
 
   // Filtered orders with search query
   const filteredOrders = scopedOrders.filter((order) => {
@@ -772,6 +777,7 @@ export function App() {
         onSubmitUser={handleSaveUser}
         editingUser={editingUser}
         nextUserId={nextUserId}
+        readOnly={!isApexAdmin(currentUser) && !canModify(currentUser, 'settings')}
       />
 
       <OrderDetailDrawer

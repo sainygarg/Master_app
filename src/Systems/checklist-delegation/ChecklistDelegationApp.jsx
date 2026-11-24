@@ -48,7 +48,7 @@ const checkPageAccess = (path) => {
     return null;
   }
 };
-// --- Auth Wrapper ---
+// --- Auth Wrapper: Strict RBAC against Master Hub permissions ---
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const username = (
     localStorage.getItem('user-name') ||
@@ -56,29 +56,22 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     ''
   ).toLowerCase();
   const role = (localStorage.getItem('role') || '').toLowerCase();
-  const canSelfAssign = localStorage.getItem('can_self_assign') === 'true';
   const path = window.location.pathname;
 
   // Check if master user is logged in
   const masterAuth = localStorage.getItem('sainy_couture_auth_user_v3');
   const hasAuth = !!username || !!masterAuth;
 
-  const denied = checkPageAccess(path);
-  if (denied) return denied;
-
   if (!hasAuth) {
     return <Navigate to="/order-to-delivery" replace />;
   }
 
-  // Special Case: Allow 'user' role for assign-task if canSelfAssign is enabled
-  if (path.startsWith('/checklist/assign-task')) {
-    if (role === 'user' && canSelfAssign) {
-      return children;
-    }
-  }
+  // Unified RBAC check against Master Hub permissions
+  const denied = checkPageAccess(path);
+  if (denied) return denied;
 
-  if (allowedRoles.length > 0 && !allowedRoles.map((r) => r.toLowerCase()).includes(role)) {
-    // If master admin or HOD, allow access
+  // Fallback role check only if no granular master permissions exist
+  if (!masterAuth && allowedRoles.length > 0 && !allowedRoles.map((r) => r.toLowerCase()).includes(role)) {
     if (role === 'admin' || role === 'hod') {
       return children;
     }
@@ -241,9 +234,9 @@ export function ChecklistDelegationApp() {
         <Route
           path="/checklist/holiday-list"
           element={
-            <SuperAdminRoute>
+            <ProtectedRoute>
               <HolidayListPage />
-            </SuperAdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route

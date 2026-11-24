@@ -36,10 +36,14 @@ import { fetchOrders, getCachedOrders, saveOrder } from '../order-to-delivery/ut
 import supabase from '../checklist-delegation/SupabaseClient';
 import { fetchMasters } from '../order-to-delivery/utils/masterStorage';
 import { useUnifiedAuth } from '../../core/auth/UnifiedAuthContext';
+import { canModify, isApexAdmin } from '../order-to-delivery/utils/userAuthService';
 
 export default function ProductionControlView() {
   const navigate = useNavigate();
   const { user } = useUnifiedAuth();
+  
+  // RBAC Permission Check for PC (Production Control)
+  const canEditPC = isApexAdmin(user) || canModify(user, 'pc');
   
   // Navigation:
   // activeSystemView: null = Main PC Dashboard (Showing the 2 system cards: Order to Delivery & Checklist)
@@ -948,22 +952,28 @@ export default function ProductionControlView() {
                           </div>
                         </div>
 
-                        {/* Action: Open Modal to Update PC Date & Remark */}
+                        {/* Action: Open Modal to Update PC Date & Remark (Guarded by canEditPC) */}
                         <div className="shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingItem({
-                                type: isOrder ? 'order' : 'task',
-                                item: item,
-                                table: isOrder ? null : (currentStage.id === 'checklist_ops' ? 'tasks' : 'delegation')
-                              });
-                            }}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#5B172E] hover:bg-[#431021] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>Update PC Date / Remark</span>
-                          </button>
+                          {canEditPC ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItem({
+                                  type: isOrder ? 'order' : 'task',
+                                  item: item,
+                                  table: isOrder ? null : (currentStage.id === 'checklist_ops' ? 'tasks' : 'delegation')
+                                });
+                              }}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#5B172E] hover:bg-[#431021] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Update PC Date / Remark</span>
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 text-stone-500 border border-stone-200 text-xs font-bold">
+                              <span>View Only</span>
+                            </span>
+                          )}
                         </div>
                       </div>
                     );

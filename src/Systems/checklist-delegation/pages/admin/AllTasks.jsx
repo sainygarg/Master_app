@@ -13,6 +13,9 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import TaskManagementTabs from '../../components/TaskManagementTabs';
 import RenderDescription from '../../components/RenderDescription';
 import AudioPlayer from '../../components/AudioPlayer';
+import { useUnifiedAuth } from '../../../../core/auth/UnifiedAuthContext';
+import { canModify, isApexAdmin } from '../../../order-to-delivery/utils/userAuthService';
+import { Lock } from 'lucide-react';
 
 const isAudioUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
@@ -25,8 +28,22 @@ const isAudioUrl = (url) => {
 
 const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
   const dispatch = useDispatch();
+  const { user: authUser } = useUnifiedAuth();
   const { customDropdowns = [] } = useSelector((state) => state.setting || {});
   const { showToast } = useMagicToast();
+
+  // Resolved user (respecting localStorage if UnifiedAuth context is re-hydrating)
+  const currentUser = authUser || (() => {
+    try {
+      return JSON.parse(localStorage.getItem('sainy_couture_auth_user_v3') || 'null');
+    } catch {
+      return null;
+    }
+  })();
+
+  // STRICT RBAC Permission Guard: Can this user modify/submit tasks for /checklist/task?
+  const canEditChecklist = isApexAdmin(currentUser) || canModify(currentUser, '/checklist/task');
+
   // Active tab state
   const [activeTab, setActiveTab] = useState(defaultTab); // checklist, maintenance, repair, ea, delegation
   const [showHistory, setShowHistory] = useState(false);
@@ -880,6 +897,11 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
   };
 
   const handleSubmit = async () => {
+    if (!canEditChecklist) {
+      showToast("Permission Denied: You have View-only access to Tasks.", "error");
+      return;
+    }
+
     if (selectedItems.size === 0) {
       showToast("Please select at least one task to submit", "error");
       return;
@@ -1338,23 +1360,32 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                         )}
                       </div>
 
-                      <button
-                        onClick={handleSendUrgentWhatsApp}
-                        disabled={selectedItems.size === 0 || isSubmitting}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-40 shadow-md shadow-green-600/10 transition-all"
-                      >
-                        <BellRing className="h-4 w-4" />
-                        <span className="hidden md:inline">Urgent</span>
-                      </button>
+                      {canEditChecklist ? (
+                        <>
+                          <button
+                            onClick={handleSendUrgentWhatsApp}
+                            disabled={selectedItems.size === 0 || isSubmitting}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-40 shadow-md shadow-green-600/10 transition-all"
+                          >
+                            <BellRing className="h-4 w-4" />
+                            <span className="hidden md:inline">Urgent</span>
+                          </button>
 
-                      {activeTab !== "repair" && (
-                        <button
-                          onClick={handleSubmit}
-                          disabled={selectedItems.size === 0 || isSubmitting}
-                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-40 shadow-md shadow-purple-600/10 transition-all"
-                        >
-                          {isSubmitting ? "..." : `Submit (${selectedItems.size})`}
-                        </button>
+                          {activeTab !== "repair" && (
+                            <button
+                              onClick={handleSubmit}
+                              disabled={selectedItems.size === 0 || isSubmitting}
+                              className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-40 shadow-md shadow-purple-600/10 transition-all"
+                            >
+                              {isSubmitting ? "..." : `Submit (${selectedItems.size})`}
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                          <Lock className="w-3.5 h-3.5 text-amber-700" />
+                          <span>View Only</span>
+                        </span>
                       )}
                     </>
                   )}
@@ -1431,7 +1462,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm transition-all duration-300">
                       <tr>
-                        {!showHistory && (
+                        {!showHistory && canEditChecklist && (
                           <th className="px-3 sm:px-6 py-3 sm:py-4 text-left font-bold text-gray-900">
                             <input
                               type="checkbox"
@@ -1501,7 +1532,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                                   ? 'bg-rose-100/90 hover:bg-rose-200/80 border-l-[6px] border-l-rose-600 animate-pulse'
                                   : 'hover:bg-gray-50'
                               }`}>
-                                {!showHistory && (
+                                {!showHistory && canEditChecklist && (
                                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <input
                                       type="checkbox"
@@ -1821,8 +1852,8 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                   </table>
                 </div>
 
-                {/* Mobile view Toolbar */}
-                {!showHistory && (
+                {/* Mobile view Toolbar (Guarded by canEditChecklist) */}
+                {!showHistory && canEditChecklist && (
                   <div className="md:hidden z-30 transition-all duration-300">
                     <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
                       <div className="flex items-center gap-3">
@@ -1887,7 +1918,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                             {/* Card Header */}
                             <div className="bg-purple-50/50 px-4 py-3 border-b border-purple-100 flex justify-between items-center">
                               <div className="flex items-center gap-2">
-                                {!showHistory && (
+                                {!showHistory && canEditChecklist && (
                                   <input
                                     type="checkbox"
                                     checked={selectedItems.has(task.id)}
@@ -1926,7 +1957,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                                 <div className="space-y-1">
                                   <p className="text-[10px] text-gray-400 uppercase font-semibold">Status</p>
                                   <div className="text-sm">
-                                    {(!showHistory && (activeTab === "maintenance" || activeTab === "checklist" || activeTab === "ea" || activeTab === "delegation")) ? (
+                                    {(!showHistory && canEditChecklist && (activeTab === "maintenance" || activeTab === "checklist" || activeTab === "ea" || activeTab === "delegation")) ? (
                                       <select
                                         value={statusData[task.id] || task.status || ""}
                                         onChange={(e) => setStatusData(prev => ({ ...prev, [task.id]: e.target.value }))}
@@ -1953,7 +1984,7 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                                           ? "bg-amber-100 text-amber-800 border border-amber-200"
                                           : "bg-gray-100 text-gray-800"
                                         }`}>
-                                        {(!task.admin_done && task.submission_date) ? "Pending Approval" : (task.status?.toLowerCase() === "extended" || task.status?.toLowerCase() === "extend") ? "Extended" : task.status}
+                                        {(!task.admin_done && task.submission_date) ? "Pending Approval" : (task.status?.toLowerCase() === "extended" || task.status?.toLowerCase() === "extend") ? "Extended" : (task.status || "Pending")}
                                       </span>
                                     )}
                                   </div>
@@ -2012,8 +2043,8 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                                 </div>
                               )}
 
-                              {/* Actions for Pending Tasks */}
-                              {!showHistory && activeTab !== "repair" && (
+                              {/* Actions for Pending Tasks (Only for users with modify permission) */}
+                              {!showHistory && activeTab !== "repair" && canEditChecklist && (
                                 <div className="pt-2 space-y-3 border-t border-gray-50">
                                   {(activeTab === "ea" || activeTab === "delegation") && statusData[task.id] === "extended" && (
                                     <div className="space-y-1">
@@ -2138,8 +2169,8 @@ const AllTasks = ({ defaultTab = "checklist", lockedTab = false }) => {
                   )}
                 </div>
 
-                {/* Mobile Floating Submit Bar */}
-                {!showHistory && selectedItems.size > 0 && (
+                {/* Mobile Floating Submit Bar (Guarded by canEditChecklist) */}
+                {!showHistory && canEditChecklist && selectedItems.size > 0 && (
                   <div className="md:hidden fixed bottom-6 left-4 right-4 z-40 animate-in slide-in-from-bottom-8 duration-500">
                     <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-purple-100 p-2 overflow-hidden">
                       <div className="flex items-center justify-between">

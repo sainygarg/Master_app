@@ -14,10 +14,12 @@ import {
   Sparkles,
   Hourglass,
   History as HistoryIcon,
-  CheckCircle2
+  CheckCircle2,
+  Lock
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { CustomerPhoneDisplay } from '../utils/privacy';
+import { canModify, isApexAdmin } from '../utils/userAuthService';
 
 export const OrdersView = ({
   orders = [],
@@ -32,6 +34,8 @@ export const OrdersView = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('ALL');
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  const canEditOrders = isApexAdmin(currentUser) || canModify(currentUser, 'orders');
 
   // Filter all orders by search & stage
   const filteredOrders = orders.filter((order) => {
@@ -67,15 +71,22 @@ export const OrdersView = ({
           </div>
         </div>
 
-        {/* "+ Create New Order" Button */}
+        {/* "+ Create New Order" Button (Guarded by modify permission) */}
         <div>
-          <button
-            onClick={onOpenNewOrder}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow-md transition-all active:scale-98"
-          >
-            <PlusCircle className="w-4 h-4 text-[#F3ECE2]" />
-            <span>+ Create New Order</span>
-          </button>
+          {canEditOrders ? (
+            <button
+              onClick={onOpenNewOrder}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow-md transition-all active:scale-98"
+            >
+              <PlusCircle className="w-4 h-4 text-[#F3ECE2]" />
+              <span>+ Create New Order</span>
+            </button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+              <Lock className="w-3.5 h-3.5 text-amber-700" />
+              <span>View Only</span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -192,14 +203,16 @@ export const OrdersView = ({
                               <Ruler className="w-3.5 h-3.5 text-[#9B783E]" />
                             </button>
 
-                            {/* Delete Order Button */}
-                            <button
-                              onClick={() => setDeleteConfirmId(order.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                              title="Delete Order"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* Delete Order Button (Guarded) */}
+                            {canEditOrders && (
+                              <button
+                                onClick={() => setDeleteConfirmId(order.id)}
+                                className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Delete Order"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>

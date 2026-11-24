@@ -25,39 +25,42 @@ import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/user
 // Order to Delivery sub pages (stage access is separate, per stage)
 const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders');
 
-// One selectable permission row with modern toggle switch
-const PermissionRow = ({ label, checked, onToggle }) => (
-  <div
-    onClick={onToggle}
-    className={`select-text flex items-center justify-between gap-3 p-2.5 px-3 rounded-xl border text-left cursor-pointer transition-all ${
-      checked
-        ? 'bg-[#FAF5EE] border-[#C5A059] text-stone-900 shadow-2xs ring-1 ring-[#C5A059]/30'
-        : 'bg-white border-[#E8DFD3] text-stone-500 hover:bg-[#FAF8F5] hover:border-stone-400'
-    }`}
-  >
-    <div className="flex items-center gap-2.5 min-w-0">
-      <span className="truncate text-xs font-semibold text-stone-800">{label}</span>
+// One selectable permission row with 3-way segmented control: None | View | Modify
+const SegmentedPermissionRow = ({ label, value = 'none', onChange, disabled = false }) => {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 px-3 rounded-xl border border-[#E8DFD3] bg-white hover:bg-[#FAF8F5] transition-all">
+      <span className="text-xs font-semibold text-stone-800 truncate select-text">{label}</span>
+      <div className="inline-flex rounded-lg border border-[#DECDB8] bg-[#FAF8F5] p-0.5 shrink-0 self-start sm:self-auto">
+        {[
+          { key: 'none', label: 'None', activeClass: 'bg-stone-200 text-stone-800 font-bold shadow-2xs' },
+          { key: 'view', label: 'View', activeClass: 'bg-amber-100 text-amber-900 font-bold border border-amber-300 shadow-2xs' },
+          { key: 'modify', label: 'Modify', activeClass: 'bg-[#5B172E] text-white font-bold shadow-2xs' }
+        ].map((opt) => {
+          const isSelected = value === opt.key;
+          return (
+            <button
+              key={opt.key}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(opt.key)}
+              className={`px-2.5 py-1 text-[11px] rounded-md transition-all ${
+                isSelected
+                  ? opt.activeClass
+                  : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
-
-    {/* Modern Toggle Switch */}
-    <div
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-        checked ? 'bg-[#5B172E]' : 'bg-stone-300'
-      }`}
-    >
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-          checked ? 'translate-x-4' : 'translate-x-0'
-        }`}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 // Collapsible card: clean header with title and toggle arrow
 const PermissionSection = ({
-  icon, title, isAdmin, adminNote, onSelectAll, onDeselectAll, children
+  icon, title, isAdmin, adminNote, onSetAllNone, onSetAllView, onSetAllModify, children
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -92,16 +95,23 @@ const PermissionSection = ({
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-end gap-2 text-[11px]">
-                <button type="button" onClick={onSelectAll} className="text-[#5B172E] font-bold hover:underline">
-                  Select All
+              <div className="flex items-center justify-end gap-2 text-[11px] font-medium">
+                <span className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mr-1">Quick Set:</span>
+                <button type="button" onClick={onSetAllNone} className="text-stone-500 hover:text-stone-800 hover:underline">
+                  All None
                 </button>
                 <span className="text-stone-300">•</span>
-                <button type="button" onClick={onDeselectAll} className="text-stone-500 font-medium hover:underline">
-                  Deselect All
+                <button type="button" onClick={onSetAllView} className="text-amber-800 font-semibold hover:underline">
+                  All View
+                </button>
+                <span className="text-stone-300">•</span>
+                <button type="button" onClick={onSetAllModify} className="text-[#5B172E] font-bold hover:underline">
+                  All Modify
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">{children}</div>
+              <div className="space-y-2">
+                {children}
+              </div>
             </>
           )}
         </div>
@@ -115,7 +125,8 @@ export const UserFormModal = ({
   onClose,
   onSubmitUser,
   editingUser = null,
-  nextUserId
+  nextUserId,
+  readOnly = false
 }) => {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -125,6 +136,10 @@ export const UserFormModal = ({
   const [phone, setPhone] = useState('');
   const [designation, setDesignation] = useState('');
   const [status, setStatus] = useState('Active');
+  // Team Data Scope: Can user access and manage other employees' orders in OTD?
+  const [canAccessAllOrders, setCanAccessAllOrders] = useState(false);
+  // Granular 3-Tier Permissions Map: { [pageOrStageId]: 'none' | 'view' | 'modify' }
+  const [permissions, setPermissions] = useState({});
   // New users start with NO access; an admin must grant each page explicitly
   const [allowedPages, setAllowedPages] = useState([]);
   const [allowedStages, setAllowedStages] = useState([]);
@@ -144,6 +159,12 @@ export const UserFormModal = ({
       setPhone(editingUser.phone || '');
       setDesignation(editingUser.designation || '');
       setStatus(editingUser.status || 'Active');
+      setCanAccessAllOrders(Boolean(editingUser.canAccessAllOrders));
+      
+      // Strictly initialize permissions from user's permissions object
+      const initialPerms = { ...(editingUser.permissions || {}) };
+      setPermissions(initialPerms);
+
       setAllowedPages(editingUser.allowedPages || []);
       setAllowedStages(editingUser.allowedStages || []);
       setAllowedChecklistPages(editingUser.allowedChecklistPages || []);
@@ -158,6 +179,8 @@ export const UserFormModal = ({
       setPhone('');
       setDesignation('');
       setStatus('Active');
+      setCanAccessAllOrders(false);
+      setPermissions({});
       setAllowedPages([]);
       setAllowedStages([]);
       setAvatarColor('bg-blue-700');
@@ -167,45 +190,45 @@ export const UserFormModal = ({
 
   const isAdmin = isApexAdmin({ role, username }) || role === 'Admin';
 
-  const togglePage = (pageId) => {
-    if (isAdmin) return; // Admin has all pages
-    setAllowedPages((prev) =>
-      prev.includes(pageId)
-        ? prev.filter((id) => id !== pageId)
-        : [...prev, pageId]
-    );
-  };
-
-  const toggleStage = (stageId) => {
-    if (isAdmin) return; // Admin has all stages
-    setAllowedStages((prev) =>
-      prev.includes(stageId)
-        ? prev.filter((id) => id !== stageId)
-        : [...prev, stageId]
-    );
-  };
-
-  const toggleChecklistPage = (href) => {
+  const handlePermissionChange = (key, val) => {
     if (isAdmin) return;
-    setAllowedChecklistPages((prev) =>
-      prev.includes(href) ? prev.filter((id) => id !== href) : [...prev, href]
-    );
+    setPermissions(prev => ({ ...prev, [key]: val }));
+
+    // Keep legacy arrays in sync
+    const isGranted = val === 'view' || val === 'modify';
+    if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'settings') {
+      setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+    } else if (STAGES.some(s => s.id === key)) {
+      setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+    } else if (ALL_CHECKLIST_PAGE_IDS.some(c => c.id === key)) {
+      setAllowedChecklistPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+    }
   };
 
-  const handleSelectAllStages = () => {
-    setAllowedStages(STAGES.map(s => s.id));
+  const setGroupPermissions = (keys, val) => {
+    if (isAdmin) return;
+    setPermissions(prev => {
+      const next = { ...prev };
+      keys.forEach(k => { next[k] = val; });
+      return next;
+    });
+
+    const isGranted = val === 'view' || val === 'modify';
+    keys.forEach(key => {
+      if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'settings') {
+        setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+      } else if (STAGES.some(s => s.id === key)) {
+        setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+      } else if (ALL_CHECKLIST_PAGE_IDS.some(c => c.id === key)) {
+        setAllowedChecklistPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
+      }
+    });
   };
 
-  const handleDeselectAllStages = () => {
-    setAllowedStages([]);
-  };
-
-  const handleSelectAllPages = () => {
-    setAllowedPages(ALL_PAGE_IDS.map(p => p.id));
-  };
-
-  const handleDeselectAllPages = () => {
-    setAllowedPages([]);
+  const getPermVal = (key) => {
+    if (isAdmin) return 'modify';
+    if (permissions[key]) return permissions[key];
+    return 'none';
   };
 
   const handleSubmit = async (e) => {
@@ -221,6 +244,14 @@ export const UserFormModal = ({
       return;
     }
 
+    // Build final permissions object
+    const finalPermissions = { ...permissions };
+    if (isAdmin) {
+      ALL_PAGE_IDS.forEach(p => { finalPermissions[p.id] = 'modify'; });
+      STAGES.forEach(s => { finalPermissions[s.id] = 'modify'; });
+      ALL_CHECKLIST_PAGE_IDS.forEach(c => { finalPermissions[c.id] = 'modify'; });
+    }
+
     const userData = {
       id: editingUser ? editingUser.id : nextUserId,
       name: name.trim(),
@@ -232,6 +263,8 @@ export const UserFormModal = ({
       phone: phone.trim(),
       designation: designation.trim(),
       status,
+      canAccessAllOrders: isAdmin ? true : canAccessAllOrders,
+      permissions: finalPermissions,
       allowedPages: isAdmin ? ALL_PAGE_IDS.map(p => p.id) : allowedPages,
       allowedStages: isAdmin ? STAGES.map(s => s.id) : allowedStages,
       allowedChecklistPages: isAdmin ? allChecklistIds : allowedChecklistPages,
@@ -410,54 +443,102 @@ export const UserFormModal = ({
             </div>
           </div>
 
-          {/* Section 1: CHECKLIST PERMISSIONS (collapsible, toggles) */}
+          {/* Section 1: CHECKLIST PERMISSIONS (collapsible, 3-tier) */}
           <PermissionSection
             icon={<CheckSquare className="w-4 h-4 text-[#9B783E]" />}
-            title="Checklist"
+            title="Checklist & Delegation"
             isAdmin={isAdmin}
             adminNote="Admins automatically access every Checklist page unconditionally."
-            onSelectAll={() => setAllowedChecklistPages(allChecklistIds)}
-            onDeselectAll={() => setAllowedChecklistPages([])}
+            onSetAllNone={() => setGroupPermissions(allChecklistIds, 'none')}
+            onSetAllView={() => setGroupPermissions(allChecklistIds, 'view')}
+            onSetAllModify={() => setGroupPermissions(allChecklistIds, 'modify')}
           >
             {ALL_CHECKLIST_PAGE_IDS.map((p) => (
-              <PermissionRow
+              <SegmentedPermissionRow
                 key={p.id}
                 label={p.label}
-                checked={allowedChecklistPages.includes(p.id)}
-                onToggle={() => toggleChecklistPage(p.id)}
+                value={getPermVal(p.id)}
+                onChange={(val) => handlePermissionChange(p.id, val)}
               />
             ))}
           </PermissionSection>
 
-          {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, toggles) */}
+          {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, 3-tier + Team Scope) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
             title="Order to Delivery"
             isAdmin={isAdmin}
             adminNote="Full access: Admins can open the Dashboard, All Orders and every atelier stage."
-            onSelectAll={() => {
-              handleSelectAllStages();
-              setAllowedPages((prev) => Array.from(new Set([...prev, ...OTD_PAGES.map((p) => p.id)])));
+            onSetAllNone={() => {
+              const allOtdKeys = [...OTD_PAGES.map(p => p.id), ...STAGES.map(s => s.id)];
+              setGroupPermissions(allOtdKeys, 'none');
             }}
-            onDeselectAll={() => {
-              handleDeselectAllStages();
-              setAllowedPages((prev) => prev.filter((id) => !OTD_PAGES.some((p) => p.id === id)));
+            onSetAllView={() => {
+              const allOtdKeys = [...OTD_PAGES.map(p => p.id), ...STAGES.map(s => s.id)];
+              setGroupPermissions(allOtdKeys, 'view');
+            }}
+            onSetAllModify={() => {
+              const allOtdKeys = [...OTD_PAGES.map(p => p.id), ...STAGES.map(s => s.id)];
+              setGroupPermissions(allOtdKeys, 'modify');
             }}
           >
+            {/* SPECIAL PRIVILEGE: TEAM DATA SCOPE FOR USER EMPLOYEES */}
+            {!isAdmin && (
+              <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#FAF5EE] to-amber-50/50 border border-[#DECDB8] mb-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#9B783E] shrink-0" />
+                    <div>
+                      <span className="text-xs font-bold text-stone-900 block">Access All Team Orders</span>
+                      <span className="text-[11px] text-stone-500 block">
+                        Allow this employee to view and CRUD orders created by other team members
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={() => setCanAccessAllOrders(prev => !prev)}
+                    className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                      canAccessAllOrders ? 'bg-[#5B172E]' : 'bg-stone-300'
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        canAccessAllOrders ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="text-[10px] text-stone-600 font-medium">
+                  {canAccessAllOrders ? (
+                    <span className="text-emerald-800 font-bold">✓ Full Team Visibility Enabled: Can see and update all employees' orders.</span>
+                  ) : (
+                    <span className="text-stone-500">🔒 Personal Scope Only: Can strictly view and update only orders they created.</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="text-[11px] uppercase font-bold text-stone-400 tracking-wider pt-1">Main Pages</div>
             {OTD_PAGES.map((p) => (
-              <PermissionRow
+              <SegmentedPermissionRow
                 key={p.id}
                 label={p.label}
-                checked={allowedPages.includes(p.id)}
-                onToggle={() => togglePage(p.id)}
+                value={getPermVal(p.id)}
+                onChange={(val) => handlePermissionChange(p.id, val)}
               />
             ))}
+
+            <div className="text-[11px] uppercase font-bold text-stone-400 tracking-wider pt-2">Production Stages</div>
             {STAGES.map((stage) => (
-              <PermissionRow
+              <SegmentedPermissionRow
                 key={stage.id}
                 label={stage.name}
-                checked={allowedStages.includes(stage.id)}
-                onToggle={() => toggleStage(stage.id)}
+                value={getPermVal(stage.id)}
+                onChange={(val) => handlePermissionChange(stage.id, val)}
               />
             ))}
           </PermissionSection>
@@ -469,26 +550,17 @@ export const UserFormModal = ({
                 <PackageCheck className="w-4 h-4 text-[#9B783E]" />
                 <span>PC (Production Control)</span>
               </h3>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-                isAdmin || allowedPages.includes('pc')
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-stone-50 text-stone-500 border-stone-200'
-              }`}>
-                {isAdmin || allowedPages.includes('pc') ? 'Enabled' : 'Disabled'}
-              </span>
             </div>
             {isAdmin ? (
               <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
                 Admins always have PC (Production Control) access.
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <PermissionRow
-                  label="Allow access to PC"
-                  checked={allowedPages.includes('pc')}
-                  onToggle={() => togglePage('pc')}
-                />
-              </div>
+              <SegmentedPermissionRow
+                label="PC (Production Control)"
+                value={getPermVal('pc')}
+                onChange={(val) => handlePermissionChange('pc', val)}
+              />
             )}
           </div>
 
@@ -499,26 +571,17 @@ export const UserFormModal = ({
                 <Shield className="w-4 h-4 text-[#9B783E]" />
                 <span>Settings</span>
               </h3>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-                isAdmin || allowedPages.includes('settings')
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-stone-50 text-stone-500 border-stone-200'
-              }`}>
-                {isAdmin || allowedPages.includes('settings') ? 'Enabled' : 'Disabled'}
-              </span>
             </div>
             {isAdmin ? (
               <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
                 Admins always have Settings access.
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <PermissionRow
-                  label="Allow access to Settings"
-                  checked={allowedPages.includes('settings')}
-                  onToggle={() => togglePage('settings')}
-                />
-              </div>
+              <SegmentedPermissionRow
+                label="Settings Management"
+                value={getPermVal('settings')}
+                onChange={(val) => handlePermissionChange('settings', val)}
+              />
             )}
           </div>
 
@@ -529,16 +592,18 @@ export const UserFormModal = ({
               onClick={onClose}
               className="px-5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors"
             >
-              Cancel
+              {readOnly ? 'Close' : 'Cancel'}
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <Check className="w-4 h-4" />
-              <span>{submitting ? 'Saving…' : editingUser ? 'Save Changes' : 'Create Staff Member'}</span>
-            </button>
+            {!readOnly && (
+              <button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E] shadow-sm hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <Check className="w-4 h-4" />
+                <span>{submitting ? 'Saving…' : editingUser ? 'Save Changes' : 'Create Staff Member'}</span>
+              </button>
+            )}
           </div>
 
         </form>

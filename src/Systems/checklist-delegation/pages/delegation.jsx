@@ -8,6 +8,9 @@ import { insertDelegationDoneAndUpdate } from '../redux/api/delegationApi';
 import { sendUrgentTaskNotification, sendTaskExtensionNotification, isWhatsAppConnected } from '../services/whatsappService';
 import { useMagicToast } from '../context/MagicToastContext';
 import RenderDescription, { MediaViewer } from "../components/RenderDescription";
+import { useUnifiedAuth } from '../../../core/auth/UnifiedAuthContext';
+import { canModify, isApexAdmin } from '../../order-to-delivery/utils/userAuthService';
+import { Lock } from 'lucide-react';
 
 
 // Configuration object - Move all configurations here
@@ -44,7 +47,9 @@ function useDebounce(value, delay) {
 }
 
 function DelegationDataPage() {
+  const { user: authUser } = useUnifiedAuth();
   const { showToast } = useMagicToast();
+  const canEditDelegation = isApexAdmin(authUser) || canModify(authUser, '/checklist/delegation');
   const [uploadedImages, setUploadedImages] = useState({});
   const [_accountData, _setAccountData] = useState([]);
   const [selectedItems, setSelectedItems] = useState(new Set());
@@ -623,6 +628,11 @@ function DelegationDataPage() {
   }, [resetFilters]);
 
   const handleSubmit = async () => {
+    if (!canEditDelegation) {
+      showToast("Permission Denied: You have View-only access to Delegation tasks.", "error");
+      return;
+    }
+
     const selectedItemsArray = Array.from(selectedItems);
 
     if (selectedItemsArray.length === 0) {
@@ -1360,31 +1370,40 @@ function DelegationDataPage() {
                       <span className="sm:hidden">Print</span>
                     </button>
 
-                    <button
-                      onClick={handleSendUrgentWhatsApp}
-                      disabled={selectedItems.size === 0 || isSubmitting}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all h-10"
-                      title="Send Urgent WhatsApp"
-                    >
-                      <BellRing className="h-4 w-4" />
-                      <span className="hidden sm:inline">Urgent WhatsApp</span>
-                      <span className="sm:hidden">Urgent</span>
-                    </button>
+                    {canEditDelegation ? (
+                      <>
+                        <button
+                          onClick={handleSendUrgentWhatsApp}
+                          disabled={selectedItems.size === 0 || isSubmitting}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all h-10"
+                          title="Send Urgent WhatsApp"
+                        >
+                          <BellRing className="h-4 w-4" />
+                          <span className="hidden sm:inline">Urgent WhatsApp</span>
+                          <span className="sm:hidden">Urgent</span>
+                        </button>
 
-                    <button
-                      onClick={handleSubmit}
-                      disabled={selectedItemsCount === 0 || isSubmitting}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors h-10"
-                    >
-                      {isSubmitting
-                        ? "..."
-                        : (
-                          <>
-                            <span className="hidden sm:inline">Submit Selected ({selectedItemsCount})</span>
-                            <span className="sm:hidden">Submit ({selectedItemsCount})</span>
-                          </>
-                        )}
-                    </button>
+                        <button
+                          onClick={handleSubmit}
+                          disabled={selectedItemsCount === 0 || isSubmitting}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors h-10"
+                        >
+                          {isSubmitting
+                            ? "..."
+                            : (
+                              <>
+                                <span className="hidden sm:inline">Submit Selected ({selectedItemsCount})</span>
+                                <span className="sm:hidden">Submit ({selectedItemsCount})</span>
+                              </>
+                            )}
+                        </button>
+                      </>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                        <Lock className="w-3.5 h-3.5 text-amber-700" />
+                        <span>View Only</span>
+                      </span>
+                    )}
                   </>
                 )}
               </div>

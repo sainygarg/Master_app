@@ -38,6 +38,10 @@ export const fromRow = (r) => ({
   role: r.role,
   isAdmin: !!r.is_admin,
   status: r.status,
+  // Team Data Scope: Can user access and manage other employees' orders in OTD?
+  canAccessAllOrders: Boolean(r.can_access_all_orders),
+  // Granular 3-Tier Permissions Map: { [pageOrStageId]: 'none' | 'view' | 'modify' }
+  permissions: r.permissions && typeof r.permissions === 'object' ? r.permissions : {},
   allowedPages: r.allowed_pages || [],
   allowedStages: r.allowed_stages || [],
   // null/undefined => nothing granted (deny by default)
@@ -63,6 +67,8 @@ const toRow = (u) => ({
   role: u.role,
   is_admin: !!u.isAdmin,
   status: u.status,
+  can_access_all_orders: Boolean(u.canAccessAllOrders),
+  permissions: u.permissions || {},
   allowed_pages: u.allowedPages || [],
   allowed_stages: u.allowedStages || [],
   allowed_checklist_pages: u.allowedChecklistPages || [],
@@ -171,20 +177,52 @@ export const isApexAdmin = (user) => {
 export const canUserAccessPage = (user, pageId) => {
   if (isApexAdmin(user)) return true;
   if (!user) return false;
-  return user.allowedPages ? user.allowedPages.includes(pageId) : false;
+  return canView(user, pageId);
 };
 
 export const canUserAccessChecklistPage = (user, href) => {
   if (isApexAdmin(user)) return true;
   if (!user) return false;
-  // No recorded list on the session => deny (the auth provider refreshes it from the DB; failing open leaked pages)
-  if (!Array.isArray(user.allowedChecklistPages)) return false;
-  const norm = (h) => String(h).replace('/dashboard/', '/checklist/'); // tolerate sessions saved before the route rename
-  return user.allowedChecklistPages.some((h) => norm(h) === href);
+  return canView(user, href);
 };
 
 export const canUserAccessStage = (user, stageId) => {
   if (isApexAdmin(user)) return true;
   if (!user) return false;
-  return user.allowedStages ? user.allowedStages.includes(stageId) : false;
+  return canView(user, stageId);
+};
+
+/**
+ * Resolves 3-Tier Permission for any page or stage: 'none' | 'view' | 'modify'
+ * STRICT RESOLUTION:
+ * - Admin users always have full 'modify' permission.
+ * - For all other users, access is determined SOLELY by their granular `permissions` mapping.
+ * - No legacy fallbacks exist that grant 'modify'. Legacy arrays default strictly to 'none' unless explicitly present in `permissions`.
+ */
+export const getPermission = (user, key) => {
+  if (!user) return 'none';
+  if (isApexAdmin(user)) return 'modify';
+
+  // Strict Check: Granular permissions map
+  if (user.permissions && typeof user.permissions === 'object' && key in user.permissions) {
+    const val = user.permissions[key];
+    if (val === 'none' || val === 'view' || val === 'modify') return val;
+  }
+
+  return 'none';
+};
+
+/**
+ * Checks if user has modify (CRUD) access
+ */
+export const canModify = (user, key) => {
+  return getPermission(user, key) === 'modify';
+};
+
+/**
+ * Checks if user can view page (either view or modify)
+ */
+export const canView = (user, key) => {
+  const perm = getPermission(user, key);
+  return perm === 'view' || perm === 'modify';
 };

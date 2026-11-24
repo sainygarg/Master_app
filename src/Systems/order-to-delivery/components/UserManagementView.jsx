@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterStorage';
-import { isApexAdmin, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
+import { isApexAdmin, canModify, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
@@ -51,6 +51,10 @@ export const UserManagementView = ({
   onDeleteUser
 }) => {
   const { showToast } = useToastAlert();
+
+  // Permission check for Settings page: Can this user perform CRUD operations?
+  const canEdit = isApexAdmin(currentUser) || canModify(currentUser, 'settings');
+
   // Master Tabs: 'users' | 'vendors' | 'customers' | 'departments' | 'tat' | 'transporters' | 'karigars' | 'designs'
   const [activeTab, setActiveTab] = useState('users');
 
@@ -177,6 +181,10 @@ export const UserManagementView = ({
 
   // Saves to the database first; local state is updated only after the DB confirms.
   const handleSubmitMaster = async (itemData) => {
+    if (!canEdit) {
+      showToast('Permission Denied: You have View-only access to Settings.', 'error');
+      return false;
+    }
     const cfg = MASTER_KINDS[masterModalType];
     if (!cfg) return false;
     try {
@@ -200,6 +208,10 @@ export const UserManagementView = ({
   };
 
   const handleDeleteMaster = async (type, id) => {
+    if (!canEdit) {
+      showToast('Permission Denied: You have View-only access to Settings.', 'error');
+      return;
+    }
     const cfg = MASTER_KINDS[type];
     if (!cfg) return;
     try {
@@ -214,6 +226,14 @@ export const UserManagementView = ({
   };
 
   const getAddButton = () => {
+    if (!canEdit) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+          <Lock className="w-3.5 h-3.5 text-amber-700" />
+          <span>View Only Mode</span>
+        </span>
+      );
+    }
     switch (activeTab) {
       case 'users':
         return (
@@ -498,6 +518,17 @@ export const UserManagementView = ({
                               No
                             </button>
                           </div>
+                        ) : !canEdit ? (
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => onOpenEditUser(user)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100 transition-all"
+                              title="View user details (Read-Only)"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-stone-500" />
+                              <span>View</span>
+                            </button>
+                          </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
                             {/* Edit Button */}
@@ -658,20 +689,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('vendor', v)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(v.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Vendor"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('vendor', v)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(v.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Vendor"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('vendor', v)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -747,20 +791,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('customer', cust)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(cust.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Customer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('customer', cust)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(cust.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Customer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('customer', cust)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -837,20 +894,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('department', dept)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(dept.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Department"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('department', dept)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(dept.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Department"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('department', dept)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -928,20 +998,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('tat', tat)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit TAT</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(tat.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete TAT rule"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('tat', tat)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit TAT</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(tat.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete TAT rule"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('tat', tat)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -1047,20 +1130,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('transporter', trn)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(trn.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Transporter"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('transporter', trn)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(trn.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Transporter"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('transporter', trn)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -1131,20 +1227,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('karigar', k)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(k.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Karigar"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('karigar', k)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(k.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Karigar"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('karigar', k)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -1217,20 +1326,33 @@ export const UserManagementView = ({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleOpenEditMaster('design', d)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(d.id)}
-                              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
-                              title="Delete Design"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button
+                                  onClick={() => handleOpenEditMaster('design', d)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE]"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(d.id)}
+                                  className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg"
+                                  title="Delete Design"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenEditMaster('design', d)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:bg-stone-100"
+                                title="View details (Read-Only)"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-stone-500" />
+                                <span>View</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>

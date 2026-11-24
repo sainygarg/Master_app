@@ -7,15 +7,7 @@ import { LayoutGrid } from "lucide-react";
 export default function AssignTask() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const role = (localStorage.getItem("role") || "").toLowerCase();
-    const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
-    
-    if (role === "user" && !canSelfAssign) {
-      console.warn("🚫 AssignTask: Unauthorized 'user' role redirected to admin");
-      navigate("/checklist/admin");
-    }
-  }, [navigate]);
+  // Access is governed by unified ProtectedRoute & AdminLayout RBAC
 
   const role = (localStorage.getItem("role") || "").toLowerCase();
   const _canSelfAssign = localStorage.getItem("can_self_assign") === "true";

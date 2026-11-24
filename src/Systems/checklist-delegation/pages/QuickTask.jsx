@@ -109,15 +109,7 @@ export default function QuickTask() {
   } = useSelector((state) => state.maintenance);
   const dispatch = useDispatch();
 
-  // HOD Access Restriction
-  useEffect(() => {
-    const role = localStorage.getItem("role")?.toLowerCase();
-    if (role === "hod") {
-      showToast("Access Denied: HODs cannot access Quick Task management.", "error");
-      navigate("/checklist");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
+  // Unified Master Hub RBAC handles route access via ProtectedRoute and AdminLayout
 
   useEffect(() => {
     dispatch(fetchUsers());

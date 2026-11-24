@@ -1,12 +1,24 @@
 
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Plus, Loader2, Search, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Loader2, Search, Trash2, Lock } from 'lucide-react';
 import supabase from '../../SupabaseClient';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { useMagicToast } from '../../context/MagicToastContext';
 import { useToastAlert } from '../../../../core/context/ToastAlertContext';
+import { useUnifiedAuth } from '../../../../core/auth/UnifiedAuthContext';
+import { canModify, isApexAdmin } from '../../../order-to-delivery/utils/userAuthService';
 
 const HolidayListPage = () => {
+    const { user: authUser } = useUnifiedAuth();
+    const currentUser = authUser || (() => {
+        try {
+            return JSON.parse(localStorage.getItem('sainy_couture_auth_user_v3') || 'null');
+        } catch {
+            return null;
+        }
+    })();
+    const canEditHoliday = isApexAdmin(currentUser) || canModify(currentUser, '/checklist/holiday-list');
+
     const { showToast } = useMagicToast();
     const { showConfirm } = useToastAlert();
     const [holidays, setHolidays] = useState([]);
@@ -48,6 +60,10 @@ const HolidayListPage = () => {
 
     const handleAddHoliday = async (e) => {
         e.preventDefault();
+        if (!canEditHoliday) {
+            showToast('Permission Denied: You have View-only access to Holiday List.', 'error');
+            return;
+        }
         if (!newHoliday.holiday_date || !newHoliday.holiday_name) return;
 
         try {
@@ -103,6 +119,10 @@ const HolidayListPage = () => {
     };
 
     const handleDeleteHoliday = async (holiday) => {
+        if (!canEditHoliday) {
+            showToast('Permission Denied: You have View-only access to Holiday List.', 'error');
+            return;
+        }
         const confirmed = await showConfirm({
             title: 'Delete Holiday',
             message: `Are you sure you want to delete holiday "${holiday.holiday_name}"?`,
@@ -182,53 +202,55 @@ const HolidayListPage = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className={`grid grid-cols-1 ${canEditHoliday ? 'md:grid-cols-3' : ''} gap-6`}>
                     {/* Entry Form */}
-                    <div className="md:col-span-1">
-                        <div className="bg-white border border-gray-200 rounded shadow-sm">
-                            <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                                <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <Plus size={16} /> Add New Entry
-                                </h2>
+                    {canEditHoliday && (
+                        <div className="md:col-span-1">
+                            <div className="bg-white border border-gray-200 rounded shadow-sm">
+                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                        <Plus size={16} /> Add New Entry
+                                    </h2>
+                                </div>
+                                <form onSubmit={handleAddHoliday} className="p-4 space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 mb-1">
+                                            Holiday Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-500 outline-none"
+                                            value={newHoliday.holiday_name}
+                                            onChange={(e) => setNewHoliday({ ...newHoliday, holiday_name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 mb-1">
+                                            Select Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-500 outline-none"
+                                            value={newHoliday.holiday_date}
+                                            onChange={(e) => setNewHoliday({ ...newHoliday, holiday_date: e.target.value })}
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold text-xs transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Save Record'}
+                                    </button>
+                                </form>
                             </div>
-                            <form onSubmit={handleAddHoliday} className="p-4 space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-600 mb-1">
-                                        Holiday Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-500 outline-none"
-                                        value={newHoliday.holiday_name}
-                                        onChange={(e) => setNewHoliday({ ...newHoliday, holiday_name: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-600 mb-1">
-                                        Select Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-500 outline-none"
-                                        value={newHoliday.holiday_date}
-                                        onChange={(e) => setNewHoliday({ ...newHoliday, holiday_date: e.target.value })}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold text-xs transition-colors flex items-center justify-center gap-2"
-                                >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Save Record'}
-                                </button>
-                            </form>
                         </div>
-                    </div>
+                    )}
 
                     {/* Data Table */}
-                    <div className="md:col-span-2">
+                    <div className={canEditHoliday ? "md:col-span-2" : "col-span-1"}>
                         <div className="bg-white border border-gray-200 rounded shadow-sm overflow-hidden h-full flex flex-col">
                             <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
                                 <h2 className="text-sm font-bold text-gray-700">
@@ -252,7 +274,9 @@ const HolidayListPage = () => {
                                         <tr className="bg-gray-100 border-b border-gray-200">
                                             <th className="px-4 py-3 font-bold text-gray-600 text-xs uppercase">Date</th>
                                             <th className="px-4 py-3 font-bold text-gray-600 text-xs uppercase">Name</th>
-                                            <th className="px-4 py-3 font-bold text-gray-600 text-xs uppercase text-right">Action</th>
+                                            {canEditHoliday && (
+                                                <th className="px-4 py-3 font-bold text-gray-600 text-xs uppercase text-right">Action</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
@@ -282,15 +306,17 @@ const HolidayListPage = () => {
                                                     <td className="px-4 py-3 font-medium text-gray-700">
                                                         {holiday.holiday_name}
                                                     </td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        <button
-                                                            onClick={() => handleDeleteHoliday(holiday)}
-                                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
-                                                            title="Delete"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </td>
+                                                    {canEditHoliday && (
+                                                        <td className="px-4 py-3 text-right">
+                                                            <button
+                                                                onClick={() => handleDeleteHoliday(holiday)}
+                                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                                                                title="Delete"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         )}

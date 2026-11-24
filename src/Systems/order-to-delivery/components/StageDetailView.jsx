@@ -31,6 +31,7 @@ import { StageUpdateModal } from './StageUpdateModal';
 import { CustomerPhoneDisplay } from '../utils/privacy';
 import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
 import { getStagePlannedTime, getStageActualTime, formatPlanned, formatDelay } from '../utils/stageTiming';
+import { canModify, isApexAdmin } from '../utils/userAuthService';
 
 export const StageDetailView = ({
   orders = [],
@@ -45,6 +46,9 @@ export const StageDetailView = ({
 }) => {
   const currentStage = STAGES.find(s => s.id === selectedStageId) || STAGES[0];
   const currentStageIndex = STAGES.findIndex(s => s.id === selectedStageId);
+
+  // Check if current user has modify permission for this stage
+  const canEditStage = isApexAdmin(currentUser) || canModify(currentUser, selectedStageId);
 
   // Stage TAT master (used to compute the Planned date)
   const [tatConfig, setTatConfig] = useState(() => getCachedMasters("tat") || []);
@@ -197,19 +201,25 @@ export const StageDetailView = ({
                           {/* 1ST COLUMN: ALL ACTION BUTTONS IN ONE ROW */}
                           <td className="py-2.5 px-3 bg-white border-r border-[#DECDB8] align-middle whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
-                              {/* Update Button */}
-                              <button
-                                onClick={() => handleOpenUpdateModal(order)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#7A1E3C] hover:from-[#431021] hover:to-[#5B172E] shadow-2xs transition-all active:scale-98 shrink-0"
-                                title="Update Stage Parameters"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span>Update</span>
-                              </button>
+                              {/* Update Button (Guarded by modify permission) */}
+                              {canEditStage ? (
+                                <button
+                                  onClick={() => handleOpenUpdateModal(order)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] to-[#7A1E3C] hover:from-[#431021] hover:to-[#5B172E] shadow-2xs transition-all active:scale-98 shrink-0"
+                                  title="Update Stage Parameters"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                  <span>Update</span>
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200">
+                                  <span>View Only</span>
+                                </span>
+                              )}
 
                               {/* View Button (Eye Icon Only, No Text) */}
                               <button
-                                onClick={() => onViewOrderDetails(order, false)}
+                                onClick={() => onViewOrderDetails(order, !canEditStage)}
                                 className="p-1.5 rounded-lg text-stone-600 hover:text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] shadow-2xs transition-all shrink-0 flex items-center justify-center"
                                 title="View Order Details"
                               >

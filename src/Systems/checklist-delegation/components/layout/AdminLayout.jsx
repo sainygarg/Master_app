@@ -8,6 +8,7 @@ import { CheckSquare, ClipboardList, Database, Zap, Settings, CalendarCheck, Cal
 
 import { useChecklistDelegationPendingCounts } from '../../hooks/usePendingCounts';
 import { SystemNavGroup, OtherSystemGroup } from '../../../../core/layout/SystemNavGroup';
+import { canUserAccessChecklistPage, isApexAdmin } from '../../../order-to-delivery/utils/userAuthService';
 
 export default function AdminLayout({ children, darkMode, toggleDarkMode, showLayout = true }) {
   const location = useLocation();
@@ -42,84 +43,27 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     setUserEmail(storedEmail);
     setIsSuperAdmin(storedUsername.toLowerCase() === "admin");
 
-    // Centralized Security Guard for User Role
+    // Centralized RBAC Security Guard: Check Master Hub permissions
     const path = location.pathname;
-    const restrictedPages = [
-      "/checklist/assign-task",
-      "/checklist/admin-approval",
-      "/checklist/checklist",
-      "/checklist/maintenance",
-      "/checklist/repair",
-      "/checklist/ea-task",
-      "/checklist/quick-task",
-      "/checklist/holiday-list",
-      "/checklist/working-day-calendar",
-      "/checklist/setting"
-    ];
-
-    const storedRoleLower = (storedRole || "user").toLowerCase();
-    const canSelfAssign = localStorage.getItem("can_self_assign") === "true";
-
-    
-
-    // Case 1: USER role
-    if (storedRoleLower === "user") {
-      if (canSelfAssign) {
-        // Authorized users can access a subset of pages
-        const userAllowedPages = [
-          "/checklist/admin",
-          "/checklist/notifications",
-          "/checklist/assign-task",
-          "/checklist/checklist",
-          "/checklist/delegation",
-          "/checklist/task",
-          "/checklist/calendar",
-          "/checklist/training-video"
-        ];
-        const isAllowed = userAllowedPages.some(p => path.startsWith(p));
-        console.log(`ðŸ” User Allowed Check: Path "${path}" matches allowed list: ${isAllowed}`);
-
-        if (!isAllowed) {
-          console.warn("ðŸš« Security: User with SelfAssign redirected from unauthorized page:", path);
-          navigate("/checklist/admin");
-          return;
-        }
-      } else {
-        // Non-authorized users are blocked from restricted pages
-        const isRestricted = restrictedPages.some(p => path.startsWith(p));
-        console.log(`ðŸ” User Restricted Check: Path "${path}" is restricted: ${isRestricted}`);
-
-        if (isRestricted) {
-          console.warn("ðŸš« Security: User WITHOUT SelfAssign redirected from restricted page:", path);
-          navigate("/checklist/admin");
-          return;
-        }
-      }
+    let masterUser = null;
+    try {
+      masterUser = JSON.parse(localStorage.getItem('sainy_couture_auth_user_v3') || 'null');
+    } catch {
+      masterUser = null;
     }
 
-    if (storedRoleLower === "hod") {
-      const designation = (localStorage.getItem("designation") || "").toLowerCase();
-      const isMachineOperator = designation.includes("machin") || designation.includes("operat") || designation.includes("oprat");
-
-      const hodRestrictedPages = [
-        "/checklist/maintenance",
-        "/checklist/ea-task",
-        "/checklist/quick-task",
-        "/checklist/holiday-list",
-        "/checklist/working-day-calendar",
-        "/checklist/setting"
-      ];
-
-      if (!isMachineOperator) {
-        hodRestrictedPages.push("/checklist/repair");
-      }
-
-      if (hodRestrictedPages.some(p => path.startsWith(p))) {
-        navigate("/checklist/admin");
+    if (masterUser && !isApexAdmin(masterUser)) {
+      const PERMISSION_ALIASES = {
+        '/checklist/checklist': '/checklist/assign-task',
+        '/checklist/assign-delegation': '/checklist/assign-task',
+        '/checklist/bulk-import': '/checklist/assign-task',
+      };
+      const permissionPath = PERMISSION_ALIASES[path] || path;
+      if (!canUserAccessChecklistPage(masterUser, permissionPath)) {
+        navigate('/checklist/admin');
         return;
       }
     }
-
     // Initial load from localStorage
     const cachedImage = localStorage.getItem("profile_image");
     setProfileImage(cachedImage || "");
@@ -307,8 +251,34 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
     return [];
   };
 
-  // Filter routes based on user role and super admin status
+  // Filter routes based on user role and granular Master Hub permissions
   const getAccessibleRoutes = () => {
+    let masterUser = null;
+    try {
+      masterUser = JSON.parse(localStorage.getItem('sainy_couture_auth_user_v3') || 'null');
+    } catch {
+      masterUser = null;
+    }
+
+    if (masterUser) {
+      if (isApexAdmin(masterUser)) return routes;
+      return routes
+        .map(route => {
+          if (route.subItems) {
+            const allowedSubItems = route.subItems.filter(sub => canUserAccessChecklistPage(masterUser, sub.href));
+            return { ...route, subItems: allowedSubItems };
+          }
+          return route;
+        })
+        .filter(route => {
+          if (route.isSubmenu) return route.subItems && route.subItems.length > 0;
+          if (route.href) {
+            return canUserAccessChecklistPage(masterUser, route.href);
+          }
+          return true;
+        });
+    }
+
     const userRole = localStorage.getItem("role") || "user";
     const username = localStorage.getItem("user-name");
 

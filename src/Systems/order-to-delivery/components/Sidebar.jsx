@@ -89,10 +89,10 @@ export const Sidebar = ({
         <div className="flex flex-col items-center space-y-4">
           <button
             onClick={onToggleSidebar}
-            className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm shadow-xs border-2 border-[#C5A059]/40 hover:scale-105 transition-transform"
+            className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm shadow-xs border-2 border-[#C5A059]/40 hover:scale-105 transition-transform overflow-hidden"
             title="Click to Expand Sidebar"
           >
-            SG
+            <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </button>
 
           <button
@@ -243,15 +243,12 @@ export const Sidebar = ({
           <div className="p-4 bg-white border-b border-[#E8DFD3] flex items-center justify-between shrink-0">
             <div
               onClick={() => {
-                if (canAccessDashboard) handleViewClick('dashboard');
-                else if (canAccessOrders) handleViewClick('orders');
-                else if (permittedStages.length > 0) handleStageClick(permittedStages[0].id);
+                navigate('/dashboard');
               }}
               className="flex items-center space-x-3 cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-full bg-[#5B172E] text-[#FAF6F0] flex items-center justify-center shadow-xs border-2 border-[#C5A059]/40 shrink-0">
-                <span className="font-serif font-bold text-base tracking-wider">SG</span>
-                <img src="Logo.jpeg" alt="" />
+              <div className="w-10 h-10 rounded-full bg-[#5B172E] text-[#FAF6F0] flex items-center justify-center shadow-xs border-2 border-[#C5A059]/40 shrink-0 overflow-hidden">
+                <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               </div>
               <div>
                 <h1 className="font-serif text-lg font-bold tracking-wider text-[#431021] uppercase leading-none">

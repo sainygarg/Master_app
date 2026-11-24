@@ -337,12 +337,12 @@ export default function MasterShell({ children }) {
             isCollapsed ? 'h-16 justify-center px-2' : 'h-16 justify-between px-4'
           }`}>
             <button
-              onClick={() => { handleNavigate('/order-to-delivery/dashboard'); setOrderFlowOpen(true); setChecklistOpen(false); }}
+              onClick={() => { handleNavigate('/dashboard'); setOrderFlowOpen(false); setChecklistOpen(false); }}
               className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer"
-              title="Sainy Couture Atelier"
+              title="Sainy Couture Atelier - Executive Dashboard"
             >
-              <div className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0 hover:scale-105 transition-transform">
-                SG
+              <div className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0 hover:scale-105 transition-transform overflow-hidden">
+                <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col min-w-0">
@@ -741,7 +741,7 @@ export default function MasterShell({ children }) {
                       </div>
                       {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-amber-500 text-white'
+                          isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
                         }`}>
                           {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
                         </span>
@@ -859,8 +859,8 @@ export default function MasterShell({ children }) {
           <div className="fixed inset-y-0 left-0 w-72 bg-[#FAF6F0] border-r border-[#E8DFD3] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-200 z-50">
             <div className="flex h-16 items-center justify-between border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs">
-                  SG
+                <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs overflow-hidden">
+                  <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 </div>
                 <div>
                   <h2 className="font-serif font-bold text-sm text-[#431021] leading-tight">Sainy Couture</h2>
@@ -1089,7 +1089,7 @@ export default function MasterShell({ children }) {
                         <span>Design Sheet</span>
                       </div>
                       {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-amber-500 text-white">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
                           {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
                         </span>
                       )}

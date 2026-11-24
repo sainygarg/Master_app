@@ -23,7 +23,7 @@ import { STAGES } from '../types/stages';
 import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userAuthService';
 
 // Order to Delivery sub pages (stage access is separate, per stage)
-const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders');
+const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders' || p.id === 'design-sheet');
 
 // One selectable permission row with 3-way segmented control: None | View | Modify
 const SegmentedPermissionRow = ({ label, value = 'none', onChange, disabled = false }) => {

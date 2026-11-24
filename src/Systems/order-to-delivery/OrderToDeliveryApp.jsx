@@ -126,11 +126,12 @@ export function App() {
     const allowed = {
       dashboard: canUserAccessPage(currentUser, 'dashboard'),
       orders: canUserAccessPage(currentUser, 'orders'),
+      'design-sheet': canUserAccessPage(currentUser, 'orders'),
       stages: STAGES.some((s) => canUserAccessStage(currentUser, s.id)),
       settings: canUserAccessPage(currentUser, 'settings')
     };
     if (allowed[currentView]) return;
-    const next = ['orders', 'dashboard', 'stages', 'settings'].find((v) => allowed[v]);
+    const next = ['orders', 'dashboard', 'design-sheet', 'stages', 'settings'].find((v) => allowed[v]);
     if (next) setCurrentView(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser, currentView]);
@@ -361,6 +362,12 @@ export function App() {
     const currentOrder = orders.find((o) => o.id === orderId);
     if (!currentOrder) return;
 
+    // MANDATORY GUARD: Order cannot move forward to next stage without successful fillup of Design Sheet
+    if (!currentOrder.designSheet || currentOrder.designSheet.status !== 'Completed') {
+      showToast(`Cannot advance order ${orderId}: Design Sheet must be completed and submitted first.`, 'error');
+      return;
+    }
+
     const currentIndex = currentOrder.currentStageIndex;
     if (currentIndex >= STAGES.length - 1) {
       showToast(`Order ${orderId} is in final delivery stage.`, 'info');
@@ -582,6 +589,10 @@ export function App() {
               onOpenNewOrder={() => setIsOrderFormOpen(true)}
               onViewOrderDetails={(order) => setSelectedOrderForDetails(order)}
               onOpenMeasurements={(order) => setSelectedOrderForMeasurements(order)}
+              onOpenDesignSheet={(order) => {
+                setSelectedOrderForDetails(order);
+                setCurrentView('design-sheet');
+              }}
               onSelectStage={(stageId) => {
                 if (canUserAccessStage(currentUser, stageId)) {
                   setSelectedStageId(stageId);
@@ -597,11 +608,12 @@ export function App() {
           {/* 2.5 Design Sheet Page (Workshop Job Card between All Orders and Material Check) */}
           {currentView === 'design-sheet' && canUserAccessPage(currentUser, 'orders') && (
             <DesignSheetView
-              order={selectedOrderForDetails || filteredOrders[0]}
+              order={selectedOrderForDetails}
               orders={filteredOrders}
               currentUser={currentUser}
               onSelectOrder={(ord) => setSelectedOrderForDetails(ord)}
               onSaveDesignSheet={handleSaveDesignSheet}
+              onViewOrderDetails={(ord) => setSelectedOrderForDetails(ord)}
               onBack={() => setCurrentView('orders')}
             />
           )}

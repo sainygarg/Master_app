@@ -5,6 +5,7 @@ const TABLE = 'users';
 export const ALL_PAGE_IDS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'orders', label: 'Orders' },
+  { id: 'design-sheet', label: 'Design Sheet' },
   { id: 'stages', label: 'Production Stages' },
   { id: 'pc', label: 'PC (Production Control)' },
   { id: 'settings', label: 'Settings' }

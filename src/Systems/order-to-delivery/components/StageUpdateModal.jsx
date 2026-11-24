@@ -68,8 +68,14 @@ export const StageUpdateModal = ({
     onClose();
   };
 
+  const hasCompletedDesignSheet = order?.designSheet?.status === 'Completed';
+
   const handleAdvance = (e) => {
     e.preventDefault();
+    if (!hasCompletedDesignSheet) {
+      alert(`Cannot advance order ${order.id}: The Design Sheet must be completed and submitted first.`);
+      return;
+    }
     onSaveAndAdvance(order.id, stageId, formData);
     onClose();
   };
@@ -246,8 +252,18 @@ export const StageUpdateModal = ({
               <button
                 type="button"
                 onClick={handleAdvance}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-xs hover:shadow transition-all"
-                title={nextStage ? `Save and move to Stage ${nextStageIndex + 1}: ${nextStage.name}` : 'Finalize Delivery'}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all ${
+                  hasCompletedDesignSheet
+                    ? 'bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-xs hover:shadow cursor-pointer'
+                    : 'bg-stone-400 opacity-70 cursor-not-allowed'
+                }`}
+                title={
+                  !hasCompletedDesignSheet
+                    ? 'Design Sheet is required before advancing'
+                    : nextStage
+                    ? `Save and move to Stage ${nextStageIndex + 1}: ${nextStage.name}`
+                    : 'Finalize Delivery'
+                }
               >
                 <span>Save & Advance</span>
                 <ArrowRight className="w-3.5 h-3.5" />

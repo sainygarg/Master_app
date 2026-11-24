@@ -336,7 +336,7 @@ export const UserManagementView = ({
             </span>
           </div>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Manage Users, Vendors, Customers, Departments, Stage TAT, Transporters, and Karigars master directories.
+            Manage Users, Vendors, Customers, Departments, Stage TAT, and Karigars master directories.
           </p>
         </div>
 
@@ -411,18 +411,20 @@ export const UserManagementView = ({
           <span>Stage TAT ({tatConfig.length})</span>
         </button>
 
-        {/* 6. Transporters */}
-        <button
-          onClick={() => { setActiveTab('transporters'); setSearchTerm(''); }}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
-            activeTab === 'transporters'
-              ? 'bg-[#5B172E] text-white shadow-xs'
-              : 'bg-white text-stone-600 hover:text-stone-900 border border-[#DECDB8]'
-          }`}
-        >
-          <Truck className="w-4 h-4" />
-          <span>Transporters ({transporters.length})</span>
-        </button>
+        {/* 6. Transporters (Hidden as requested; code preserved) */}
+        {false && (
+          <button
+            onClick={() => { setActiveTab('transporters'); setSearchTerm(''); }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+              activeTab === 'transporters'
+                ? 'bg-[#5B172E] text-white shadow-xs'
+                : 'bg-white text-stone-600 hover:text-stone-900 border border-[#DECDB8]'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            <span>Transporters ({transporters.length})</span>
+          </button>
+        )}
 
         {/* 7. Karigars */}
         <button

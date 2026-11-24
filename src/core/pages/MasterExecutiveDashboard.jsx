@@ -83,19 +83,27 @@ export default function MasterExecutiveDashboard() {
     loadDashboardData();
   }, [user]);
 
-  // Operational Calculations (Strictly using existing data)
-  const currentUsername = (user?.username || user?.name || '').toLowerCase();
+  // Operational Calculations (Strictly personalized: each user sees only their OWN score and tasks)
+  const currentUsername = (user?.username || '').toLowerCase().trim();
+  const currentDisplayName = (user?.name || '').toLowerCase().trim();
 
-  // 1. Checklist Metrics (for Current User or All if Admin)
+  // Helper to test if a task belongs to the currently logged in user
+  const isUserTask = (t) => {
+    const assigned = (t.name || t.assigned_person || t.user_name || '').toLowerCase().trim();
+    if (!assigned) return false;
+    return (
+      (currentUsername && assigned === currentUsername) ||
+      (currentDisplayName && assigned === currentDisplayName) ||
+      (currentDisplayName && assigned.includes(currentDisplayName)) ||
+      (currentUsername && assigned.includes(currentUsername))
+    );
+  };
+
+  // 1. Checklist Metrics (Strictly for Current User's Own Tasks)
   const userChecklists = useMemo(() => {
     if (!checklistTasks.length) return [];
-    if (user?.role?.toLowerCase() === 'admin' || user?.isAdmin) {
-      return checklistTasks;
-    }
-    return checklistTasks.filter(
-      (t) => (t.name || t.assigned_person || '').toLowerCase() === currentUsername
-    );
-  }, [checklistTasks, user, currentUsername]);
+    return checklistTasks.filter(isUserTask);
+  }, [checklistTasks, currentUsername, currentDisplayName]);
 
   const checklistDoneCount = useMemo(() => {
     return userChecklists.filter((t) => {
@@ -110,16 +118,11 @@ export default function MasterExecutiveDashboard() {
     ? Math.round((checklistDoneCount / checklistTotalCount) * 100)
     : 0;
 
-  // 2. Delegation Metrics
+  // 2. Delegation Metrics (Strictly for Current User's Own Delegations)
   const userDelegations = useMemo(() => {
     if (!delegationTasks.length) return [];
-    if (user?.role?.toLowerCase() === 'admin' || user?.isAdmin) {
-      return delegationTasks;
-    }
-    return delegationTasks.filter(
-      (t) => (t.name || t.assigned_person || '').toLowerCase() === currentUsername
-    );
-  }, [delegationTasks, user, currentUsername]);
+    return delegationTasks.filter(isUserTask);
+  }, [delegationTasks, currentUsername, currentDisplayName]);
 
   const delegationDoneCount = useMemo(() => {
     return userDelegations.filter((t) => {
@@ -134,14 +137,29 @@ export default function MasterExecutiveDashboard() {
     ? Math.round((delegationDoneCount / delegationTotalCount) * 100)
     : 0;
 
-  // 3. Order to Delivery (OTD) Pipeline Metrics
+  // 3. Order to Delivery (OTD) Pipeline Metrics (Scoped to user's orders unless company-wide master admin)
+  const userOrders = useMemo(() => {
+    if (!orders.length) return [];
+    if (user?.canAccessAllOrders || user?.isAdmin || (user?.role || '').toLowerCase() === 'admin') {
+      return orders;
+    }
+    return orders.filter((o) => {
+      const actor = (o.actor || o.createdBy || o.userId || '').toLowerCase().trim();
+      return (
+        actor === currentUsername ||
+        actor === currentDisplayName ||
+        actor.includes(currentUsername)
+      );
+    });
+  }, [orders, user, currentUsername, currentDisplayName]);
+
   const activeOrders = useMemo(() => {
-    return orders.filter((o) => (o.currentStageIndex ?? 0) < 9);
-  }, [orders]);
+    return userOrders.filter((o) => (o.currentStageIndex ?? 0) < 9);
+  }, [userOrders]);
 
   const deliveredOrders = useMemo(() => {
-    return orders.filter((o) => (o.currentStageIndex ?? 0) >= 9);
-  }, [orders]);
+    return userOrders.filter((o) => (o.currentStageIndex ?? 0) >= 9);
+  }, [userOrders]);
 
   const urgentOrders = useMemo(() => {
     const now = new Date();

@@ -114,8 +114,8 @@ export const Sidebar = ({
               <button
                 onClick={() => handleViewClick('dashboard')}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${currentView === 'dashboard'
-                    ? 'bg-[#5B172E] text-white shadow-xs'
-                    : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  ? 'bg-[#5B172E] text-white shadow-xs'
+                  : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                   }`}
                 title="Dashboard (Production Tracking)"
               >
@@ -135,8 +135,8 @@ export const Sidebar = ({
               <button
                 onClick={() => handleViewClick('orders')}
                 className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${currentView === 'orders'
-                    ? 'bg-[#5B172E] text-white shadow-xs'
-                    : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  ? 'bg-[#5B172E] text-white shadow-xs'
+                  : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                   }`}
                 title="Orders (All Stages)"
               >
@@ -159,14 +159,14 @@ export const Sidebar = ({
             const count = stageOrders.length;
             const isSelected = currentView === 'stages' && selectedStageId === stage.id;
             const Icon = stageIcons[stage.id] || Sparkles;
-            
+
             return (
               <div key={stage.id} className="relative group">
                 <button
                   onClick={() => handleStageClick(stage.id)}
                   className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${isSelected
-                      ? 'bg-[#5B172E] text-white shadow-xs'
-                      : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    ? 'bg-[#5B172E] text-white shadow-xs'
+                    : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                     }`}
                   title={`Stage ${originalIndex}: ${stage.name}`}
                 >
@@ -189,8 +189,8 @@ export const Sidebar = ({
             <button
               onClick={() => handleViewClick('settings')}
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${currentView === 'settings'
-                  ? 'bg-[#5B172E] text-white shadow-xs'
-                  : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                ? 'bg-[#5B172E] text-white shadow-xs'
+                : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                 }`}
               title="Master Hub"
             >
@@ -251,6 +251,7 @@ export const Sidebar = ({
             >
               <div className="w-10 h-10 rounded-full bg-[#5B172E] text-[#FAF6F0] flex items-center justify-center shadow-xs border-2 border-[#C5A059]/40 shrink-0">
                 <span className="font-serif font-bold text-base tracking-wider">SG</span>
+                <img src="Logo.jpeg" alt="" />
               </div>
               <div>
                 <h1 className="font-serif text-lg font-bold tracking-wider text-[#431021] uppercase leading-none">
@@ -281,8 +282,8 @@ export const Sidebar = ({
                   <button
                     onClick={() => handleViewClick('dashboard')}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${currentView === 'dashboard'
-                        ? 'bg-[#5B172E] text-white shadow-xs font-bold'
-                        : 'text-stone-700 hover:bg-white hover:text-[#5B172E]'
+                      ? 'bg-[#5B172E] text-white shadow-xs font-bold'
+                      : 'text-stone-700 hover:bg-white hover:text-[#5B172E]'
                       }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -301,8 +302,8 @@ export const Sidebar = ({
                   <button
                     onClick={() => handleViewClick('orders')}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all border ${currentView === 'orders'
-                        ? 'bg-[#5B172E] text-white border-[#5B172E] shadow-xs font-bold'
-                        : 'bg-white text-stone-800 border-[#DECDB8] hover:border-[#9B783E]'
+                      ? 'bg-[#5B172E] text-white border-[#5B172E] shadow-xs font-bold'
+                      : 'bg-white text-stone-800 border-[#DECDB8] hover:border-[#9B783E]'
                       }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -341,8 +342,8 @@ export const Sidebar = ({
                           key={stage.id}
                           onClick={() => handleStageClick(stage.id)}
                           className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all text-left group ${isSelected
-                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                              : 'text-stone-700 hover:bg-white hover:text-[#5B172E]'
+                            ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                            : 'text-stone-700 hover:bg-white hover:text-[#5B172E]'
                             }`}
                           title={stage.name}
                         >
@@ -381,8 +382,8 @@ export const Sidebar = ({
               <button
                 onClick={() => handleViewClick('settings')}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${currentView === 'settings'
-                    ? 'bg-[#5B172E] text-white shadow-xs font-bold'
-                    : 'text-stone-700 hover:bg-[#FAF8F5] hover:text-[#5B172E]'
+                  ? 'bg-[#5B172E] text-white shadow-xs font-bold'
+                  : 'text-stone-700 hover:bg-[#FAF8F5] hover:text-[#5B172E]'
                   }`}
               >
                 <div className="flex items-center gap-2.5">

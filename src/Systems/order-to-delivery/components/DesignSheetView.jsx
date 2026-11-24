@@ -228,11 +228,10 @@ export const DesignSheetView = ({
           <button
             type="button"
             onClick={() => setTab('pending')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              tab === 'pending'
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${tab === 'pending'
                 ? 'bg-[#5B172E] text-white shadow-xs'
                 : 'bg-white text-stone-600 hover:text-stone-900 border border-[#DECDB8]'
-            }`}
+              }`}
           >
             <Hourglass className="w-4 h-4" />
             <span>Pending Orders ({pendingOrders.length})</span>
@@ -241,11 +240,10 @@ export const DesignSheetView = ({
           <button
             type="button"
             onClick={() => setTab('history')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              tab === 'history'
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${tab === 'history'
                 ? 'bg-[#5B172E] text-white shadow-xs'
                 : 'bg-white text-stone-600 hover:text-stone-900 border border-[#DECDB8]'
-            }`}
+              }`}
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>History ({completedOrders.length})</span>
@@ -396,13 +394,12 @@ export const DesignSheetView = ({
                         </div>
                         {daysToDelivery !== null && (
                           <span
-                            className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                              daysToDelivery <= 3
+                            className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[10px] font-bold ${daysToDelivery <= 3
                                 ? 'bg-rose-100 text-rose-700'
                                 : daysToDelivery <= 7
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-emerald-100 text-emerald-700'
-                            }`}
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-emerald-100 text-emerald-700'
+                              }`}
                           >
                             {daysToDelivery > 0 ? `${daysToDelivery} days left` : 'Due'}
                           </span>
@@ -503,13 +500,12 @@ export const DesignSheetView = ({
 
                   {daysToDelivery !== null && (
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold shrink-0 ${
-                        daysToDelivery <= 3
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold shrink-0 ${daysToDelivery <= 3
                           ? 'bg-rose-100 text-rose-700'
                           : daysToDelivery <= 7
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-emerald-100 text-emerald-700'
-                      }`}
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        }`}
                     >
                       {daysToDelivery > 0 ? `${daysToDelivery}d left` : 'Due'}
                     </span>
@@ -718,7 +714,7 @@ export const DesignSheetView = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Fusing — Konsa Fusing Rahega?</label>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">Fusing</label>
                     <input
                       type="text"
                       value={formData.fusingType}

@@ -18,8 +18,10 @@ import {
 import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
 import { uploadOrderImage } from '../utils/imageUpload';
 import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
+import { useToastAlert } from '../../../core/context/ToastAlertContext';
 
 export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) => {
+  const { showToast } = useToastAlert();
   if (!isOpen) return null;
 
   // Helper to compute consecutive IDs: e.g. SG-1008, SG-1009, SG-1010
@@ -264,14 +266,26 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
     // Validate every item
     const newErrors = {};
     let hasError = false;
+    const missingFieldsSet = new Set();
 
     items.forEach((item, idx) => {
       const itemErrs = {};
-      if (!item.clientName?.trim()) itemErrs.clientName = 'Client name is required';
-      if (!item.mobile?.trim()) itemErrs.mobile = 'Mobile number is required';
-      if (!item.designName?.trim()) itemErrs.designName = 'Design name is required';
-      if (!item.deliveryDate) itemErrs.deliveryDate = 'Delivery date is required';
-      if (!item.trialDate) itemErrs.trialDate = 'Trial date is required';
+      if (!item.clientName?.trim()) {
+        itemErrs.clientName = 'Client name is required';
+        missingFieldsSet.add('Client Name');
+      }
+      if (!item.mobile?.trim()) {
+        itemErrs.mobile = 'Mobile number is required';
+        missingFieldsSet.add('Mobile Number');
+      }
+      if (!item.designName?.trim()) {
+        itemErrs.designName = 'Design name is required';
+        missingFieldsSet.add('Design Name');
+      }
+      if (!item.deliveryDate) {
+        itemErrs.deliveryDate = 'Delivery date is required';
+        missingFieldsSet.add('Date of Delivery');
+      }
 
       if (Object.keys(itemErrs).length > 0) {
         newErrors[item.uid] = itemErrs;
@@ -281,6 +295,8 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
 
     if (hasError) {
       setErrors(newErrors);
+      const missingList = Array.from(missingFieldsSet).join(', ');
+      showToast(`Please fill in all required fields: ${missingList}`, 'error');
       return;
     }
 
@@ -654,7 +670,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                     {/* Date Of Trial */}
                     <div>
                       <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        8. Date Of Trial <span className="text-rose-500">*</span>
+                        8. Date Of Trial <span className="text-stone-400 font-normal">(Optional)</span>
                       </label>
                       <input
                         type="date"

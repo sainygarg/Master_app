@@ -101,7 +101,7 @@ export function ToastAlertProvider({ children }) {
       {/* Floating Modern Toast Stack Container */}
       <div 
         aria-live="polite"
-        className="fixed bottom-6 right-6 z-[999999] flex flex-col gap-3 pointer-events-none max-w-sm w-full select-none"
+        className="fixed top-6 right-6 z-[999999] flex flex-col gap-3 pointer-events-none max-w-sm w-full select-none"
       >
         {toasts.map((toast) => (
           <ToastCard 

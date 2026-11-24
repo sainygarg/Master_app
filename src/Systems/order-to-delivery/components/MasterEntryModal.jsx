@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchDepartmentNames } from '../../../core/services/departmentService';
+import supabase from '../../../core/config/supabaseClient';
 
 export const MasterEntryModal = ({
   isOpen,
@@ -39,6 +40,7 @@ export const MasterEntryModal = ({
   const [errors, setErrors] = useState({});
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [imageUploadMode, setImageUploadMode] = useState('upload'); // 'upload' | 'url'
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
   // Department choices come from the database (Master Hub departments)
@@ -621,24 +623,41 @@ export const MasterEntryModal = ({
                         ref={fileInputRef}
                         accept="image/png,image/jpeg,image/jpg,image/webp"
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              handleChange('imageUrl', event.target.result);
-                            };
-                            reader.readAsDataURL(file);
+                            try {
+                              setIsUploadingImage(true);
+                              const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                              const { error: upErr } = await supabase.storage.from('designs').upload(cleanName, file, {
+                                contentType: file.type || 'image/jpeg',
+                                upsert: true
+                              });
+                              if (upErr) throw upErr;
+                              const { data: pubData } = supabase.storage.from('designs').getPublicUrl(cleanName);
+                              handleChange('imageUrl', pubData.publicUrl);
+                            } catch (err) {
+                              console.error('Failed uploading to Supabase bucket:', err);
+                              // Fallback to data URL if network/storage error
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                handleChange('imageUrl', event.target.result);
+                              };
+                              reader.readAsDataURL(file);
+                            } finally {
+                              setIsUploadingImage(false);
+                            }
                           }
                         }}
                       />
                       <button
                         type="button"
+                        disabled={isUploadingImage}
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#DECDB8] hover:border-[#5B172E] rounded-xl bg-[#FAF8F5] text-stone-600 hover:text-[#5B172E] transition-all text-xs font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#DECDB8] hover:border-[#5B172E] rounded-xl bg-[#FAF8F5] text-stone-600 hover:text-[#5B172E] transition-all text-xs font-semibold disabled:opacity-50"
                       >
                         <Upload className="w-4 h-4 text-[#C5A059]" />
-                        <span>Choose photo from local device / FTP storage</span>
+                        <span>{isUploadingImage ? 'Uploading to Supabase Storage...' : 'Upload photo to Supabase designs bucket'}</span>
                       </button>
 
                       {formData.imageUrl && (

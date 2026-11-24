@@ -15,7 +15,8 @@ import {
   Hourglass,
   History as HistoryIcon,
   CheckCircle2,
-  Lock
+  Lock,
+  FileText
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { CustomerPhoneDisplay } from '../utils/privacy';
@@ -192,6 +193,23 @@ export const OrdersView = ({
                             >
                               <Eye className="w-3.5 h-3.5" />
                               <span>Sheet</span>
+                            </button>
+
+                            {/* Design Sheet Status / Action Button */}
+                            <button
+                              onClick={() => {
+                                onViewOrderDetails(order);
+                                window.location.href = '#/order-to-delivery/design-sheet';
+                              }}
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold border transition-all ${
+                                order.designSheet?.status === 'Completed'
+                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                                  : 'text-amber-800 bg-amber-50 border-amber-200 hover:bg-amber-100'
+                              }`}
+                              title={order.designSheet?.status === 'Completed' ? 'Design Sheet Completed (Click to view)' : 'Fill Design Sheet'}
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>{order.designSheet?.status === 'Completed' ? 'DS Done' : 'Fill DS'}</span>
                             </button>
 
                             {/* Measurements Button */}

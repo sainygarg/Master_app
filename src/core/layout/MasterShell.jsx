@@ -34,7 +34,8 @@ import {
   Ruler,
   Package,
   Truck,
-  Layers
+  Layers,
+  FileText
 } from 'lucide-react';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
 import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userAuthService';
@@ -721,6 +722,33 @@ export default function MasterShell({ children }) {
                     </button>
 )}
 
+                    {/* 2.5 Design Sheet */}
+{canOrders && (
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
+                        isOrderFlow && currentViewParam === 'design-sheet'
+                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                          <FileText className="w-3 h-3 shrink-0" />
+                        </div>
+                        <span className="truncate text-[11px] font-medium">Design Sheet</span>
+                      </div>
+                      {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                          isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-amber-500 text-white'
+                        }`}>
+                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
+                        </span>
+                      )}
+                    </button>
+)}
+
                     {/* 3 to 12. The 10 Stages */}
                     {permittedStages.map((stage) => {
                       const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
@@ -1043,6 +1071,27 @@ export default function MasterShell({ children }) {
                       {orders.length > 0 && (
                         <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-white/20 text-white">
                           {orders.length}
+                        </span>
+                      )}
+                    </button>
+)}
+
+                    {/* 2.5 Design Sheet */}
+{canOrders && (
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
+                        isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Design Sheet</span>
+                      </div>
+                      {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-amber-500 text-white">
+                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
                         </span>
                       )}
                     </button>

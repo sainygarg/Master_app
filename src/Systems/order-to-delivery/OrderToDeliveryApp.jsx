@@ -11,6 +11,7 @@ import { UserFormModal } from './components/UserFormModal';
 import { OrderFormModal } from './components/OrderFormModal';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
 import { MeasurementsModal } from './components/MeasurementsModal';
+import { DesignSheetView } from './components/DesignSheetView';
 import { STAGES, getNextStageIndex } from './types/stages';
 import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId, getCachedOrders, syncOrdersCache } from './utils/storage';
 import {
@@ -22,7 +23,8 @@ import {
   generateNextUserId,
   canUserAccessPage,
   canUserAccessStage,
-  isApexAdmin
+  isApexAdmin,
+  canModify
 } from './utils/userAuthService';
 import { 
   Sparkles, 
@@ -83,10 +85,10 @@ export function App() {
   const [isSidebarHidden, setIsSidebarHidden] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
   // Navigation is driven by the URL path:
-  //   /order-to-delivery/dashboard | /orders | /stages/<stageId> | /settings
+  //   /order-to-delivery/dashboard | /orders | /design-sheet | /stages/<stageId> | /settings
   const location = useLocation();
   const navigate = useNavigate();
-  const VIEWS = ['dashboard', 'orders', 'stages', 'settings'];
+  const VIEWS = ['dashboard', 'orders', 'design-sheet', 'stages', 'settings'];
   const pathSegs = location.pathname.split('/').filter(Boolean); // ['order-to-delivery', view, stageId]
   const currentView = VIEWS.includes(pathSegs[1]) ? pathSegs[1] : 'orders'; // default to Orders page
   const selectedStageId = STAGES.some((s) => s.id === pathSegs[2]) ? pathSegs[2] : STAGES[0].id;
@@ -436,6 +438,23 @@ export function App() {
     showToast(`Measurements updated for ${orderId}.`, 'success');
   };
 
+  const handleSaveDesignSheet = async (orderId, sheetData) => {
+    const target = orders.find((o) => o.id === orderId);
+    if (target) {
+      const updated = {
+        ...target,
+        designSheet: sheetData,
+        updatedAt: new Date().toISOString()
+      };
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      await persistOrder(updated);
+
+      if (selectedOrderForDetails && selectedOrderForDetails.id === orderId) {
+        setSelectedOrderForDetails(updated);
+      }
+    }
+  };
+
   const handleDeleteOrder = async (orderId) => {
     try {
       await removeOrder(orderId);
@@ -572,6 +591,18 @@ export function App() {
                 }
               }}
               onDeleteOrder={handleDeleteOrder}
+            />
+          )}
+
+          {/* 2.5 Design Sheet Page (Workshop Job Card between All Orders and Material Check) */}
+          {currentView === 'design-sheet' && canUserAccessPage(currentUser, 'orders') && (
+            <DesignSheetView
+              order={selectedOrderForDetails || filteredOrders[0]}
+              orders={filteredOrders}
+              currentUser={currentUser}
+              onSelectOrder={(ord) => setSelectedOrderForDetails(ord)}
+              onSaveDesignSheet={handleSaveDesignSheet}
+              onBack={() => setCurrentView('orders')}
             />
           )}
 

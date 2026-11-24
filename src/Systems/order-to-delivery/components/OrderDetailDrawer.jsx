@@ -7,6 +7,7 @@ import {
 import { UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
 import { PrintableJobSheet } from './PrintableJobSheet';
 import { maskCustomerMobile } from '../utils/privacy';
+import { CollapsibleDesignSheetPanel } from './CollapsibleDesignSheetPanel';
 
 export const OrderDetailDrawer = ({
   order,
@@ -90,6 +91,9 @@ export const OrderDetailDrawer = ({
           {activeTab === 'sheet' && (
             <div className="space-y-6">
               
+              {/* Atelier Design Sheet (Collapsible, Disabled / Read-Only) */}
+              <CollapsibleDesignSheetPanel order={order} defaultOpen={false} />
+
               {/* Reference Pictures & Sketch */}
               <div className="bg-white rounded-2xl p-5 border border-[#E8DFD3] shadow-xs">
                 <h3 className="font-serif font-bold text-base text-[#431021] mb-3 flex items-center justify-between border-b pb-2">

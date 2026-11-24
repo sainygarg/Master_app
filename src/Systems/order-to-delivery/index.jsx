@@ -6,7 +6,7 @@ systemRegistry.register({
   id: 'order-to-delivery',
   name: 'Order to Delivery',
   shortName: 'Order Flow',
-  description: '10-Stage Couture Garment Production Pipeline & Client Management',
+  description: 'Couture Garment Production Pipeline & Client Management',
   icon: 'Scissors',
   color: '#5B172E',
   accentColor: '#C5A059',

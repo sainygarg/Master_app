@@ -33,7 +33,7 @@ export const PipelineView = ({
       <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8DFD3] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#431021] flex items-center gap-2">
-            <span>10-Stage Couture Pipeline</span>
+            <span>Couture Production Pipeline</span>
             <span className="text-xs px-2.5 py-1 rounded-full bg-[#FAF5EE] text-[#9B783E] border border-[#E0D2C0] font-sans font-semibold">
               Live Production Tracker
             </span>
@@ -53,7 +53,7 @@ export const PipelineView = ({
                   ? 'bg-[#5B172E] text-white shadow-xs'
                   : 'text-stone-600 hover:text-stone-900'
               }`}
-              title="10-Column Kanban View"
+              title="Kanban View"
             >
               <Kanban className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Columns</span>

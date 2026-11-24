@@ -39,10 +39,20 @@ export const DashboardView = ({
 
   const activeOrders = orders.filter(o => o.currentStageIndex < 9);
   const activeOrdersCount = activeOrders.length;
-  const inEmbroideryCount = orders.filter(o => [0, 1, 2, 3].includes(o.currentStageIndex)).length;
-  const inStitchingCount = orders.filter(o => [4, 5].includes(o.currentStageIndex)).length;
-  const inQcFinishingCount = orders.filter(o => [6, 7].includes(o.currentStageIndex)).length;
-  const inDeliveryCount = orders.filter(o => [8, 9].includes(o.currentStageIndex)).length;
+  const deliveredOrdersCount = orders.filter(o => o.currentStageIndex >= 9).length;
+  const totalOrdersCount = orders.length;
+
+  // Urgent Orders: Active orders whose delivery date is near (within 3 days) or overdue relative to current date
+  const urgentOrders = activeOrders.filter(order => {
+    if (!order.deliveryDate) return false;
+    const delivery = new Date(order.deliveryDate);
+    if (isNaN(delivery.getTime())) return false;
+    const now = new Date();
+    // End of 3 days from now
+    const threshold = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 23, 59, 59, 999);
+    return delivery <= threshold;
+  });
+  const urgentOrdersCount = urgentOrders.length;
 
   // Flatten all historical audit events across all orders
   const allHistoryLogs = [];
@@ -77,7 +87,7 @@ export const DashboardView = ({
             </span>
           </div>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Real-time tracking of all couture garments moving through the 10-stage atelier workflow.
+            Real-time tracking of all couture garments moving through the atelier workflow.
           </p>
         </div>
 
@@ -92,7 +102,7 @@ export const DashboardView = ({
                     ? 'bg-[#5B172E] text-white shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
-                title="10-Column Kanban Tracking Board"
+                title="Kanban Tracking Board"
               >
                 <Kanban className="w-3.5 h-3.5" />
                 <span>Columns</span>
@@ -129,44 +139,36 @@ export const DashboardView = ({
       </div>
 
       {/* KPI Tracking Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Total Active</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Total Orders</span>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-bold font-serif text-[#431021]">{totalOrdersCount}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-semibold">All Time</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">Urgent Orders</span>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-bold font-serif text-rose-700">{urgentOrdersCount}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold">Near Delivery</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">In Production</span>
           <div className="flex items-baseline justify-between mt-1">
             <span className="text-2xl font-bold font-serif text-[#5B172E]">{activeOrdersCount}</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold">In Production</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold">Active</span>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Dye & Embroidery</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Delivered Orders</span>
           <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-serif text-orange-800">{inEmbroideryCount}</span>
-            <span className="text-[10px] text-stone-400 font-medium">Stages 1-4</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Cutting & Tailoring</span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-serif text-indigo-800">{inStitchingCount}</span>
-            <span className="text-[10px] text-stone-400 font-medium">Stages 5-6</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">QC & Finishing</span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-serif text-teal-800">{inQcFinishingCount}</span>
-            <span className="text-[10px] text-stone-400 font-medium">Stages 7-8</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Trial & Delivery</span>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-serif text-emerald-800">{inDeliveryCount}</span>
-            <span className="text-[10px] text-stone-400 font-medium">Stages 9-10</span>
+            <span className="text-2xl font-bold font-serif text-emerald-700">{deliveredOrdersCount}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">Completed</span>
           </div>
         </div>
       </div>

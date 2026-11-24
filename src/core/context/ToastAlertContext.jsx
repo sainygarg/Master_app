@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { 
-  CheckCircle2, 
-  AlertCircle, 
-  AlertTriangle, 
-  Info, 
-  Sparkles, 
+import {
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  Sparkles,
   X,
-  HelpCircle 
+  HelpCircle
 } from 'lucide-react';
 
 const ToastAlertContext = createContext(null);
@@ -42,20 +42,20 @@ export function ToastAlertProvider({ children }) {
   const showToast = useCallback((message, type = 'info', duration = 3500) => {
     const id = Date.now() + Math.random().toString(36).substring(2, 9);
     // Sanitize string if object/error passed
-    const text = typeof message === 'string' 
-      ? message 
+    const text = typeof message === 'string'
+      ? message
       : (message?.message || JSON.stringify(message));
-    
+
     setToasts((prev) => [...prev, { id, message: text, type, duration }]);
     return id;
   }, []);
 
-  const showConfirm = useCallback(({ 
-    title = 'Please Confirm', 
-    message = 'Are you sure you want to proceed?', 
-    confirmText = 'Confirm', 
-    cancelText = 'Cancel', 
-    type = 'warning' 
+  const showConfirm = useCallback(({
+    title = 'Please Confirm',
+    message = 'Are you sure you want to proceed?',
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
+    type = 'warning'
   }) => {
     return new Promise((resolve) => {
       setConfirmDialog({
@@ -99,12 +99,12 @@ export function ToastAlertProvider({ children }) {
       {children}
 
       {/* Floating Modern Toast Stack Container */}
-      <div 
+      <div
         aria-live="polite"
         className="fixed top-6 right-6 z-[999999] flex flex-col gap-3 pointer-events-none max-w-sm w-full select-none"
       >
         {toasts.map((toast) => (
-          <ToastCard 
+          <ToastCard
             key={toast.id}
             {...toast}
             onClose={() => removeToast(toast.id)}
@@ -188,9 +188,8 @@ function ToastCard({ id, message, type, duration, onClose }) {
 
   return (
     <div
-      className={`pointer-events-auto relative flex flex-col rounded-2xl border ${style.border} ${style.containerBg} shadow-xl backdrop-blur-md overflow-hidden transition-all duration-300 transform ${
-        isExiting ? 'opacity-0 translate-x-4 scale-95' : 'opacity-100 translate-x-0 scale-100'
-      }`}
+      className={`pointer-events-auto relative flex flex-col rounded-2xl border ${style.border} ${style.containerBg} shadow-xl backdrop-blur-md overflow-hidden transition-all duration-300 transform ${isExiting ? 'opacity-0 translate-x-4 scale-95' : 'opacity-100 translate-x-0 scale-100'
+        }`}
     >
       <div className="p-4 flex items-start gap-3.5">
         <div className="w-9 h-9 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center justify-center shrink-0 shadow-2xs">
@@ -235,11 +234,10 @@ function ConfirmModalDialog({ dialog }) {
   return (
     <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-[#FAF8F5] border border-[#DECDB8] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
-        
+
         <div className="flex items-start gap-3.5">
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs border ${
-            isDanger ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-amber-50 text-amber-600 border-amber-200'
-          }`}>
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs border ${isDanger ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-amber-50 text-amber-600 border-amber-200'
+            }`}>
             {isDanger ? <AlertCircle className="w-6 h-6" /> : <HelpCircle className="w-6 h-6" />}
           </div>
 
@@ -264,11 +262,10 @@ function ConfirmModalDialog({ dialog }) {
           <button
             type="button"
             onClick={dialog.onConfirm}
-            className={`px-5 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-all ${
-              isDanger 
-                ? 'bg-rose-600 hover:bg-rose-700' 
-                : 'bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E]'
-            }`}
+            className={`px-5 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-all ${isDanger
+              ? 'bg-rose-600 hover:bg-rose-700'
+              : 'bg-gradient-to-r from-[#5B172E] to-[#781F3E] hover:from-[#431021] hover:to-[#5B172E]'
+              }`}
           >
             {dialog.confirmText}
           </button>
@@ -285,7 +282,7 @@ export function useToastAlert() {
     return {
       showToast: showGlobalToast,
       showConfirm: showGlobalConfirm,
-      removeToast: () => {}
+      removeToast: () => { }
     };
   }
   return context;

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { STAGES, getNextStageIndex } from '../types/stages';
 import { maskCustomerMobile } from '../utils/privacy';
+import { CollapsibleDesignSheetPanel } from './CollapsibleDesignSheetPanel';
 
 export const StageUpdateModal = ({
   isOpen,
@@ -130,6 +131,9 @@ export const StageUpdateModal = ({
               ))}
             </dl>
           </div>
+
+          {/* Collapsible Atelier Design Sheet (Disabled / Read-Only, Collapsed by default) */}
+          <CollapsibleDesignSheetPanel order={order} defaultOpen={false} />
 
           {/* Dynamic Stage Input Fields */}
           <div className="bg-white p-5 rounded-xl border border-[#E8DFD3] shadow-xs space-y-4">

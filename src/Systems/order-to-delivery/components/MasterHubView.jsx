@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterDirectoryService';
-import { isApexAdmin, canModify, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
+import { isApexAdmin, canModify, canUserAccessPage, canUserAccessChecklistPage, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
@@ -487,7 +487,7 @@ export const MasterHubView = ({
                   <th className="py-3.5 px-4 min-w-[200px]">User & Name</th>
                   <th className="py-3.5 px-4 min-w-[110px]">Role</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Contact Info</th>
-                  <th className="py-3.5 px-4 min-w-[150px]">Stage Access</th>
+                  <th className="py-3.5 px-4 min-w-[150px]">Page Access</th>
                   <th className="py-3.5 px-4 min-w-[120px]">Account Status</th>
                 </tr>
               </thead>
@@ -601,24 +601,30 @@ export const MasterHubView = ({
                         <span className="text-[10px] text-stone-400 block truncate max-w-[140px]">{user.email}</span>
                       </td>
 
-                      {/* Stage Access */}
+                      {/* Page Access */}
                       <td className="py-3 px-4 align-middle whitespace-nowrap">
                         {isApexAdmin(user) ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 shadow-2xs">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>All Stages</span>
+                            <span>All Pages</span>
                           </span>
-                        ) : (
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border shadow-2xs ${
-                            (user.allowedStages || []).length === 10
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : (user.allowedStages || []).length > 0
-                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                              : 'bg-stone-50 text-stone-500 border-stone-200'
-                          }`}>
-                            <span>{(user.allowedStages || []).length} / {10} Stages</span>
-                          </span>
-                        )}
+                        ) : (() => {
+                          const totalPages = ALL_PAGE_IDS.length + ALL_CHECKLIST_PAGE_IDS.length;
+                          const grantedPages =
+                            ALL_PAGE_IDS.filter((p) => canUserAccessPage(user, p.id)).length +
+                            ALL_CHECKLIST_PAGE_IDS.filter((p) => canUserAccessChecklistPage(user, p.id)).length;
+                          return (
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border shadow-2xs ${
+                              grantedPages === totalPages
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : grantedPages > 0
+                                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                : 'bg-stone-50 text-stone-500 border-stone-200'
+                            }`}>
+                              <span>{grantedPages} / {totalPages} Pages</span>
+                            </span>
+                          );
+                        })()}
                       </td>
 
                       {/* Status & Switch Demo */}

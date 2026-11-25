@@ -58,16 +58,16 @@ export const LoginPage = ({ onLogin }) => {
         {/* Brand Emblem & Logo */}
         <div className="text-center space-y-2">
           <div className="w-20 h-20 mx-auto rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-2xl shadow-md border-2 border-[#C5A059]/40 overflow-hidden">
-            <img 
-              src="/assets/Logo.jpeg" 
-              alt="Sainy Garg" 
-              className="w-full h-full object-cover" 
+            <img
+              src="/Logo.jpeg"
+              alt="Sainy Garg"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 if (e.currentTarget.parentElement) {
                   e.currentTarget.parentElement.innerText = 'SG';
                 }
-              }} 
+              }}
             />
           </div>
           <div>

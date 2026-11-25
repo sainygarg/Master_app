@@ -213,6 +213,78 @@ export const fetchMasters = async (kind, { force = false } = {}) => {
   return p;
 };
 
+// Lightweight count-only query for tab badges (transfers 0 rows)
+export const fetchMasterCounts = async (
+  kinds = ['customer', 'vendor', 'department', 'tat', 'karigar', 'design']
+) => {
+  const entries = await Promise.all(
+    kinds.map(async (kind) => {
+      try {
+        const { count, error } = await supabase
+          .from(getTableName(kind))
+          .select('id', { count: 'exact', head: true });
+        if (error) throw error;
+        return [kind, count ?? 0];
+      } catch {
+        return [kind, null];
+      }
+    })
+  );
+  return Object.fromEntries(entries);
+};
+
+// Server-side paginated & slim query for Designs tab (excludes heavy images JSONB array)
+export const fetchDesignsPage = async ({ page = 1, pageSize = 15, search = '' } = {}) => {
+  const from = Math.max(0, (page - 1) * pageSize);
+  const to = from + pageSize - 1;
+  const q = String(search || '').trim().replace(/[,()"\\]/g, ' ');
+
+  let query = supabase
+    .from(getTableName('design'))
+    .select('id, sku, name, category, type, color, description, image_url, created_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (q) {
+    query = query.or(
+      `name.ilike.%${q}%,sku.ilike.%${q}%,category.ilike.%${q}%,type.ilike.%${q}%,color.ilike.%${q}%,description.ilike.%${q}%`
+    );
+  }
+
+  const { data, count, error } = await query;
+  if (error) throw error;
+  return {
+    rows: (data || []).map((r) => fromDbRow('design', r)),
+    total: count ?? 0
+  };
+};
+
+// On-demand single-design gallery fetch (called only when user clicks a design image or Edit)
+export const fetchDesignImages = async (designId) => {
+  if (!designId) return [];
+  const { data, error } = await supabase
+    .from(getTableName('design'))
+    .select('image_url, images')
+    .eq('id', designId)
+    .maybeSingle();
+
+  if (error && String(error.message || '').includes('images')) {
+    const fallback = await supabase
+      .from(getTableName('design'))
+      .select('image_url')
+      .eq('id', designId)
+      .maybeSingle();
+    if (fallback.error) throw fallback.error;
+    return fallback.data?.image_url ? [fallback.data.image_url] : [];
+  }
+  if (error) throw error;
+  const rawImages = Array.isArray(data?.images) ? data.images.filter(Boolean) : [];
+  if (data?.image_url && !rawImages.includes(data.image_url)) {
+    return [data.image_url, ...rawImages];
+  }
+  return rawImages;
+};
+
 export const saveMaster = async (kind, item) => {
   const table = getTableName(kind);
   const row = toDbRow(kind, item);

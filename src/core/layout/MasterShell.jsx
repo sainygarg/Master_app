@@ -2,32 +2,32 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNotifications } from '../../Systems/checklist-delegation/redux/slice/notificationSlice';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Scissors, 
-  Database, 
-  Sparkles, 
-  PackageCheck, 
-  UserCheck, 
-  CheckSquare, 
-  ClipboardList, 
-  ShieldCheck, 
-  CheckCircle2, 
-  PanelLeftClose, 
-  PanelLeftOpen, 
-  LogOut, 
-  Menu, 
-  X, 
-  ChevronDown, 
-  ChevronRight, 
-  Calendar as CalendarIcon, 
-  CalendarCheck, 
-  BookmarkCheck, 
-  Settings, 
-  Zap, 
-  Bell, 
-  Video, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Scissors,
+  Database,
+  Sparkles,
+  PackageCheck,
+  UserCheck,
+  CheckSquare,
+  ClipboardList,
+  ShieldCheck,
+  CheckCircle2,
+  PanelLeftClose,
+  PanelLeftOpen,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  CalendarCheck,
+  BookmarkCheck,
+  Settings,
+  Zap,
+  Bell,
+  Video,
   ClipboardCheck,
   BadgeCheck,
   Shirt,
@@ -138,7 +138,7 @@ export default function MasterShell({ children }) {
       const next = !prev;
       try {
         localStorage.setItem('sidebar-collapsed', next ? 'true' : 'false');
-      } catch {}
+      } catch { }
       return next;
     });
   };
@@ -224,21 +224,21 @@ export default function MasterShell({ children }) {
       { label: 'Dashboard', href: '/checklist/admin', icon: Database },
       { label: 'Quick Task', href: '/checklist/quick-task', icon: Zap },
       { label: 'Assign Task', href: '/checklist/assign-task', icon: CheckSquare },
-      { 
-        label: 'Delegation', 
-        href: '/checklist/delegation', 
+      {
+        label: 'Delegation',
+        href: '/checklist/delegation',
         icon: ClipboardList,
         badge: pendingCounts.delegationPending > 0 ? pendingCounts.delegationPending : null,
       },
-      { 
-        label: 'Task', 
-        href: '/checklist/task', 
+      {
+        label: 'Task',
+        href: '/checklist/task',
         icon: CalendarCheck,
         badge: pendingCounts.taskPending > 0 ? pendingCounts.taskPending : null,
       },
       { label: 'Calendar', href: '/checklist/calendar', icon: CalendarIcon },
-      { 
-        label: 'Holiday', 
+      {
+        label: 'Holiday',
         icon: CalendarIcon,
         isSubmenu: true,
         subItems: [
@@ -246,9 +246,9 @@ export default function MasterShell({ children }) {
           { label: 'Working Day Calendar', href: '/checklist/working-day-calendar', icon: CalendarCheck }
         ]
       },
-      { 
-        label: 'Admin Approval', 
-        href: '/checklist/admin-approval', 
+      {
+        label: 'Admin Approval',
+        href: '/checklist/admin-approval',
         icon: BookmarkCheck,
         badge: pendingCounts.adminApprovalPending > 0 ? pendingCounts.adminApprovalPending : null,
       },
@@ -322,27 +322,25 @@ export default function MasterShell({ children }) {
 
   return (
     <div className="h-screen w-full flex overflow-hidden bg-[#FAF6F0] text-stone-800 antialiased selection:bg-[#5B172E] selection:text-white">
-      
+
       {/* =========================================================================
           1. PERSISTENT DESKTOP SIDEBAR (3 MAIN PAGES: ORDER FLOW, CHECKLIST, MASTER SETTING)
       ========================================================================= */}
       <aside
-        className={`hidden lg:flex flex-col justify-between shrink-0 bg-[#FAF6F0] border-r border-[#E8DFD3] select-none transition-all duration-300 ${
-          isCollapsed ? 'w-[72px]' : 'w-72'
-        }`}
+        className={`hidden lg:flex flex-col justify-between shrink-0 bg-[#FAF6F0] border-r border-[#E8DFD3] select-none transition-all duration-300 ${isCollapsed ? 'w-[72px]' : 'w-72'
+          }`}
       >
         {/* Top: Brand Monogram Header */}
         <div className="flex flex-col shrink-0">
-          <div className={`flex items-center border-b border-[#E8DFD3] bg-[#FAF6F0] ${
-            isCollapsed ? 'h-16 justify-center px-2' : 'h-16 justify-between px-4'
-          }`}>
+          <div className={`flex items-center border-b border-[#E8DFD3] bg-[#FAF6F0] ${isCollapsed ? 'h-16 justify-center px-2' : 'h-16 justify-between px-4'
+            }`}>
             <button
               onClick={() => { handleNavigate('/dashboard'); setOrderFlowOpen(false); setChecklistOpen(false); }}
               className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer"
               title="Sainy Couture Atelier - Executive Dashboard"
             >
               <div className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs shrink-0 hover:scale-105 transition-transform overflow-hidden">
-                <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                <img src="/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col min-w-0">
@@ -384,9 +382,8 @@ export default function MasterShell({ children }) {
               {/* 1. Dashboard Icon */}
               <button
                 onClick={() => { handleNavigate('/dashboard'); setChecklistOpen(false); setOrderFlowOpen(false); }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isDashboardActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isDashboardActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  }`}
                 title="Dashboard"
               >
                 <LayoutDashboard className="w-5 h-5" />
@@ -396,9 +393,8 @@ export default function MasterShell({ children }) {
               {canPc && (
                 <button
                   onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                    isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                  }`}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
                   title="PC"
                 >
                   <Layers className="w-5 h-5" />
@@ -406,69 +402,65 @@ export default function MasterShell({ children }) {
               )}
 
               {/* 3. Checklist Icon */}
-{showChecklist && (
-              <button
-                onClick={() => { handleNavigate('/checklist/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isChecklistActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
-                title="Checklist & Delegation"
-              >
-                <ClipboardCheck className="w-5 h-5" />
-                {totalChecklistPending > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
-                    {totalChecklistPending}
-                  </span>
-                )}
-              </button>
-)}
+              {showChecklist && (
+                <button
+                  onClick={() => { handleNavigate('/checklist/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isChecklistActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="Checklist & Delegation"
+                >
+                  <ClipboardCheck className="w-5 h-5" />
+                  {totalChecklistPending > 0 && (
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
+                      {totalChecklistPending}
+                    </span>
+                  )}
+                </button>
+              )}
 
               {/* 4. Order Flow Icon */}
-{showOrderFlow && (
-              <button
-                onClick={() => handleNavigate('/order-to-delivery/orders')}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
-                title="Order to Delivery"
-              >
-                <Scissors className="w-5 h-5" />
-                {activeOrdersCount > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
-                    {activeOrdersCount}
-                  </span>
-                )}
-              </button>
-)}
+              {showOrderFlow && (
+                <button
+                  onClick={() => handleNavigate('/order-to-delivery/orders')}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="Order to Delivery"
+                >
+                  <Scissors className="w-5 h-5" />
+                  {activeOrdersCount > 0 && (
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
+                      {activeOrdersCount}
+                    </span>
+                  )}
+                </button>
+              )}
 
               {/* 3. Master Setting Icon */}
-{canSettings && (
-              <button
-                onClick={() => { handleNavigate('/order-to-delivery/settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
-                  isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                }`}
-                title="Settings"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-)}
+              {canSettings && (
+                <button
+                  onClick={() => { handleNavigate('/order-to-delivery/settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
+              )}
             </div>
           ) : (
             /* Full Expanded Navigation: Dashboard -> PC -> Checklist & Delegation -> OTD -> Settings */
             <div className="space-y-3">
-              
+
               {/* =========================================================================
                   PAGE 1: MAIN DASHBOARD
               ========================================================================= */}
               <button
                 type="button"
                 onClick={() => handleNavigate('/dashboard')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
-                  isDashboardActive
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isDashboardActive
                     ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                     : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={`p-1.5 rounded-lg ${isDashboardActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
@@ -485,11 +477,10 @@ export default function MasterShell({ children }) {
                 <button
                   type="button"
                   onClick={() => { handleNavigate('/pc'); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${
-                    isPcActive
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isPcActive
                       ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                       : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
@@ -503,311 +494,297 @@ export default function MasterShell({ children }) {
               {/* =========================================================================
                   PAGE 3: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
               ========================================================================= */}
-{showChecklist && (
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setChecklistOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
-                    isChecklistActive
-                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
-                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isChecklistActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <ClipboardCheck className="w-3.5 h-3.5 shrink-0" />
+              {showChecklist && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setChecklistOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${isChecklistActive
+                        ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
+                        : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`p-1.5 rounded-lg ${isChecklistActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                        <ClipboardCheck className="w-3.5 h-3.5 shrink-0" />
+                      </div>
+                      <span className="truncate font-semibold tracking-tight">Checklist & Delegation</span>
                     </div>
-                    <span className="truncate font-semibold tracking-tight">Checklist & Delegation</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {totalChecklistPending > 0 && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white bg-[#E11D48]">
-                        {totalChecklistPending}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {totalChecklistPending > 0 && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white bg-[#E11D48]">
+                          {totalChecklistPending}
+                        </span>
+                      )}
+                      <span className={`p-1 rounded-md transition-colors ${checklistOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
+                        {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                       </span>
-                    )}
-                    <span className={`p-1 rounded-md transition-colors ${checklistOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
-                      {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
+                    </div>
+                  </button>
 
-                {/* Checklist Subpages Dropdown */}
-                {checklistOpen && (
-                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
-                    {checklistSubpages.map((sub) => {
-                      const SubIcon = sub.icon;
+                  {/* Checklist Subpages Dropdown */}
+                  {checklistOpen && (
+                    <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
+                      {checklistSubpages.map((sub) => {
+                        const SubIcon = sub.icon;
 
-                      // Expandable Holiday Submenu
-                      if (sub.isSubmenu) {
-                        const isAnyChildActive = sub.subItems.some((item) => location.pathname === item.href);
-                        return (
-                          <div key={sub.label} className="flex flex-col">
-                            <button
-                              type="button"
-                              onClick={() => setHolidayOpen(!holidayOpen)}
-                              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                                isAnyChildActive
-                                  ? 'bg-[#F3ECE2] text-[#5B172E] font-bold'
-                                  : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                                <div className="p-1 rounded-md bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]">
-                                  {SubIcon && <SubIcon className="w-3 h-3 shrink-0" />}
+                        // Expandable Holiday Submenu
+                        if (sub.isSubmenu) {
+                          const isAnyChildActive = sub.subItems.some((item) => location.pathname === item.href);
+                          return (
+                            <div key={sub.label} className="flex flex-col">
+                              <button
+                                type="button"
+                                onClick={() => setHolidayOpen(!holidayOpen)}
+                                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isAnyChildActive
+                                    ? 'bg-[#F3ECE2] text-[#5B172E] font-bold'
+                                    : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                                  <div className="p-1 rounded-md bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]">
+                                    {SubIcon && <SubIcon className="w-3 h-3 shrink-0" />}
+                                  </div>
+                                  <span className="truncate text-[11px] font-medium">{sub.label}</span>
                                 </div>
-                                <span className="truncate text-[11px] font-medium">{sub.label}</span>
-                              </div>
-                              <span className="text-stone-400">
-                                {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                              </span>
-                            </button>
+                                <span className="text-stone-400">
+                                  {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                </span>
+                              </button>
 
-                            {holidayOpen && (
-                              <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                                {sub.subItems.map((item) => {
-                                  const isChildActive = location.pathname === item.href;
-                                  const ItemIcon = item.icon;
-                                  return (
-                                    <button
-                                      key={item.href}
-                                      type="button"
-                                      onClick={() => handleNavigate(item.href)}
-                                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer ${
-                                        isChildActive
-                                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                                      }`}
-                                    >
-                                      <div className="flex items-center gap-2 min-w-0 pr-1">
-                                        {ItemIcon && (
-                                          <ItemIcon className={`w-3 h-3 shrink-0 ${isChildActive ? 'text-white' : 'text-stone-400'}`} />
-                                        )}
-                                        <span className="truncate text-[10px]">{item.label}</span>
-                                      </div>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      // Regular Checklist Item
-                      const isSubActive = 
-                        location.pathname === sub.href || 
-                        (sub.href === '/checklist/assign-task' && [
-                          '/checklist/checklist',
-                          '/checklist/assign-delegation',
-                          '/checklist/maintenance',
-                          '/checklist/repair',
-                          '/checklist/ea-task',
-                          '/checklist/bulk-import'
-                        ].includes(location.pathname));
-                      return (
-                        <button
-                          key={sub.href}
-                          type="button"
-                          onClick={() => handleNavigate(sub.href)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                            isSubActive
-                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                              : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                            <div className={`p-1 rounded-md transition-colors ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                              {SubIcon && (
-                                <SubIcon className="w-3 h-3 shrink-0" />
+                              {holidayOpen && (
+                                <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                                  {sub.subItems.map((item) => {
+                                    const isChildActive = location.pathname === item.href;
+                                    const ItemIcon = item.icon;
+                                    return (
+                                      <button
+                                        key={item.href}
+                                        type="button"
+                                        onClick={() => handleNavigate(item.href)}
+                                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer ${isChildActive
+                                            ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                                            : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                                          }`}
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0 pr-1">
+                                          {ItemIcon && (
+                                            <ItemIcon className={`w-3 h-3 shrink-0 ${isChildActive ? 'text-white' : 'text-stone-400'}`} />
+                                          )}
+                                          <span className="truncate text-[10px]">{item.label}</span>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               )}
                             </div>
-                            <span className="truncate text-[11px] font-medium">{sub.label}</span>
-                          </div>
-                          {sub.badge && (
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isSubActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                            }`}>
-                              {sub.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-)}
+                          );
+                        }
+
+                        // Regular Checklist Item
+                        const isSubActive =
+                          location.pathname === sub.href ||
+                          (sub.href === '/checklist/assign-task' && [
+                            '/checklist/checklist',
+                            '/checklist/assign-delegation',
+                            '/checklist/maintenance',
+                            '/checklist/repair',
+                            '/checklist/ea-task',
+                            '/checklist/bulk-import'
+                          ].includes(location.pathname));
+                        return (
+                          <button
+                            key={sub.href}
+                            type="button"
+                            onClick={() => handleNavigate(sub.href)}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isSubActive
+                                ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                                : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                              }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                              <div className={`p-1 rounded-md transition-colors ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                                {SubIcon && (
+                                  <SubIcon className="w-3 h-3 shrink-0" />
+                                )}
+                              </div>
+                              <span className="truncate text-[11px] font-medium">{sub.label}</span>
+                            </div>
+                            {sub.badge && (
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
+                                }`}>
+                                {sub.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* =========================================================================
                   PAGE 2: ORDER FLOW (MAIN DROPDOWN WITH ALL 12 PEER SUBPAGES)
               ========================================================================= */}
-{showOrderFlow && (
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setOrderFlowOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
-                    isOrderFlowActive
-                      ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
-                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <Scissors className="w-3.5 h-3.5 shrink-0" />
+              {showOrderFlow && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setOrderFlowOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${isOrderFlowActive
+                        ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
+                        : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`p-1.5 rounded-lg ${isOrderFlowActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                        <Scissors className="w-3.5 h-3.5 shrink-0" />
+                      </div>
+                      <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
                     </div>
-                    <span className="truncate font-semibold tracking-tight">Order to Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {activeOrdersCount > 0 && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white bg-[#E11D48]">
-                        {activeOrdersCount}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {activeOrdersCount > 0 && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white bg-[#E11D48]">
+                          {activeOrdersCount}
+                        </span>
+                      )}
+                      <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
+                        {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                       </span>
-                    )}
-                    <span className={`p-1 rounded-md transition-colors ${orderFlowOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
-                      {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
+                    </div>
+                  </button>
 
-                {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages */}
-                {orderFlowOpen && (
-                  <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
-                    
-                    {/* 1. Dashboard */}
-{canDash && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/dashboard')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                        isOrderFlow && currentViewParam === 'dashboard'
-                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                          <LayoutDashboard className="w-3 h-3 shrink-0" />
-                        </div>
-                        <span className="truncate text-[11px] font-medium">Dashboard</span>
-                      </div>
-                    </button>
-)}
+                  {/* Order Flow Subpages: Dashboard, All Orders, and 10 Stages */}
+                  {orderFlowOpen && (
+                    <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
 
-                    {/* 2. All Orders */}
-{canOrders && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/orders')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                        isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
-                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                          <ShoppingBag className="w-3 h-3 shrink-0" />
-                        </div>
-                        <span className="truncate text-[11px] font-medium">All Orders</span>
-                      </div>
-                      {orders.length > 0 && (
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                        }`}>
-                          {orders.length}
-                        </span>
-                      )}
-                    </button>
-)}
-
-                    {/* 2.5 Design Sheet */}
-{canOrders && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                        isOrderFlow && currentViewParam === 'design-sheet'
-                          ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                          : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                        <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                          <FileText className="w-3 h-3 shrink-0" />
-                        </div>
-                        <span className="truncate text-[11px] font-medium">Design Sheet</span>
-                      </div>
-                      {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                          isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                        }`}>
-                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
-                        </span>
-                      )}
-                    </button>
-)}
-
-                    {/* 3 to 12. The 10 Stages */}
-                    {permittedStages.map((stage) => {
-                      const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
-                      const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
-                      const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
-                      return (
+                      {/* 1. Dashboard */}
+                      {canDash && (
                         <button
-                          key={stage.id}
                           type="button"
-                          onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
-                            isStageActive
+                          onClick={() => handleNavigate('/order-to-delivery/dashboard')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isOrderFlow && currentViewParam === 'dashboard'
                               ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                               : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                            <div className={`p-1 rounded-md transition-colors ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
-                              <StageIcon className="w-3 h-3 shrink-0" />
+                            <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              <LayoutDashboard className="w-3 h-3 shrink-0" />
                             </div>
-                            <span className="truncate text-[11px] font-medium">{stage.name}</span>
+                            <span className="truncate text-[11px] font-medium">Dashboard</span>
                           </div>
-                          {stageOrders.length > 0 && (
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                            }`}>
-                              {stageOrders.length}
+                        </button>
+                      )}
+
+                      {/* 2. All Orders */}
+                      {canOrders && (
+                        <button
+                          type="button"
+                          onClick={() => handleNavigate('/order-to-delivery/orders')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isOrderFlow && (currentViewParam === 'orders' || (!currentViewParam && location.pathname.startsWith('/order-to-delivery')))
+                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                              : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                            <div className={`p-1 rounded-md transition-colors ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              <ShoppingBag className="w-3 h-3 shrink-0" />
+                            </div>
+                            <span className="truncate text-[11px] font-medium">All Orders</span>
+                          </div>
+                          {orders.length > 0 && (
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
+                              }`}>
+                              {orders.length}
                             </span>
                           )}
                         </button>
-                      );
-                    })}
+                      )}
 
-                  </div>
-                )}
-              </div>
-)}
+                      {/* 2.5 Design Sheet */}
+                      {canOrders && (
+                        <button
+                          type="button"
+                          onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isOrderFlow && currentViewParam === 'design-sheet'
+                              ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                              : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                            <div className={`p-1 rounded-md transition-colors ${isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              <FileText className="w-3 h-3 shrink-0" />
+                            </div>
+                            <span className="truncate text-[11px] font-medium">Design Sheet</span>
+                          </div>
+                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
+                              }`}>
+                              {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
+                            </span>
+                          )}
+                        </button>
+                      )}
+
+                      {/* 3 to 12. The 10 Stages */}
+                      {permittedStages.map((stage) => {
+                        const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
+                        const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
+                        const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
+                        return (
+                          <button
+                            key={stage.id}
+                            type="button"
+                            onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${isStageActive
+                                ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                                : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                              }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                              <div className={`p-1 rounded-md transition-colors ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                                <StageIcon className="w-3 h-3 shrink-0" />
+                              </div>
+                              <span className="truncate text-[11px] font-medium">{stage.name}</span>
+                            </div>
+                            {stageOrders.length > 0 && (
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
+                                }`}>
+                                {stageOrders.length}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* =========================================================================
                   PAGE 5: MASTER SETTING (MAIN PAGE)
               ========================================================================= */}
-{canSettings && (
-              <button
-                type="button"
-                onClick={() => handleNavigate('/order-to-delivery/settings')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${
-                  isMasterSettingActive
-                    ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`p-1.5 rounded-lg ${isMasterSettingActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                    <Settings className="w-3.5 h-3.5 shrink-0" />
+              {canSettings && (
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/order-to-delivery/settings')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${isMasterSettingActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isMasterSettingActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Settings className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Settings</span>
                   </div>
-                  <span className="truncate font-semibold tracking-tight">Settings</span>
-                </div>
-              </button>
-)}
+                </button>
+              )}
 
             </div>
           )}
@@ -860,7 +837,7 @@ export default function MasterShell({ children }) {
             <div className="flex h-16 items-center justify-between border-b border-[#E8DFD3] px-4 bg-[#FAF6F0]">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs overflow-hidden">
-                  <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  <img src="/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 </div>
                 <div>
                   <h2 className="font-serif font-bold text-sm text-[#431021] leading-tight">Sainy Couture</h2>
@@ -882,9 +859,8 @@ export default function MasterShell({ children }) {
               <button
                 type="button"
                 onClick={() => { handleNavigate('/dashboard'); setIsMobileOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isDashboardActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                }`}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isDashboardActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
@@ -897,9 +873,8 @@ export default function MasterShell({ children }) {
                 <button
                   type="button"
                   onClick={() => { handleNavigate('/pc'); setIsMobileOpen(false); }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${
-                    isPcActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isPcActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <Layers className="w-4 h-4 text-[#C5A059]" />
@@ -907,249 +882,238 @@ export default function MasterShell({ children }) {
                   </div>
                 </button>
               )}
-              
+
               {/* 3. Checklist & Delegation in Mobile */}
-{showChecklist && (
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setChecklistOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isChecklistActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <ClipboardCheck className="w-4 h-4 text-[#C5A059]" />
-                    <span>Checklist & Delegation</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {totalChecklistPending > 0 && (
-                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
-                        {totalChecklistPending}
+              {showChecklist && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setChecklistOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isChecklistActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ClipboardCheck className="w-4 h-4 text-[#C5A059]" />
+                      <span>Checklist & Delegation</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {totalChecklistPending > 0 && (
+                        <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
+                          {totalChecklistPending}
+                        </span>
+                      )}
+                      <span className="p-0.5 rounded text-stone-500">
+                        {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                       </span>
-                    )}
-                    <span className="p-0.5 rounded text-stone-500">
-                      {checklistOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
+                    </div>
+                  </button>
 
-                {checklistOpen && (
-                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                    {checklistSubpages.map((sub) => {
-                      const SubIcon = sub.icon;
-                      if (sub.isSubmenu) {
+                  {checklistOpen && (
+                    <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                      {checklistSubpages.map((sub) => {
+                        const SubIcon = sub.icon;
+                        if (sub.isSubmenu) {
+                          return (
+                            <div key={sub.label} className="flex flex-col">
+                              <button
+                                type="button"
+                                onClick={() => setHolidayOpen(!holidayOpen)}
+                                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-[#F3ECE2]"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {SubIcon && <SubIcon className="w-3.5 h-3.5" />}
+                                  <span>{sub.label}</span>
+                                </div>
+                                {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                              </button>
+                              {holidayOpen && (
+                                <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                                  {sub.subItems.map((item) => (
+                                    <button
+                                      key={item.href}
+                                      type="button"
+                                      onClick={() => handleNavigate(item.href)}
+                                      className={`w-full px-2 py-1 text-left text-[11px] rounded ${location.pathname === item.href ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600'
+                                        }`}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        const isSubActive =
+                          location.pathname === sub.href ||
+                          (sub.href === '/checklist/assign-task' && [
+                            '/checklist/checklist',
+                            '/checklist/assign-delegation',
+                            '/checklist/maintenance',
+                            '/checklist/repair',
+                            '/checklist/ea-task',
+                            '/checklist/bulk-import'
+                          ].includes(location.pathname));
                         return (
-                          <div key={sub.label} className="flex flex-col">
-                            <button
-                              type="button"
-                              onClick={() => setHolidayOpen(!holidayOpen)}
-                              className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-[#F3ECE2]"
-                            >
-                              <div className="flex items-center gap-2">
-                                {SubIcon && <SubIcon className="w-3.5 h-3.5" />}
-                                <span>{sub.label}</span>
-                              </div>
-                              {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            </button>
-                            {holidayOpen && (
-                              <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                                {sub.subItems.map((item) => (
-                                  <button
-                                    key={item.href}
-                                    type="button"
-                                    onClick={() => handleNavigate(item.href)}
-                                    className={`w-full px-2 py-1 text-left text-[11px] rounded ${
-                                      location.pathname === item.href ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600'
-                                    }`}
-                                  >
-                                    {item.label}
-                                  </button>
-                                ))}
-                              </div>
+                          <button
+                            key={sub.href}
+                            type="button"
+                            onClick={() => handleNavigate(sub.href)}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                              }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0 pr-1">
+                              {SubIcon && (
+                                <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
+                              )}
+                              <span className="truncate text-[11px]">{sub.label}</span>
+                            </div>
+                            {sub.badge && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
+                                {sub.badge}
+                              </span>
                             )}
-                          </div>
+                          </button>
                         );
-                      }
-
-                      const isSubActive = 
-                        location.pathname === sub.href || 
-                        (sub.href === '/checklist/assign-task' && [
-                          '/checklist/checklist',
-                          '/checklist/assign-delegation',
-                          '/checklist/maintenance',
-                          '/checklist/repair',
-                          '/checklist/ea-task',
-                          '/checklist/bulk-import'
-                        ].includes(location.pathname));
-                      return (
-                        <button
-                          key={sub.href}
-                          type="button"
-                          onClick={() => handleNavigate(sub.href)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                            isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            {SubIcon && (
-                              <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
-                            )}
-                            <span className="truncate text-[11px]">{sub.label}</span>
-                          </div>
-                          {sub.badge && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
-                              {sub.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-)}
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* 1. Order Flow in Mobile */}
-{showOrderFlow && (
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setOrderFlowOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isOrderFlowActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Scissors className="w-4 h-4 text-[#C5A059]" />
-                    <span>Order to Delivery</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {activeOrdersCount > 0 && (
-                      <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
-                        {activeOrdersCount}
+              {showOrderFlow && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setOrderFlowOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isOrderFlowActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Scissors className="w-4 h-4 text-[#C5A059]" />
+                      <span>Order to Delivery</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {activeOrdersCount > 0 && (
+                        <span className="text-[10px] px-2 py-0.2 rounded-full font-bold text-white bg-[#E11D48]">
+                          {activeOrdersCount}
+                        </span>
+                      )}
+                      <span className="p-0.5 rounded text-stone-500">
+                        {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                       </span>
-                    )}
-                    <span className="p-0.5 rounded text-stone-500">
-                      {orderFlowOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </span>
-                  </div>
-                </button>
+                    </div>
+                  </button>
 
-                {orderFlowOpen && (
-                  <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                    {/* 1. Dashboard */}
-{canDash && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/dashboard')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                        isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <LayoutDashboard className="w-3.5 h-3.5" />
-                        <span>Dashboard</span>
-                      </div>
-                    </button>
-)}
-
-                    {/* 2. All Orders */}
-{canOrders && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/orders')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                        isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>All Orders</span>
-                      </div>
-                      {orders.length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-white/20 text-white">
-                          {orders.length}
-                        </span>
-                      )}
-                    </button>
-)}
-
-                    {/* 2.5 Design Sheet */}
-{canOrders && (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                        isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>Design Sheet</span>
-                      </div>
-                      {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
-                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
-                        </span>
-                      )}
-                    </button>
-)}
-
-                    {/* 3 to 12. The 10 Stages (Same hierarchy) */}
-                    {permittedStages.map((stage, idx) => {
-                      const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
-                      const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
-                      return (
+                  {orderFlowOpen && (
+                    <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                      {/* 1. Dashboard */}
+                      {canDash && (
                         <button
-                          key={stage.id}
                           type="button"
-                          onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
-                            isStageActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
-                          }`}
+                          onClick={() => handleNavigate('/order-to-delivery/dashboard')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isOrderFlow && currentViewParam === 'dashboard' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                            }`}
                         >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            {(() => {
-                              const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
-                              return (
-                                <StageIcon className={`w-3.5 h-3.5 shrink-0 ${
-                                  isStageActive ? 'text-[#C5A059]' : 'text-stone-400'
-                                }`} />
-                              );
-                            })()}
-                            <span className="truncate text-[11px]">{stage.name}</span>
+                          <div className="flex items-center gap-2">
+                            <LayoutDashboard className="w-3.5 h-3.5" />
+                            <span>Dashboard</span>
                           </div>
-                          {stageOrders.length > 0 && (
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                              isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                            }`}>
-                              {stageOrders.length}
+                        </button>
+                      )}
+
+                      {/* 2. All Orders */}
+                      {canOrders && (
+                        <button
+                          type="button"
+                          onClick={() => handleNavigate('/order-to-delivery/orders')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>All Orders</span>
+                          </div>
+                          {orders.length > 0 && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-white/20 text-white">
+                              {orders.length}
                             </span>
                           )}
                         </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-)}
+                      )}
+
+                      {/* 2.5 Design Sheet */}
+                      {canOrders && (
+                        <button
+                          type="button"
+                          onClick={() => handleNavigate('/order-to-delivery/design-sheet')}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isOrderFlow && currentViewParam === 'design-sheet' ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Design Sheet</span>
+                          </div>
+                          {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length > 0 && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
+                              {orders.filter(o => !o.designSheet || o.designSheet.status !== 'Completed').length}
+                            </span>
+                          )}
+                        </button>
+                      )}
+
+                      {/* 3 to 12. The 10 Stages (Same hierarchy) */}
+                      {permittedStages.map((stage, idx) => {
+                        const stageOrders = orders.filter((o) => o.currentStageId === stage.id);
+                        const isStageActive = isOrderFlow && currentViewParam === 'stages' && currentStageParam === stage.id;
+                        return (
+                          <button
+                            key={stage.id}
+                            type="button"
+                            onClick={() => handleNavigate(`/order-to-delivery/stages/${stage.id}`)}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isStageActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                              }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0 pr-1">
+                              {(() => {
+                                const StageIcon = STAGE_ICONS[stage.id] || Sparkles;
+                                return (
+                                  <StageIcon className={`w-3.5 h-3.5 shrink-0 ${isStageActive ? 'text-[#C5A059]' : 'text-stone-400'
+                                    }`} />
+                                );
+                              })()}
+                              <span className="truncate text-[11px]">{stage.name}</span>
+                            </div>
+                            {stageOrders.length > 0 && (
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isStageActive ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
+                                }`}>
+                                {stageOrders.length}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* 5. Master Setting in Mobile */}
-{canSettings && (
-              <button
-                type="button"
-                onClick={() => handleNavigate('/order-to-delivery/settings')}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Settings className="w-4 h-4 text-[#C5A059]" />
-                  <span>Settings</span>
-                </div>
-              </button>
-)}
+              {canSettings && (
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/order-to-delivery/settings')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Settings className="w-4 h-4 text-[#C5A059]" />
+                    <span>Settings</span>
+                  </div>
+                </button>
+              )}
 
             </div>
 
@@ -1174,10 +1138,10 @@ export default function MasterShell({ children }) {
           3. MAIN CONTENT VIEWPORT (WITH PERSISTENT HEADER)
       ========================================================================= */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        
+
         {/* PERSISTENT HEADER (NEVER UNMOUNTS DURING NAVIGATION) */}
         <header className="h-16 border-b border-[#E8DFD3] bg-[#FAF6F0] px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-30">
-          
+
           {/* Left: Mobile Trigger + Desktop Collapse + Breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
             {/* Mobile Menu Hamburger */}

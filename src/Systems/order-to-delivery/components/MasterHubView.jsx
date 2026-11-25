@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LoadingRow } from './LoadingState';
 import { 
   User,
@@ -32,10 +32,12 @@ import {
   Briefcase, 
   Database,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterDirectoryService';
+import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId, fetchMasterCounts, fetchDesignsPage, fetchDesignImages } from '../utils/masterDirectoryService';
 import { isApexAdmin, canModify, canUserAccessPage, canUserAccessChecklistPage, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
@@ -69,9 +71,11 @@ export const MasterHubView = ({
   const [tatConfig, setTATConfig] = useState(() => getCachedMasters("tat") || []);
   const [transporters, setTransporters] = useState(() => getCachedMasters("transporter") || []);
   const [karigars, setKarigars] = useState(() => getCachedMasters("karigar") || []);
-  const [designs, setDesigns] = useState(() => getCachedMasters("design") || []);
+  const [designs, setDesigns] = useState([]);
+  // Lightweight tab counts (populated via count-only head queries on mount)
+  const [tabCounts, setTabCounts] = useState({});
   // Kinds whose first load has finished (cached kinds count as loaded) – prevents "No records found" flashing
-  const [loadedKinds, setLoadedKinds] = useState(() => new Set(["customer", "vendor", "department", "tat", "transporter", "karigar", "design"].filter((k) => getCachedMasters(k))));
+  const [loadedKinds, setLoadedKinds] = useState(() => new Set(["customer", "vendor", "department", "tat", "transporter", "karigar"].filter((k) => getCachedMasters(k))));
   const loadingKind = (k) => !loadedKinds.has(k);
 
   // Master Entry Modal State
@@ -79,8 +83,41 @@ export const MasterHubView = ({
   const [editingMasterItem, setEditingMasterItem] = useState(null);
   const [masterModalType, setMasterModalType] = useState('customer');
 
-  // Preview Image Modal state for high-res zoom
+  // Preview Image Gallery Modal state: { images: string[], index: number, name: string, sku: string, category?: string, type?: string, loadingGallery?: boolean } | null
   const [previewImage, setPreviewImage] = useState(null);
+
+  // Designs server-side pagination state (only 1 page fetched at a time)
+  const [designPage, setDesignPage] = useState(1);
+  const [designPageSize, setDesignPageSize] = useState(15);
+  const [designTotalCount, setDesignTotalCount] = useState(0);
+  const [designsLoading, setDesignsLoading] = useState(false);
+  const [debouncedDesignSearch, setDebouncedDesignSearch] = useState('');
+
+  useEffect(() => {
+    setDesignPage(1);
+  }, [searchTerm, activeTab]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedDesignSearch(searchTerm);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (!previewImage) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setPreviewImage(null);
+      } else if (e.key === 'ArrowRight' && previewImage.images.length > 1) {
+        setPreviewImage((prev) => prev ? { ...prev, index: (prev.index + 1) % prev.images.length } : null);
+      } else if (e.key === 'ArrowLeft' && previewImage.images.length > 1) {
+        setPreviewImage((prev) => prev ? { ...prev, index: (prev.index - 1 + prev.images.length) % prev.images.length } : null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [previewImage]);
 
   // Filtered Users
   const filteredUsers = users.filter((u) =>
@@ -134,13 +171,10 @@ export const MasterHubView = ({
     k.phone?.includes(searchTerm)
   );
 
-  // Filtered Designs
-  const filteredDesigns = designs.filter((d) =>
-    d.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Server-side paginated designs (designs already holds only the current page)
+  const totalDesignPages = Math.max(1, Math.ceil(designTotalCount / designPageSize));
+  const safeDesignPage = Math.min(designPage, totalDesignPages);
+  const paginatedDesigns = designs;
 
   // Modal Handlers
   const handleOpenAddMaster = (type) => {
@@ -153,6 +187,17 @@ export const MasterHubView = ({
     setMasterModalType(type);
     setEditingMasterItem(item);
     setIsMasterModalOpen(true);
+    if (type === 'design' && item?.id) {
+      fetchDesignImages(item.id)
+        .then((imgs) => {
+          if (imgs.length > 0) {
+            setEditingMasterItem((prev) =>
+              prev && prev.id === item.id ? { ...prev, images: imgs, imageUrl: imgs[0] || prev.imageUrl } : prev
+            );
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   const MASTER_KINDS = {
@@ -165,19 +210,80 @@ export const MasterHubView = ({
     design: { items: designs, set: setDesigns, append: false }
   };
 
-  // Load all master data from the database
+  const TAB_TO_KIND = {
+    vendors: 'vendor',
+    customers: 'customer',
+    departments: 'department',
+    tat: 'tat',
+    transporters: 'transporter',
+    karigars: 'karigar',
+    designs: 'design'
+  };
+
+  // 1. On mount: fetch ONLY lightweight counts for tab badges (0 rows transferred)
   useEffect(() => {
-    Object.entries(MASTER_KINDS).forEach(([kind, { set }]) => {
-      fetchMasters(kind)
-        .then((rows) => { set(rows); })
-        .catch((err) => {
-          console.error(`Failed to load ${kind} master data`, err);
-          showToast(`Failed to load ${kind} data from database: ${err.message}`, 'error');
-        })
-        .finally(() => setLoadedKinds((prev) => new Set(prev).add(kind)));
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchMasterCounts()
+      .then((counts) => {
+        setTabCounts((prev) => {
+          const next = { ...prev };
+          Object.entries(counts).forEach(([k, v]) => {
+            if (v !== null) next[k] = v;
+          });
+          return next;
+        });
+      })
+      .catch(() => {});
   }, []);
+
+  // 2. Lazy-load non-design tab data ONLY when user opens that tab
+  useEffect(() => {
+    const kind = TAB_TO_KIND[activeTab];
+    if (!kind || kind === 'design') return;
+    if (loadedKinds.has(kind)) return;
+
+    const cfg = MASTER_KINDS[kind];
+    if (!cfg) return;
+    fetchMasters(kind)
+      .then((rows) => {
+        cfg.set(rows);
+        setTabCounts((prev) => ({ ...prev, [kind]: rows.length }));
+      })
+      .catch((err) => {
+        console.error(`Failed to load ${kind} master data`, err);
+        showToast(`Failed to load ${kind} data from database: ${err.message}`, 'error');
+      })
+      .finally(() => setLoadedKinds((prev) => new Set(prev).add(kind)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // 3. Server-side paginated fetch for Designs tab (ONLY when activeTab === 'designs')
+  const loadCurrentDesignsPage = async () => {
+    setDesignsLoading(true);
+    try {
+      const { rows, total } = await fetchDesignsPage({
+        page: safeDesignPage,
+        pageSize: designPageSize,
+        search: debouncedDesignSearch
+      });
+      setDesigns(rows);
+      setDesignTotalCount(total);
+      if (!debouncedDesignSearch.trim()) {
+        setTabCounts((prev) => ({ ...prev, design: total }));
+      }
+    } catch (err) {
+      console.error('Failed to load designs page', err);
+      showToast(`Failed to load designs: ${err.message}`, 'error');
+    } finally {
+      setDesignsLoading(false);
+      setLoadedKinds((prev) => new Set(prev).add('design'));
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab !== 'designs') return;
+    loadCurrentDesignsPage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, safeDesignPage, designPageSize, debouncedDesignSearch]);
 
   // Saves to the database first; local state is updated only after the DB confirms.
   const handleSubmitMaster = async (itemData) => {
@@ -196,7 +302,15 @@ export const MasterHubView = ({
         const fresh = await fetchMasters(masterModalType, { force: true });
         const item = { ...itemData, id: generateNextMasterId(masterModalType, fresh) };
         await insertMaster(masterModalType, item);
-        cfg.set(cfg.append ? [...fresh, item] : [item, ...fresh]);
+        setTabCounts((prev) => ({
+          ...prev,
+          [masterModalType]: (prev[masterModalType] ?? fresh.length) + 1
+        }));
+        if (masterModalType === 'design') {
+          await loadCurrentDesignsPage();
+        } else {
+          cfg.set(cfg.append ? [...fresh, item] : [item, ...fresh]);
+        }
       }
       showToast('Saved successfully!', 'success');
       return true;
@@ -216,7 +330,15 @@ export const MasterHubView = ({
     if (!cfg) return;
     try {
       await deleteMaster(type, id);
-      cfg.set(cfg.items.filter((i) => i.id !== id));
+      setTabCounts((prev) => ({
+        ...prev,
+        [type]: Math.max(0, (prev[type] ?? cfg.items.length) - 1)
+      }));
+      if (type === 'design') {
+        await loadCurrentDesignsPage();
+      } else {
+        cfg.set(cfg.items.filter((i) => i.id !== id));
+      }
       showToast('Deleted successfully!', 'success');
     } catch (err) {
       console.error('Failed to delete master entry', err);
@@ -369,7 +491,7 @@ export const MasterHubView = ({
           }`}
         >
           <Building2 className="w-4 h-4" />
-          <span>Vendors ({vendors.length})</span>
+          <span>Vendors ({tabCounts.vendor ?? vendors.length})</span>
         </button>
 
         {/* 3. Customers */}
@@ -382,7 +504,7 @@ export const MasterHubView = ({
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Customers ({customers.length})</span>
+          <span>Customers ({tabCounts.customer ?? customers.length})</span>
         </button>
 
         {/* 4. Departments */}
@@ -395,7 +517,7 @@ export const MasterHubView = ({
           }`}
         >
           <Briefcase className="w-4 h-4" />
-          <span>Departments ({departments.length})</span>
+          <span>Departments ({tabCounts.department ?? departments.length})</span>
         </button>
 
         {/* 5. TAT Master */}
@@ -408,7 +530,7 @@ export const MasterHubView = ({
           }`}
         >
           <Clock className="w-4 h-4" />
-          <span>Stage TAT ({tatConfig.length})</span>
+          <span>Stage TAT ({tabCounts.tat ?? tatConfig.length})</span>
         </button>
 
         {/* 6. Transporters (Hidden as requested; code preserved) */}
@@ -422,7 +544,7 @@ export const MasterHubView = ({
             }`}
           >
             <Truck className="w-4 h-4" />
-            <span>Transporters ({transporters.length})</span>
+            <span>Transporters ({tabCounts.transporter ?? transporters.length})</span>
           </button>
         )}
 
@@ -436,7 +558,7 @@ export const MasterHubView = ({
           }`}
         >
           <Scissors className="w-4 h-4" />
-          <span>Karigars ({karigars.length})</span>
+          <span>Karigars ({tabCounts.karigar ?? karigars.length})</span>
         </button>
 
         {/* 8. Designs & SKUs */}
@@ -449,7 +571,7 @@ export const MasterHubView = ({
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>Designs ({designs.length})</span>
+          <span>Designs ({tabCounts.design ?? designTotalCount})</span>
         </button>
 
       </div>
@@ -1311,8 +1433,12 @@ export const MasterHubView = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE7DC]">
-                {filteredDesigns.map((d) => {
+                {paginatedDesigns.map((d) => {
                   const isConfirming = deleteConfirmId === d.id;
+                  const designImgs = Array.isArray(d.images) && d.images.length > 0
+                    ? d.images.filter(Boolean)
+                    : (d.imageUrl ? [d.imageUrl] : []);
+                  const primaryImg = designImgs[0] || '';
                   return (
                     <tr key={d.id} className="hover:bg-[#FCFAF7] transition-colors">
                       <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
@@ -1367,20 +1493,41 @@ export const MasterHubView = ({
                       <td className="py-2 px-3 align-middle">
                         <div
                           onClick={() => {
-                            const img = d.imageUrl || d.images?.[0];
-                            if (img) setPreviewImage({ url: img, name: d.name, sku: d.sku });
+                            if (designImgs.length > 0) {
+                              setPreviewImage({
+                                images: designImgs,
+                                index: 0,
+                                name: d.name,
+                                sku: d.sku,
+                                category: d.category,
+                                type: d.type,
+                                loadingGallery: true
+                              });
+                              fetchDesignImages(d.id)
+                                .then((fullImgs) => {
+                                  setPreviewImage((prev) => {
+                                    if (!prev || prev.sku !== d.sku || prev.name !== d.name) return prev;
+                                    const nextImgs = fullImgs.length > 0 ? fullImgs : prev.images;
+                                    return { ...prev, images: nextImgs, loadingGallery: false };
+                                  });
+                                })
+                                .catch(() => {
+                                  setPreviewImage((prev) => (prev ? { ...prev, loadingGallery: false } : null));
+                                });
+                            }
                           }}
                           className={`w-12 h-12 rounded-xl overflow-hidden bg-[#FAF5EE] border border-[#DECDB8] flex items-center justify-center shrink-0 shadow-2xs group relative ${
-                            d.imageUrl || d.images?.[0] ? 'cursor-pointer hover:border-[#5B172E] hover:ring-2 hover:ring-[#5B172E]/20 transition-all' : ''
+                            designImgs.length > 0 ? 'cursor-pointer hover:border-[#5B172E] hover:ring-2 hover:ring-[#5B172E]/20 transition-all' : ''
                           }`}
-                          title={d.imageUrl || d.images?.[0] ? 'Click to view full image' : 'No image'}
+                          title={designImgs.length > 1 ? `Click to view all ${designImgs.length} images` : primaryImg ? 'Click to view full image' : 'No image'}
                         >
-                          {d.imageUrl || d.images?.[0] ? (
+                          {primaryImg ? (
                             <>
                               <img
-                                src={d.imageUrl || d.images?.[0]}
+                                src={primaryImg}
                                 alt={d.name}
                                 loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
@@ -1389,6 +1536,11 @@ export const MasterHubView = ({
                                   }
                                 }}
                               />
+                              {designImgs.length > 1 && (
+                                <span className="absolute bottom-0.5 right-0.5 px-1 py-0.2 rounded bg-[#5B172E]/90 text-white text-[9px] font-bold leading-tight shadow">
+                                  +{designImgs.length - 1}
+                                </span>
+                              )}
                               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <Eye className="w-4 h-4 text-white drop-shadow" />
                               </div>
@@ -1429,8 +1581,8 @@ export const MasterHubView = ({
                   );
                 })}
               
-                {loadingKind("design") && <LoadingRow colSpan={8} />}
-                {!loadingKind("design") && filteredDesigns.length === 0 && (
+                {(designsLoading || loadingKind("design")) && <LoadingRow colSpan={8} />}
+                {!designsLoading && !loadingKind("design") && paginatedDesigns.length === 0 && (
                   <tr>
                     <td colSpan={8} className="py-12 px-4 text-center bg-white">
                       <div className="font-serif text-base font-bold text-[#431021]">No design records found</div>
@@ -1441,6 +1593,57 @@ export const MasterHubView = ({
               </tbody>
             </table>
           </div>
+
+          {/* Designs Pagination Controls */}
+          {designTotalCount > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-[#E8DFD3] bg-[#FAF7F2] text-xs">
+              <div className="flex items-center gap-2 text-stone-600">
+                <span>
+                  Showing{' '}
+                  <strong className="text-[#431021]">
+                    {(safeDesignPage - 1) * designPageSize + 1}–{Math.min(safeDesignPage * designPageSize, designTotalCount)}
+                  </strong>{' '}
+                  of <strong className="text-[#431021]">{designTotalCount}</strong> designs
+                </span>
+                <select
+                  value={designPageSize}
+                  onChange={(e) => {
+                    setDesignPageSize(Number(e.target.value));
+                    setDesignPage(1);
+                  }}
+                  className="ml-2 px-2 py-1 rounded-lg border border-[#DECDB8] bg-white text-stone-700 font-semibold focus:outline-none focus:ring-1 focus:ring-[#5B172E]"
+                >
+                  <option value={15}>15 / page</option>
+                  <option value={30}>30 / page</option>
+                  <option value={50}>50 / page</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={safeDesignPage <= 1}
+                  onClick={() => setDesignPage((p) => Math.max(1, p - 1))}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#DECDB8] bg-white text-stone-700 font-semibold hover:bg-[#FAF5EE] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Prev</span>
+                </button>
+                <span className="px-2.5 py-1 font-bold text-[#5B172E]">
+                  Page {safeDesignPage} of {totalDesignPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={safeDesignPage >= totalDesignPages}
+                  onClick={() => setDesignPage((p) => Math.min(totalDesignPages, p + 1))}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#DECDB8] bg-white text-stone-700 font-semibold hover:bg-[#FAF5EE] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1458,51 +1661,134 @@ export const MasterHubView = ({
         users={users}
       />
 
-      {/* LIGHTBOX MODAL FOR FULL RESOLUTION IMAGE PREVIEW */}
+      {/* E-COMMERCE STYLE MULTI-IMAGE GALLERY LIGHTBOX */}
       {previewImage && (
         <div
           onClick={() => setPreviewImage(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-[#DECDB8] animate-in zoom-in-95 duration-200"
+            className="relative bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-[#DECDB8] animate-in zoom-in-95 duration-200"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#DECDB8] bg-[#FAF8F5]">
-              <div>
-                <h4 className="font-serif font-bold text-stone-900 text-sm sm:text-base">
-                  {previewImage.name}
-                </h4>
-                <span className="text-[11px] font-mono font-bold text-[#5B172E] bg-[#FAF5EE] px-2 py-0.5 rounded-full border border-[#DECDB8]">
-                  {previewImage.sku}
-                </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-serif font-bold text-stone-900 text-sm sm:text-base truncate">
+                    {previewImage.name}
+                  </h4>
+                  {previewImage.images.length > 1 && (
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#5B172E] text-white">
+                      {previewImage.index + 1} / {previewImage.images.length}
+                    </span>
+                  )}
+                  {previewImage.loadingGallery && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 animate-pulse">
+                      Loading photos...
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="text-[11px] font-mono font-bold text-[#5B172E] bg-[#FAF5EE] px-2 py-0.5 rounded-full border border-[#DECDB8]">
+                    {previewImage.sku}
+                  </span>
+                  {previewImage.category && (
+                    <span className="text-[11px] text-stone-500 font-medium">
+                      {previewImage.category}{previewImage.type ? ` • ${previewImage.type}` : ''}
+                    </span>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => setPreviewImage(null)}
-                className="p-1.5 rounded-full hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors"
+                className="p-1.5 rounded-full hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
                 title="Close (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* High-Res Image Display */}
-            <div className="relative p-4 flex items-center justify-center bg-stone-950 min-h-[350px] max-h-[75vh] overflow-hidden">
+            {/* Main Image Stage with Left/Right Arrows */}
+            <div className="relative p-4 flex items-center justify-center bg-stone-950 min-h-[360px] max-h-[65vh] overflow-hidden select-none">
+              {previewImage.images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviewImage((prev) =>
+                      prev ? { ...prev, index: (prev.index - 1 + prev.images.length) % prev.images.length } : null
+                    )
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#431021] shadow-lg flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
+                  title="Previous image (←)"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
+
               <img
-                src={previewImage.url}
-                alt={previewImage.name}
-                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg select-none"
+                key={previewImage.images[previewImage.index]}
+                src={previewImage.images[previewImage.index]}
+                alt={`${previewImage.name} - ${previewImage.index + 1}`}
+                className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-lg animate-in fade-in duration-150"
               />
+
+              {previewImage.images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviewImage((prev) =>
+                      prev ? { ...prev, index: (prev.index + 1) % prev.images.length } : null
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#431021] shadow-lg flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
+                  title="Next image (→)"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
             </div>
+
+            {/* E-commerce Style Horizontal Scrollable Thumbnail Strip */}
+            {previewImage.images.length > 1 && (
+              <div className="px-4 py-3 bg-[#FAF8F5] border-t border-[#DECDB8] overflow-x-auto">
+                <div className="flex items-center gap-2.5 min-w-max">
+                  {previewImage.images.map((imgUrl, idx) => {
+                    const isActive = idx === previewImage.index;
+                    return (
+                      <button
+                        key={`${imgUrl}-${idx}`}
+                        type="button"
+                        onClick={() => setPreviewImage((prev) => (prev ? { ...prev, index: idx } : null))}
+                        className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                          isActive
+                            ? 'border-[#5B172E] ring-2 ring-[#5B172E]/25 scale-105 shadow-sm'
+                            : 'border-[#DECDB8] opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`Thumbnail ${idx + 1}`}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Footer with actions */}
             <div className="p-3 bg-white border-t border-[#DECDB8] flex items-center justify-between">
               <span className="text-xs text-stone-500">
-                Original High-Resolution Design Asset
+                {previewImage.images.length > 1
+                  ? 'Use ← → arrow keys or click thumbnails to browse'
+                  : 'Original High-Resolution Design Asset'}
               </span>
               <a
-                href={previewImage.url}
+                href={previewImage.images[previewImage.index]}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5B172E] bg-[#FAF5EE] border border-[#DECDB8] hover:bg-[#FAF8F5] transition-colors"

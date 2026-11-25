@@ -92,7 +92,7 @@ export const Sidebar = ({
             className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm shadow-xs border-2 border-[#C5A059]/40 hover:scale-105 transition-transform overflow-hidden"
             title="Click to Expand Sidebar"
           >
-            <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img src="/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </button>
 
           <button
@@ -248,7 +248,7 @@ export const Sidebar = ({
               className="flex items-center space-x-3 cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full bg-[#5B172E] text-[#FAF6F0] flex items-center justify-center shadow-xs border-2 border-[#C5A059]/40 shrink-0 overflow-hidden">
-                <img src="/assets/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                <img src="/Logo.jpeg" alt="Sainy Garg" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
               </div>
               <div>
                 <h1 className="font-serif text-lg font-bold tracking-wider text-[#431021] uppercase leading-none">

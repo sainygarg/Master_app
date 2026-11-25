@@ -90,7 +90,7 @@ const SettingsGate = () => {
     masterUser = null;
   }
   return canUserAccessPage(masterUser, 'settings')
-    ? <Navigate to="/order-to-delivery/settings" replace />
+    ? <Navigate to="/settings" replace />
     : <Navigate to="/checklist/admin" replace />;
 };
 

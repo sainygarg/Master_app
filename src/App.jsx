@@ -123,7 +123,16 @@ function AppRoutes() {
         }
       />
 
-      {/* System 2: Order to Delivery */}
+      {/* System 2: Order to Delivery & Master Hub Settings */}
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute requiredPageId="settings">
+            <OrderToDeliveryApp />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/order-to-delivery/settings" element={<Navigate to="/settings" replace />} />
       <Route
         path="/order-to-delivery/*"
         element={

@@ -36,7 +36,7 @@ systemRegistry.register({
     },
     {
       label: 'Master Settings',
-      href: '/order-to-delivery/settings',
+      href: '/settings',
       viewKey: 'settings',
       icon: 'Database',
       showFor: ['Admin'],

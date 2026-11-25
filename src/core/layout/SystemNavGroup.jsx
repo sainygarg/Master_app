@@ -99,7 +99,7 @@ export function OtherSystemGroup({ systemId, onNavigate }) {
           to: `/order-to-delivery/stages/${s.id}`,
         })),
       },
-      { label: 'Master', icon: 'Database', to: '/order-to-delivery/settings' },
+      { label: 'Master', icon: 'Database', to: '/settings' },
     ];
   } else {
     const role = (localStorage.getItem('role') || 'user').toLowerCase();

@@ -79,7 +79,9 @@ export function App() {
   const navigate = useNavigate();
   const VIEWS = ['dashboard', 'orders', 'design-sheet', 'stages', 'settings'];
   const pathSegs = location.pathname.split('/').filter(Boolean); // ['order-to-delivery', view, stageId]
-  const currentView = VIEWS.includes(pathSegs[1]) ? pathSegs[1] : 'orders'; // default to Orders page
+  const currentView = location.pathname === '/settings'
+    ? 'settings'
+    : (VIEWS.includes(pathSegs[1]) ? pathSegs[1] : 'orders'); // default to Orders page
   const selectedStageId = STAGES.some((s) => s.id === pathSegs[2]) ? pathSegs[2] : STAGES[0].id;
 
   // Keeps the latest requested stage so setSelectedStageId(x); setCurrentView('stages') works in one tick

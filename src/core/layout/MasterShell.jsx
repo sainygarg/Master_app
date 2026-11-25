@@ -119,7 +119,7 @@ export default function MasterShell({ children }) {
   const isPcActive = isPc;
   const isOrderFlowActive = isOrderFlow && currentViewParam !== 'settings';
   const isChecklistActive = isChecklist;
-  const isMasterSettingActive = isOrderFlow && currentViewParam === 'settings';
+  const isMasterSettingActive = location.pathname === '/settings' || (isOrderFlow && currentViewParam === 'settings');
 
   // Keep dropdown open for the active module on mount or manual route changes, but do not force-close the other module
   useEffect(() => {
@@ -278,6 +278,7 @@ export default function MasterShell({ children }) {
   // Current page title computation for header breadcrumb
   const pageTitle = useMemo(() => {
     if (isProfile) return 'My Profile';
+    if (location.pathname === '/settings') return 'Settings';
     if (isOrderFlow) {
       if (currentViewParam === 'dashboard') return 'Dashboard';
       if (currentViewParam === 'stages') {
@@ -438,7 +439,7 @@ export default function MasterShell({ children }) {
               {/* 3. Master Setting Icon */}
               {canSettings && (
                 <button
-                  onClick={() => { handleNavigate('/order-to-delivery/settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  onClick={() => { handleNavigate('/settings'); setOrderFlowOpen(false); setChecklistOpen(false); }}
                   className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                     }`}
                   title="Settings"
@@ -771,7 +772,7 @@ export default function MasterShell({ children }) {
               {canSettings && (
                 <button
                   type="button"
-                  onClick={() => handleNavigate('/order-to-delivery/settings')}
+                  onClick={() => handleNavigate('/settings')}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer select-none ${isMasterSettingActive
                       ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                       : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
@@ -1104,7 +1105,7 @@ export default function MasterShell({ children }) {
               {canSettings && (
                 <button
                   type="button"
-                  onClick={() => handleNavigate('/order-to-delivery/settings')}
+                  onClick={() => handleNavigate('/settings')}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isMasterSettingActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-700 hover:bg-[#F3ECE2]'
                     }`}
                 >

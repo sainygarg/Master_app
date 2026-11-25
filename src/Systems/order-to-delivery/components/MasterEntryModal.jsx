@@ -252,18 +252,68 @@ export const MasterEntryModal = ({
         if (hasPending) {
           setIsUploadingImage(true);
           try {
+            const createWebpThumbnail = (file, maxSize = 240) =>
+              new Promise((resolve) => {
+                const img = new Image();
+                const objUrl = URL.createObjectURL(file);
+                img.onload = () => {
+                  try {
+                    const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                    const w = Math.max(1, Math.round(img.width * scale));
+                    const h = Math.max(1, Math.round(img.height * scale));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    canvas.toBlob((blob) => {
+                      URL.revokeObjectURL(objUrl);
+                      resolve(blob || null);
+                    }, 'image/webp', 0.78);
+                  } catch {
+                    URL.revokeObjectURL(objUrl);
+                    resolve(null);
+                  }
+                };
+                img.onerror = () => {
+                  URL.revokeObjectURL(objUrl);
+                  resolve(null);
+                };
+                img.src = objUrl;
+              });
+
+            let generatedThumbUrl = formData.thumbUrl || '';
             const resolvedImages = await Promise.all(
-              currentImages.map(async (url) => {
+              currentImages.map(async (url, idx) => {
                 const file = pendingFilesRef.current.get(url);
                 if (!file) return url;
                 try {
                   const cleanName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
                   const { error: upErr } = await supabase.storage.from('designs').upload(cleanName, file, {
                     contentType: file.type || 'image/jpeg',
+                    cacheControl: '31536000',
                     upsert: true
                   });
                   if (upErr) throw upErr;
                   const { data: pubData } = supabase.storage.from('designs').getPublicUrl(cleanName);
+
+                  // Generate & upload lightweight WebP thumbnail for the primary image
+                  if (idx === 0) {
+                    const thumbBlob = await createWebpThumbnail(file, 240);
+                    if (thumbBlob) {
+                      const thumbPath = `thumbs/thumb-${cleanName.replace(/\.[^.]+$/, '')}.webp`;
+                      const { error: tErr } = await supabase.storage.from('designs').upload(thumbPath, thumbBlob, {
+                        contentType: 'image/webp',
+                        cacheControl: '31536000',
+                        upsert: true
+                      });
+                      if (!tErr) {
+                        const { data: tPub } = supabase.storage.from('designs').getPublicUrl(thumbPath);
+                        generatedThumbUrl = tPub.publicUrl;
+                      }
+                    }
+                  }
+
                   return pubData.publicUrl;
                 } catch (err) {
                   console.error('Failed uploading to Supabase bucket:', err);
@@ -280,7 +330,8 @@ export const MasterEntryModal = ({
             payloadToSave = {
               ...formData,
               images: cleanResolved,
-              imageUrl: cleanResolved[0] || ''
+              imageUrl: cleanResolved[0] || '',
+              thumbUrl: generatedThumbUrl || cleanResolved[0] || ''
             };
           } finally {
             setIsUploadingImage(false);

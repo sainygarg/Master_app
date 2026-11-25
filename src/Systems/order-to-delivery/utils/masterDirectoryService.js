@@ -34,6 +34,7 @@ const fromDbRow = (kind, row) => {
       color: row.color || '',
       description: row.description || '',
       imageUrl: row.image_url || mergedImages[0] || '',
+      thumbUrl: row.thumb_url || row.image_url || mergedImages[0] || '',
       images: mergedImages,
       createdAt: row.created_at
     };
@@ -120,6 +121,7 @@ const toDbRow = (kind, item) => {
       color: item.color || null,
       description: item.description || null,
       image_url: images[0] || item.imageUrl || item.image_url || null,
+      thumb_url: item.thumbUrl || item.thumb_url || null,
       images
     };
   }
@@ -239,24 +241,46 @@ export const fetchDesignsPage = async ({ page = 1, pageSize = 15, search = '' } 
   const to = from + pageSize - 1;
   const q = String(search || '').trim().replace(/[,()"\\]/g, ' ');
 
-  let query = supabase
-    .from(getTableName('design'))
-    .select('id, sku, name, category, type, color, description, image_url, created_at', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(from, to);
+  const buildQuery = (cols) => {
+    let query = supabase
+      .from(getTableName('design'))
+      .select(cols, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-  if (q) {
-    query = query.or(
-      `name.ilike.%${q}%,sku.ilike.%${q}%,category.ilike.%${q}%,type.ilike.%${q}%,color.ilike.%${q}%,description.ilike.%${q}%`
+    if (q) {
+      query = query.or(
+        `name.ilike.%${q}%,sku.ilike.%${q}%,category.ilike.%${q}%,type.ilike.%${q}%,color.ilike.%${q}%,description.ilike.%${q}%`
+      );
+    }
+    return query;
+  };
+
+  let { data, count, error } = await buildQuery(
+    'id, sku, name, category, type, color, description, image_url, thumb_url, created_at'
+  );
+  if (error && String(error.message || '').includes('thumb_url')) {
+    const fallback = await buildQuery(
+      'id, sku, name, category, type, color, description, image_url, created_at'
     );
+    data = fallback.data;
+    count = fallback.count;
+    error = fallback.error;
   }
-
-  const { data, count, error } = await query;
   if (error) throw error;
   return {
     rows: (data || []).map((r) => fromDbRow('design', r)),
     total: count ?? 0
   };
+};
+
+// Lightweight ID-only lookup for generating the next sequential ID without downloading all rows
+export const fetchNextMasterId = async (kind) => {
+  const { data, error } = await supabase
+    .from(getTableName(kind))
+    .select('id');
+  if (error) throw error;
+  return generateNextMasterId(kind, data || []);
 };
 
 // On-demand single-design gallery fetch (called only when user clicks a design image or Edit)
@@ -289,9 +313,9 @@ export const saveMaster = async (kind, item) => {
   const table = getTableName(kind);
   const row = toDbRow(kind, item);
   const { error } = await supabase.from(table).upsert(row, { onConflict: 'id' });
-  if (error && kind === 'design' && String(error.message || '').includes('images')) {
-    const { images: _ignored, ...rowWithoutImages } = row;
-    const fallback = await supabase.from(table).upsert(rowWithoutImages, { onConflict: 'id' });
+  if (error && kind === 'design' && (String(error.message || '').includes('images') || String(error.message || '').includes('thumb_url'))) {
+    const { images: _ignoredImages, thumb_url: _ignoredThumb, ...safeRow } = row;
+    const fallback = await supabase.from(table).upsert(safeRow, { onConflict: 'id' });
     if (fallback.error) throw fallback.error;
     cache.delete(kind);
     return;
@@ -311,9 +335,9 @@ export const insertMaster = async (kind, item) => {
   const table = getTableName(kind);
   const row = toDbRow(kind, item);
   const { error } = await supabase.from(table).insert(row);
-  if (error && kind === 'design' && String(error.message || '').includes('images')) {
-    const { images: _ignored, ...rowWithoutImages } = row;
-    const fallback = await supabase.from(table).insert(rowWithoutImages);
+  if (error && kind === 'design' && (String(error.message || '').includes('images') || String(error.message || '').includes('thumb_url'))) {
+    const { images: _ignoredImages, thumb_url: _ignoredThumb, ...safeRow } = row;
+    const fallback = await supabase.from(table).insert(safeRow);
     if (fallback.error) throw fallback.error;
     cache.delete(kind);
     return;

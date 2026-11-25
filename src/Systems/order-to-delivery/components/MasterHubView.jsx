@@ -37,7 +37,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId, fetchMasterCounts, fetchDesignsPage, fetchDesignImages } from '../utils/masterDirectoryService';
+import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId, fetchMasterCounts, fetchDesignsPage, fetchDesignImages, fetchNextMasterId } from '../utils/masterDirectoryService';
 import { isApexAdmin, canModify, canUserAccessPage, canUserAccessChecklistPage, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
@@ -106,6 +106,18 @@ export const MasterHubView = ({
 
   useEffect(() => {
     if (!previewImage) return;
+    // Prefetch only adjacent (next & previous) full-res images for instant arrow navigation
+    const imgs = previewImage.images || [];
+    if (imgs.length > 1) {
+      const nextUrl = imgs[(previewImage.index + 1) % imgs.length];
+      const prevUrl = imgs[(previewImage.index - 1 + imgs.length) % imgs.length];
+      [nextUrl, prevUrl].forEach((u) => {
+        if (u) {
+          const img = new Image();
+          img.src = u;
+        }
+      });
+    }
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         setPreviewImage(null);
@@ -298,18 +310,18 @@ export const MasterHubView = ({
         await saveMaster(masterModalType, itemData);
         cfg.set(cfg.items.map((i) => (i.id === itemData.id ? itemData : i)));
       } else {
-        // New entry: take the id from the latest DB state (never overwrite an existing record)
-        const fresh = await fetchMasters(masterModalType, { force: true });
-        const item = { ...itemData, id: generateNextMasterId(masterModalType, fresh) };
+        // New entry: fetch only IDs to generate next sequential ID (never downloads full rows)
+        const nextGeneratedId = await fetchNextMasterId(masterModalType);
+        const item = { ...itemData, id: nextGeneratedId };
         await insertMaster(masterModalType, item);
         setTabCounts((prev) => ({
           ...prev,
-          [masterModalType]: (prev[masterModalType] ?? fresh.length) + 1
+          [masterModalType]: (prev[masterModalType] ?? cfg.items.length) + 1
         }));
         if (masterModalType === 'design') {
           await loadCurrentDesignsPage();
         } else {
-          cfg.set(cfg.append ? [...fresh, item] : [item, ...fresh]);
+          cfg.set(cfg.append ? [...cfg.items, item] : [item, ...cfg.items]);
         }
       }
       showToast('Saved successfully!', 'success');
@@ -1439,8 +1451,9 @@ export const MasterHubView = ({
                     ? d.images.filter(Boolean)
                     : (d.imageUrl ? [d.imageUrl] : []);
                   const primaryImg = designImgs[0] || '';
+                  const tableThumb = d.thumbUrl || primaryImg;
                   return (
-                    <tr key={d.id} className="hover:bg-[#FCFAF7] transition-colors">
+                    <tr key={d.id} className="hover:bg-[#FCFAF7] transition-colors [content-visibility:auto]">
                       <td className="py-3 px-4 bg-white border-r border-[#DECDB8] align-middle">
                         {isConfirming ? (
                           <div className="flex items-center gap-1.5 animate-in fade-in">
@@ -1521,10 +1534,10 @@ export const MasterHubView = ({
                           }`}
                           title={designImgs.length > 1 ? `Click to view all ${designImgs.length} images` : primaryImg ? 'Click to view full image' : 'No image'}
                         >
-                          {primaryImg ? (
+                          {tableThumb ? (
                             <>
                               <img
-                                src={primaryImg}
+                                src={tableThumb}
                                 alt={d.name}
                                 loading="lazy"
                                 decoding="async"

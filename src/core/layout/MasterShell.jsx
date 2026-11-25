@@ -40,7 +40,7 @@ import {
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
 import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userAuthService';
 import { STAGES } from '../../Systems/order-to-delivery/types/stages';
-import { fetchOrders } from '../../Systems/order-to-delivery/utils/storage';
+import { fetchOrders } from '../../Systems/order-to-delivery/utils/orderService';
 import { useChecklistDelegationPendingCounts } from '../../Systems/checklist-delegation/hooks/usePendingCounts';
 
 // Mark Master System as active so embedded layouts (AdminLayout, UserLayout, OrderToDeliveryApp)
@@ -305,8 +305,8 @@ export default function MasterShell({ children }) {
     return 'Dashboard';
   }, [isProfile, isOrderFlow, currentViewParam, currentStageParam, location.pathname]);
 
-  // If not authenticated, render plain shell
-  if (!isAuthenticated && !localStorage.getItem('sainy_couture_auth_user_v3') && !localStorage.getItem('user-name')) {
+  // If not authenticated, render plain shell without header and sidebar
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen w-full flex flex-col bg-[#FAF6F0] text-stone-800 antialiased selection:bg-[#5B172E] selection:text-white">
         {children}

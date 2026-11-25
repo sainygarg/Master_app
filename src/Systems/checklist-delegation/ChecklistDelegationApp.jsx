@@ -63,7 +63,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const hasAuth = !!username || !!masterAuth;
 
   if (!hasAuth) {
-    return <Navigate to="/order-to-delivery" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Unified RBAC check against Master Hub permissions

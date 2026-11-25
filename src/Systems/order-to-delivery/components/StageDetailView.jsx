@@ -29,7 +29,7 @@ import {
 import { STAGES, isStageSkipped } from '../types/stages';
 import { StageUpdateModal } from './StageUpdateModal';
 import { CustomerPhoneDisplay } from '../utils/privacy';
-import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
+import { fetchMasters, getCachedMasters } from '../utils/masterDirectoryService';
 import { getStagePlannedTime, getStageActualTime, formatPlanned, formatDelay } from '../utils/stageTiming';
 import { canModify, isApexAdmin } from '../utils/userAuthService';
 

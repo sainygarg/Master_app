@@ -18,7 +18,7 @@ const UserLayout = ({ children }) => {
     const storedUsername = localStorage.getItem('user-name')
 
     if (!storedUsername) {
-      navigate('/order-to-delivery')
+      navigate('/login')
       return
     }
 

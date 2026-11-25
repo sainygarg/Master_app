@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUnifiedAuth } from '../../core/auth/UnifiedAuthContext';
 import { Sidebar } from './components/Sidebar';
 import { LoginPage } from './components/LoginPage';
 import { DashboardView } from './components/DashboardView';
 import { OrdersView } from './components/OrdersView';
 import { StageDetailView } from './components/StageDetailView';
-import { UserManagementView } from './components/UserManagementView';
+import { MasterHubView } from './components/MasterHubView';
 import { UserFormModal } from './components/UserFormModal';
 import { OrderFormModal } from './components/OrderFormModal';
 import { OrderDetailDrawer } from './components/OrderDetailDrawer';
 import { MeasurementsModal } from './components/MeasurementsModal';
 import { DesignSheetView } from './components/DesignSheetView';
 import { STAGES, getNextStageIndex } from './types/stages';
-import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId, getCachedOrders, syncOrdersCache } from './utils/storage';
+import { fetchOrders, saveOrder, insertOrder, removeOrder, generateNextOrderId, getCachedOrders, syncOrdersCache } from './utils/orderService';
 import {
   fetchUsers,
   fetchUserIds,
@@ -61,20 +62,8 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Authentication State
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const savedAuth = localStorage.getItem(AUTH_USER_KEY);
-      if (savedAuth) {
-        const parsed = JSON.parse(savedAuth);
-        // ensure user exists in current users list
-        return parsed;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return null; // start at Login page or null
-  });
+  // Authentication State directly connected to UnifiedAuthContext
+  const { user: currentUser, login: setUnifiedLogin, logout: handleLogout } = useUnifiedAuth();
 
   // Orders State
   // Start from the cached copy (if any) so pages paint instantly; fresh data replaces it
@@ -216,35 +205,11 @@ export function App() {
 
   // Login Handler
   const handleLogin = (user) => {
-    setCurrentUser(user);
+    setUnifiedLogin(user);
     const view = isApexAdmin(user) ? 'dashboard' : 'orders';
     setCurrentView(view);
-    // Cross-system credential bridge
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-    localStorage.setItem('user-name', user.username || user.name); // must match users.user_name for task RBAC
-    localStorage.setItem('user_name', user.username || user.name);
-    localStorage.setItem('role', (user.role || 'user').toLowerCase());
-    localStorage.setItem('can_self_assign', 'true');
     showToast(`Welcome back, ${user.name}! (${user.role} role)`, 'success');
-    navigate('/checklist/admin', { replace: true }); // Checklist Dashboard is the default landing page
-    try {
-      window.dispatchEvent(new Event('unified-auth-changed'));
-    } catch {}
-  };
-
-  // Logout Handler
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem(AUTH_USER_KEY);
-    try { sessionStorage.removeItem('otd_orders_cache_v1'); } catch { /* ignore */ }
-    localStorage.removeItem('user-name');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('role');
-    localStorage.removeItem('can_self_assign');
-    showToast('Signed out successfully.', 'info');
-    try {
-      window.dispatchEvent(new Event('unified-auth-changed'));
-    } catch {}
+    navigate('/dashboard', { replace: true });
   };
 
   // =========================================================================
@@ -662,7 +627,7 @@ export function App() {
           {/* 4. Master / Setting Page */}
           {currentView === 'settings' && (
             canUserAccessPage(currentUser, 'settings') ? (
-              <UserManagementView
+              <MasterHubView
                 usersLoading={usersLoading}
                 users={users}
                 activeUserId={currentUser?.id}

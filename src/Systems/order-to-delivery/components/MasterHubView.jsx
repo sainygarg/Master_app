@@ -35,13 +35,13 @@ import {
   Sparkles
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterStorage';
+import { fetchMasters, getCachedMasters, saveMaster, insertMaster, deleteMaster, generateNextMasterId } from '../utils/masterDirectoryService';
 import { isApexAdmin, canModify, ALL_CHECKLIST_PAGE_IDS, ALL_PAGE_IDS } from '../utils/userAuthService';
 import { MasterEntryModal } from './MasterEntryModal';
 import { CustomerPhoneDisplay, maskCustomerMobile } from '../utils/privacy';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
 
-export const UserManagementView = ({
+export const MasterHubView = ({
   users = [],
   usersLoading = false,
   activeUserId,

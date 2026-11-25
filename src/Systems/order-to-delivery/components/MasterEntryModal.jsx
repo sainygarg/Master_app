@@ -41,7 +41,16 @@ export const MasterEntryModal = ({
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [imageUploadMode, setImageUploadMode] = useState('upload'); // 'upload' | 'url'
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
   const fileInputRef = useRef(null);
+  const pendingFilesRef = useRef(new Map()); // blobUrl -> File
+
+  const clearPendingFiles = () => {
+    pendingFilesRef.current.forEach((_, blobUrl) => {
+      try { URL.revokeObjectURL(blobUrl); } catch {}
+    });
+    pendingFilesRef.current.clear();
+  };
 
   // Department choices come from the database (Master Hub departments)
   useEffect(() => {
@@ -50,8 +59,21 @@ export const MasterEntryModal = ({
   }, [type, isOpen]);
 
   useEffect(() => {
+    clearPendingFiles();
+    setUrlInput('');
     if (initialData) {
-      setFormData({ ...initialData });
+      if (type === 'design') {
+        const initImages = Array.isArray(initialData.images) && initialData.images.length > 0
+          ? initialData.images.filter(Boolean)
+          : (initialData.imageUrl ? [initialData.imageUrl] : []);
+        setFormData({
+          ...initialData,
+          images: initImages,
+          imageUrl: initImages[0] || ''
+        });
+      } else {
+        setFormData({ ...initialData });
+      }
     } else {
       // Default empty templates
       if (type === 'customer') {
@@ -87,7 +109,8 @@ export const MasterEntryModal = ({
           type: '',
           color: '',
           description: '',
-          imageUrl: ''
+          imageUrl: '',
+          images: []
         });
       } else if (type === 'karigar') {
         setFormData({
@@ -125,6 +148,60 @@ export const MasterEntryModal = ({
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }));
     }
+  };
+
+  const addDesignImages = (newUrls = []) => {
+    const clean = newUrls.map((u) => String(u || '').trim()).filter(Boolean);
+    if (clean.length === 0) return;
+    setFormData((prev) => {
+      const existing = Array.isArray(prev.images)
+        ? prev.images
+        : (prev.imageUrl ? [prev.imageUrl] : []);
+      const merged = [...existing];
+      clean.forEach((u) => {
+        if (!merged.includes(u)) merged.push(u);
+      });
+      return {
+        ...prev,
+        images: merged,
+        imageUrl: merged[0] || ''
+      };
+    });
+  };
+
+  const removeDesignImage = (indexToRemove) => {
+    setFormData((prev) => {
+      const existing = Array.isArray(prev.images)
+        ? prev.images
+        : (prev.imageUrl ? [prev.imageUrl] : []);
+      const removedUrl = existing[indexToRemove];
+      if (removedUrl && pendingFilesRef.current.has(removedUrl)) {
+        try { URL.revokeObjectURL(removedUrl); } catch {}
+        pendingFilesRef.current.delete(removedUrl);
+      }
+      const next = existing.filter((_, idx) => idx !== indexToRemove);
+      return {
+        ...prev,
+        images: next,
+        imageUrl: next[0] || ''
+      };
+    });
+  };
+
+  const setPrimaryDesignImage = (indexToPromote) => {
+    setFormData((prev) => {
+      const existing = Array.isArray(prev.images)
+        ? [...prev.images]
+        : (prev.imageUrl ? [prev.imageUrl] : []);
+      if (indexToPromote <= 0 || indexToPromote >= existing.length) return prev;
+      const [chosen] = existing.splice(indexToPromote, 1);
+      const next = [chosen, ...existing];
+      return {
+        ...prev,
+        images: next,
+        imageUrl: next[0] || ''
+      };
+    });
   };
 
   const [submitting, setSubmitting] = useState(false);
@@ -166,8 +243,56 @@ export const MasterEntryModal = ({
 
     setSubmitting(true);
     try {
-      const ok = await onSubmit(formData);
-      if (ok !== false) onClose(); // keep the form open (data intact) if the save failed
+      let payloadToSave = formData;
+      if (type === 'design') {
+        const currentImages = Array.isArray(formData.images)
+          ? formData.images
+          : (formData.imageUrl ? [formData.imageUrl] : []);
+        const hasPending = currentImages.some((u) => pendingFilesRef.current.has(u));
+        if (hasPending) {
+          setIsUploadingImage(true);
+          try {
+            const resolvedImages = await Promise.all(
+              currentImages.map(async (url) => {
+                const file = pendingFilesRef.current.get(url);
+                if (!file) return url;
+                try {
+                  const cleanName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                  const { error: upErr } = await supabase.storage.from('designs').upload(cleanName, file, {
+                    contentType: file.type || 'image/jpeg',
+                    upsert: true
+                  });
+                  if (upErr) throw upErr;
+                  const { data: pubData } = supabase.storage.from('designs').getPublicUrl(cleanName);
+                  return pubData.publicUrl;
+                } catch (err) {
+                  console.error('Failed uploading to Supabase bucket:', err);
+                  return await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => resolve(ev.target?.result || '');
+                    reader.onerror = () => resolve('');
+                    reader.readAsDataURL(file);
+                  });
+                }
+              })
+            );
+            const cleanResolved = resolvedImages.filter(Boolean);
+            payloadToSave = {
+              ...formData,
+              images: cleanResolved,
+              imageUrl: cleanResolved[0] || ''
+            };
+          } finally {
+            setIsUploadingImage(false);
+          }
+        }
+      }
+
+      const ok = await onSubmit(payloadToSave);
+      if (ok !== false) {
+        clearPendingFiles();
+        onClose(); // keep the form open (data intact) if the save failed
+      }
     } finally {
       setSubmitting(false);
     }
@@ -584,11 +709,11 @@ export const MasterEntryModal = ({
                   />
                 </div>
 
-                {/* DESIGN IMAGE SELECTION: LOCAL DEVICE FILE OR URL / LINK */}
-                <div className="sm:col-span-2 space-y-2">
+                {/* DESIGN IMAGE SELECTION: MULTIPLE LOCAL DEVICE FILES OR URLS */}
+                <div className="sm:col-span-2 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <label className="block font-semibold text-stone-700 text-xs">
-                      Design Image Asset
+                      Design Images <span className="text-stone-400 font-normal">({(formData.images || []).length} added)</span>
                     </label>
                     <div className="flex items-center gap-1 bg-[#FAF5EE] p-0.5 rounded-lg border border-[#DECDB8] text-[11px]">
                       <button
@@ -617,66 +742,39 @@ export const MasterEntryModal = ({
                   </div>
 
                   {imageUploadMode === 'upload' ? (
-                    <div className="flex items-center gap-3">
+                    <div>
                       <input
                         type="file"
+                        multiple
                         ref={fileInputRef}
                         accept="image/png,image/jpeg,image/jpg,image/webp"
                         className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              setIsUploadingImage(true);
-                              const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-                              const { error: upErr } = await supabase.storage.from('designs').upload(cleanName, file, {
-                                contentType: file.type || 'image/jpeg',
-                                upsert: true
-                              });
-                              if (upErr) throw upErr;
-                              const { data: pubData } = supabase.storage.from('designs').getPublicUrl(cleanName);
-                              handleChange('imageUrl', pubData.publicUrl);
-                            } catch (err) {
-                              console.error('Failed uploading to Supabase bucket:', err);
-                              // Fallback to data URL if network/storage error
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                handleChange('imageUrl', event.target.result);
-                              };
-                              reader.readAsDataURL(file);
-                            } finally {
-                              setIsUploadingImage(false);
-                            }
-                          }
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
+                          e.target.value = '';
+                          if (files.length === 0) return;
+
+                          const previewUrls = files.map((file) => {
+                            const previewUrl = URL.createObjectURL(file);
+                            pendingFilesRef.current.set(previewUrl, file);
+                            return previewUrl;
+                          });
+                          addDesignImages(previewUrls);
                         }}
                       />
                       <button
                         type="button"
-                        disabled={isUploadingImage}
+                        disabled={submitting || isUploadingImage}
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#DECDB8] hover:border-[#5B172E] rounded-xl bg-[#FAF8F5] text-stone-600 hover:text-[#5B172E] transition-all text-xs font-semibold disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#DECDB8] hover:border-[#5B172E] rounded-xl bg-[#FAF8F5] text-stone-600 hover:text-[#5B172E] transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
                       >
                         <Upload className="w-4 h-4 text-[#C5A059]" />
-                        <span>{isUploadingImage ? 'Uploading to Supabase Storage...' : 'Upload photo to Supabase designs bucket'}</span>
+                        <span>
+                          {isUploadingImage
+                            ? 'Uploading photos to Supabase Storage...'
+                            : 'Select photos from device (uploads on Save)'}
+                        </span>
                       </button>
-
-                      {formData.imageUrl && (
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-[#DECDB8] shrink-0 bg-stone-100">
-                          <img
-                            src={formData.imageUrl}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleChange('imageUrl', '')}
-                            className="absolute top-0 right-0 bg-rose-600 text-white rounded-bl p-0.5"
-                            title="Remove image"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -684,22 +782,75 @@ export const MasterEntryModal = ({
                         <LinkIcon className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
-                          value={formData.imageUrl || ''}
-                          onChange={(e) => handleChange('imageUrl', e.target.value)}
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (urlInput.trim()) {
+                                addDesignImages([urlInput.trim()]);
+                                setUrlInput('');
+                              }
+                            }
+                          }}
                           placeholder="https://... or /designs/SKU.jpg"
                           className="w-full pl-8 pr-3 py-2 text-xs bg-white border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
                         />
                       </div>
-                      {formData.imageUrl && (
-                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#DECDB8] shrink-0 bg-stone-100">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!urlInput.trim()) return;
+                          addDesignImages([urlInput.trim()]);
+                          setUrlInput('');
+                        }}
+                        className="px-3 py-2 rounded-lg bg-[#5B172E] text-white text-xs font-semibold hover:bg-[#431021] transition-colors shrink-0 cursor-pointer"
+                      >
+                        Add URL
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Multi-Image Preview Grid */}
+                  {Array.isArray(formData.images) && formData.images.length > 0 && (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
+                      {formData.images.map((imgUrl, idx) => (
+                        <div
+                          key={`${imgUrl}-${idx}`}
+                          className={`relative group aspect-square rounded-xl overflow-hidden border bg-stone-100 ${
+                            idx === 0 ? 'border-[#5B172E] ring-2 ring-[#5B172E]/20' : 'border-[#DECDB8]'
+                          }`}
+                        >
                           <img
-                            src={formData.imageUrl}
-                            alt="Preview"
+                            src={imgUrl}
+                            alt={`Design ${idx + 1}`}
                             className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            onError={(e) => { e.currentTarget.style.opacity = '0.35'; }}
                           />
+                          {idx === 0 ? (
+                            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-[#5B172E]/90 text-white text-[9px] font-bold">
+                              Primary
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setPrimaryDesignImage(idx)}
+                              className="opacity-0 group-hover:opacity-100 absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-[9px] font-semibold transition-opacity cursor-pointer"
+                              title="Set as primary image"
+                            >
+                              Set Primary
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeDesignImage(idx)}
+                            className="absolute top-1 right-1 bg-rose-600 text-white rounded-full p-0.5 shadow hover:bg-rose-700 cursor-pointer"
+                            title="Remove image"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
                         </div>
-                      )}
+                      ))}
                     </div>
                   )}
                 </div>

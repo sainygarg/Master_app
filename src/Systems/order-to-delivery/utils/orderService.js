@@ -45,11 +45,24 @@ export const fetchOrders = async () => {
   if (inflight) return inflight; // de-duplicate concurrent fetches
   inflight = supabase
     .from(TABLE)
-    .select('data')
+    .select('data, order_note')
     .order('created_at', { ascending: false })
-    .then(({ data, error }) => {
+    .then(async ({ data, error }) => {
+      if (error && String(error.message || '').includes('order_note')) {
+        const fallback = await supabase
+          .from(TABLE)
+          .select('data')
+          .order('created_at', { ascending: false });
+        if (fallback.error) throw fallback.error;
+        const orders = (fallback.data || []).map((r) => r.data);
+        setCachedOrders(orders);
+        return orders;
+      }
       if (error) throw error;
-      const orders = (data || []).map((r) => r.data);
+      const orders = (data || []).map((r) => ({
+        ...r.data,
+        note: r.data?.note ?? r.order_note ?? ''
+      }));
       setCachedOrders(orders);
       return orders;
     })
@@ -65,12 +78,33 @@ export const syncOrdersCache = (orders) => setCachedOrders(orders);
 export const saveOrder = async (order) => {
   const { error } = await supabase
     .from(TABLE)
-    .upsert({ id: order.id, data: order, updated_at: new Date().toISOString() });
+    .upsert({
+      id: order.id,
+      data: order,
+      order_note: order.note || null,
+      updated_at: new Date().toISOString()
+    });
+  if (error && String(error.message || '').includes('order_note')) {
+    const fallback = await supabase
+      .from(TABLE)
+      .upsert({ id: order.id, data: order, updated_at: new Date().toISOString() });
+    if (fallback.error) throw fallback.error;
+    return;
+  }
   if (error) throw error;
 };
 
 export const insertOrder = async (order) => {
-  const { error } = await supabase.from(TABLE).insert({ id: order.id, data: order });
+  const { error } = await supabase
+    .from(TABLE)
+    .insert({ id: order.id, data: order, order_note: order.note || null });
+  if (error && String(error.message || '').includes('order_note')) {
+    const fallback = await supabase
+      .from(TABLE)
+      .insert({ id: order.id, data: order });
+    if (fallback.error) throw fallback.error;
+    return;
+  }
   if (error) throw error;
 };
 

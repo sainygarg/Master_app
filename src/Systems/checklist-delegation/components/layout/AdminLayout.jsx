@@ -34,7 +34,7 @@ export default function AdminLayout({ children, darkMode, toggleDarkMode, showLa
 
     if (!storedUsername) {
       // Redirect to login if not authenticated
-      navigate("/order-to-delivery");
+      navigate("/login");
       return;
     }
 

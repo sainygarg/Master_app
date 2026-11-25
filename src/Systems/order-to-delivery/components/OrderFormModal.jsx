@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Upload,
@@ -16,8 +16,8 @@ import {
   ZoomIn
 } from 'lucide-react';
 import { STAGES, UPPER_BODY_MEASUREMENTS, LOWER_BODY_MEASUREMENTS } from '../types/stages';
-import { uploadOrderImage } from '../utils/imageUpload';
-import { fetchMasters, getCachedMasters } from '../utils/masterStorage';
+import { uploadOrderImage } from '../utils/imageUploadService';
+import { fetchMasters, getCachedMasters } from '../utils/masterDirectoryService';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
 
 export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) => {
@@ -51,6 +51,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       designName: prefillSource?.designName || '',
       skuCode: prefillSource?.skuCode || '',
       description: prefillSource?.description || '',
+      note: '',
       size: prefillSource?.size || '',
       embroidery: prefillSource?.embroidery || 'Yes',
       catalogImageUrl: prefillSource?.catalogImageUrl || null,
@@ -79,6 +80,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const pendingFilesRef = useRef(new Map()); // blobUrl -> File
 
   // Active design search dropdown state per item UID
   const [activeSearchUid, setActiveSearchUid] = useState(null);
@@ -98,12 +100,17 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
           ? currentImgs.filter((img) => img !== item.catalogImageUrl)
           : currentImgs;
 
-        const newCatalogImg = selectedDesign.imageUrl || selectedDesign.images?.[0] || null;
+        const catalogImgs = Array.isArray(selectedDesign.images) && selectedDesign.images.length > 0
+          ? selectedDesign.images.filter(Boolean)
+          : (selectedDesign.imageUrl ? [selectedDesign.imageUrl] : []);
+        const newCatalogImg = catalogImgs[0] || null;
         let finalImages = filteredImgs;
 
-        if (newCatalogImg && !finalImages.includes(newCatalogImg)) {
-          finalImages = [newCatalogImg, ...finalImages];
-        }
+        catalogImgs.forEach((img) => {
+          if (!finalImages.includes(img)) {
+            finalImages = [...finalImages, img];
+          }
+        });
 
         return {
           ...item,
@@ -206,52 +213,57 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
     });
   };
 
-  // Image Upload for a specific item
-  const handleImageUpload = (e, uid, type, itemOrderId) => {
+  // Image Selection (instant local preview; uploads to Supabase only on Submit)
+  const handleImageUpload = (e, uid, type) => {
     const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
     e.target.value = '';
     if (!files.length) return;
-    setUploadingCount((c) => c + files.length);
 
-    files.forEach(async (file) => {
-      try {
-        const url = await uploadOrderImage(file, itemOrderId || nextOrderId || 'drafts');
-        setItems((prev) =>
-          prev.map((it) => {
-            if (it.uid !== uid) return it;
-            if (type === 'design') {
-              return { ...it, designImages: [...it.designImages, url] };
-            } else {
-              return { ...it, inspirationImages: [...it.inspirationImages, url] };
-            }
-          })
-        );
-      } catch (err) {
-        console.error('Image upload failed', err);
-        setErrors((prev) => ({
-          ...prev,
-          [uid]: {
-            ...(prev[uid] || {}),
-            images: 'Could not upload photo: ' + (err.message || 'unknown error')
-          }
-        }));
-      } finally {
-        setUploadingCount((c) => c - 1);
-      }
+    const previewUrls = files.map((file) => {
+      const previewUrl = URL.createObjectURL(file);
+      pendingFilesRef.current.set(previewUrl, file);
+      return previewUrl;
     });
+
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.uid !== uid) return it;
+        if (type === 'design') {
+          return { ...it, designImages: [...it.designImages, ...previewUrls] };
+        } else {
+          return { ...it, inspirationImages: [...it.inspirationImages, ...previewUrls] };
+        }
+      })
+    );
   };
 
   const removeImage = (uid, index, type) => {
-    setItems((prev) =>
-      prev.map((it) => {
+    setItems((prev) => {
+      const targetItem = prev.find((it) => it.uid === uid);
+      const removedUrl = targetItem
+        ? (type === 'design' ? targetItem.designImages[index] : targetItem.inspirationImages[index])
+        : null;
+
+      const nextItems = prev.map((it) => {
         if (it.uid !== uid) return it;
         if (type === 'design') {
           return { ...it, designImages: it.designImages.filter((_, i) => i !== index) };
         } else {
           return { ...it, inspirationImages: it.inspirationImages.filter((_, i) => i !== index) };
         }
-      })
-    );
+      });
+
+      if (removedUrl && pendingFilesRef.current.has(removedUrl)) {
+        const stillReferenced = nextItems.some(
+          (it) => it.designImages.includes(removedUrl) || it.inspirationImages.includes(removedUrl)
+        );
+        if (!stillReferenced) {
+          try { URL.revokeObjectURL(removedUrl); } catch {}
+          pendingFilesRef.current.delete(removedUrl);
+        }
+      }
+      return nextItems;
+    });
   };
 
   // Form Submission
@@ -311,6 +323,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         designName: item.designName.trim(),
         skuCode: (item.skuCode || '').trim(),
         description: (item.description || '').trim(),
+        note: (item.note || '').trim(),
         size: item.size || '',
         deliveryDate: item.deliveryDate,
         trialDate: item.trialDate,
@@ -348,8 +361,51 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
 
     setSubmitting(true);
     try {
-      const ok = await onSubmitOrder(payload);
-      if (ok !== false) onClose();
+      // Upload any pending local device files to Supabase only on Submit
+      const urlToOrderId = new Map();
+      items.forEach((item, index) => {
+        const assignedId = getOrderIdForIndex(nextOrderId, index);
+        [...(item.designImages || []), ...(item.inspirationImages || [])].forEach((u) => {
+          if (pendingFilesRef.current.has(u) && !urlToOrderId.has(u)) {
+            urlToOrderId.set(u, assignedId);
+          }
+        });
+      });
+
+      const resolvedUrlMap = new Map();
+      if (urlToOrderId.size > 0) {
+        setUploadingCount(urlToOrderId.size);
+        try {
+          await Promise.all(
+            Array.from(urlToOrderId.entries()).map(async ([blobUrl, orderId]) => {
+              const file = pendingFilesRef.current.get(blobUrl);
+              if (!file) return;
+              const uploadedUrl = await uploadOrderImage(file, orderId || 'drafts');
+              resolvedUrlMap.set(blobUrl, uploadedUrl);
+            })
+          );
+        } finally {
+          setUploadingCount(0);
+        }
+      }
+
+      const finalPayload = payload.map((orderObj) => ({
+        ...orderObj,
+        designImages: (orderObj.designImages || []).map((u) => resolvedUrlMap.get(u) || u),
+        inspirationImages: (orderObj.inspirationImages || []).map((u) => resolvedUrlMap.get(u) || u),
+      }));
+
+      const ok = await onSubmitOrder(finalPayload);
+      if (ok !== false) {
+        pendingFilesRef.current.forEach((_, blobUrl) => {
+          try { URL.revokeObjectURL(blobUrl); } catch {}
+        });
+        pendingFilesRef.current.clear();
+        onClose();
+      }
+    } catch (err) {
+      console.error('Failed to upload order images on submit:', err);
+      showToast('Could not upload photo: ' + (err.message || 'unknown error'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -977,6 +1033,20 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                       Please select at least Upper Body or Lower Body Measurement for this garment.
                     </div>
                   )}
+
+                  {/* Order Note (Last Field per Order) */}
+                  <div className="pt-2 border-t border-[#E8DFD3]">
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Additional Note <span className="text-stone-400 font-normal">(Optional)</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={item.note || ''}
+                      onChange={(e) => updateItemField(item.uid, 'note', e.target.value)}
+                      placeholder="Add special client instructions, alteration notes, or delivery reminders for this order..."
+                      className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30"
+                    />
+                  </div>
                 </div>
               </div>
             );

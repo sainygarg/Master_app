@@ -121,8 +121,18 @@ const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-[#FAF6F0] p-4">
       <div className="w-full max-w-md shadow-sm border border-[#E8DFD3] rounded-2xl bg-white overflow-hidden">
         <div className="space-y-1 p-5 bg-[#FAF5EE] border-b border-[#E8DFD3] rounded-t-2xl text-center flex flex-col items-center">
-          <div className="w-10 h-10 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs mb-1">
-            SG
+          <div className="w-16 h-16 rounded-full bg-[#5B172E] text-white flex items-center justify-center font-serif font-bold text-sm border-2 border-[#C5A059]/40 shadow-xs mb-1 overflow-hidden">
+            <img 
+              src="/assets/Logo.jpeg" 
+              alt="Sainy Garg" 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.parentElement) {
+                  e.currentTarget.parentElement.innerText = 'SG';
+                }
+              }} 
+            />
           </div>
           {/* <img
             src="/logo.png"

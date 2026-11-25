@@ -18,6 +18,31 @@ import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
 import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
 import ProductionControlView from './Systems/pc/ProductionControlView';
 import MasterExecutiveDashboard from './core/pages/MasterExecutiveDashboard';
+import { LoginPage } from './Systems/order-to-delivery/components/LoginPage';
+
+// Reusable RBAC ProtectedRoute component
+export function ProtectedRoute({ children, requiredPageId, requiredStageId, requiredChecklistPageId }) {
+  const { isAuthenticated, user } = useUnifiedAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (requiredPageId && !isApexAdmin(user) && !canUserAccessPage(user, requiredPageId)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (requiredStageId && !isApexAdmin(user) && !canUserAccessStage(user, requiredStageId)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (requiredChecklistPageId && !isApexAdmin(user) && !canUserAccessChecklistPage(user, requiredChecklistPageId)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}
 
 // The checklist app declares absolute routes (/checklist/...), so it must be
 // mounted at the router root; a "/checklist/*" parent would strip the prefix and
@@ -30,13 +55,13 @@ function ChecklistGate() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, user, logout } = useUnifiedAuth();
+  const { isAuthenticated, user, login, logout } = useUnifiedAuth();
   const { pathname } = useLocation();
 
-  // Guests always land on /login (the login screen is rendered by OrderToDeliveryApp when nobody is signed in)
+  // Guests always land on /login
   if (!isAuthenticated) {
     if (pathname !== '/login') return <Navigate to="/login" replace />;
-    return <OrderToDeliveryApp />;
+    return <LoginPage onLogin={login} />;
   }
   // Signed-in users have no reason to be on /login
   if (pathname === '/login') return <Navigate to="/dashboard" replace />;
@@ -69,28 +94,54 @@ function AppRoutes() {
     <Routes>
       {/* 1. Default Root & Main Landing Page: Dashboard */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/dashboard" element={<MasterExecutiveDashboard />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <MasterExecutiveDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       {/* My Profile (opened from the header avatar) */}
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* System 1: PC (Production Control) */}
       <Route
         path="/pc"
         element={
-          canUserAccessPage(user, 'pc') ? (
+          <ProtectedRoute requiredPageId="pc">
             <ProductionControlView />
-          ) : (
-            <Navigate to="/dashboard" replace />
-          )
+          </ProtectedRoute>
         }
       />
 
       {/* System 2: Order to Delivery */}
-      <Route path="/order-to-delivery/*" element={<OrderToDeliveryApp />} />
+      <Route
+        path="/order-to-delivery/*"
+        element={
+          <ProtectedRoute>
+            <OrderToDeliveryApp />
+          </ProtectedRoute>
+        }
+      />
 
       {/* System 3: Checklist & Delegation (/checklist/*); anything else falls back to Dashboard */}
-      <Route path="*" element={<ChecklistGate />} />
+      <Route
+        path="*"
+        element={
+          <ProtectedRoute>
+            <ChecklistGate />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

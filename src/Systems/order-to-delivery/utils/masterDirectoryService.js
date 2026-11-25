@@ -19,6 +19,12 @@ export const getTableName = (kind) => TABLE_MAP[kind] || `master_${kind}`;
 const fromDbRow = (kind, row) => {
   if (!row) return null;
   if (kind === 'design') {
+    const rawImages = Array.isArray(row.images)
+      ? row.images.filter(Boolean)
+      : [];
+    const mergedImages = row.image_url && !rawImages.includes(row.image_url)
+      ? [row.image_url, ...rawImages]
+      : rawImages;
     return {
       id: row.id,
       sku: row.sku || '',
@@ -27,8 +33,8 @@ const fromDbRow = (kind, row) => {
       type: row.type || '',
       color: row.color || '',
       description: row.description || '',
-      imageUrl: row.image_url || '',
-      images: row.image_url ? [row.image_url] : [],
+      imageUrl: row.image_url || mergedImages[0] || '',
+      images: mergedImages,
       createdAt: row.created_at
     };
   }
@@ -102,6 +108,9 @@ const fromDbRow = (kind, row) => {
 const toDbRow = (kind, item) => {
   if (!item) return {};
   if (kind === 'design') {
+    const images = Array.isArray(item.images)
+      ? item.images.filter(Boolean)
+      : (item.imageUrl || item.image_url ? [item.imageUrl || item.image_url] : []);
     return {
       id: item.id,
       sku: item.sku || null,
@@ -110,7 +119,8 @@ const toDbRow = (kind, item) => {
       type: item.type || null,
       color: item.color || null,
       description: item.description || null,
-      image_url: item.imageUrl || item.image_url || (item.images?.[0] ?? null)
+      image_url: images[0] || item.imageUrl || item.image_url || null,
+      images
     };
   }
   if (kind === 'department') {
@@ -207,6 +217,13 @@ export const saveMaster = async (kind, item) => {
   const table = getTableName(kind);
   const row = toDbRow(kind, item);
   const { error } = await supabase.from(table).upsert(row, { onConflict: 'id' });
+  if (error && kind === 'design' && String(error.message || '').includes('images')) {
+    const { images: _ignored, ...rowWithoutImages } = row;
+    const fallback = await supabase.from(table).upsert(rowWithoutImages, { onConflict: 'id' });
+    if (fallback.error) throw fallback.error;
+    cache.delete(kind);
+    return;
+  }
   if (error) throw error;
   cache.delete(kind);
 };
@@ -222,6 +239,13 @@ export const insertMaster = async (kind, item) => {
   const table = getTableName(kind);
   const row = toDbRow(kind, item);
   const { error } = await supabase.from(table).insert(row);
+  if (error && kind === 'design' && String(error.message || '').includes('images')) {
+    const { images: _ignored, ...rowWithoutImages } = row;
+    const fallback = await supabase.from(table).insert(rowWithoutImages);
+    if (fallback.error) throw fallback.error;
+    cache.delete(kind);
+    return;
+  }
   if (error) throw error;
   cache.delete(kind);
 };

@@ -214,6 +214,13 @@ export const OrderDetailDrawer = ({
                         <p className="text-stone-800 font-medium whitespace-pre-wrap">{order.description}</p>
                       </div>
                     )}
+
+                    {order.note && (
+                      <div className="bg-amber-50/70 p-2.5 rounded-lg border border-amber-200 col-span-2">
+                        <span className="text-amber-800 block text-[10px] font-bold uppercase tracking-wider">Order Note</span>
+                        <p className="text-stone-800 font-medium whitespace-pre-wrap mt-0.5">{order.note}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

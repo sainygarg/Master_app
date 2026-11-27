@@ -47,17 +47,17 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       // Dates - prefilled from previous item
       trialDate: prefillSource?.trialDate || '',
       deliveryDate: prefillSource?.deliveryDate || '',
-      // Garment Design Info
-      designName: prefillSource?.designName || '',
-      skuCode: prefillSource?.skuCode || '',
-      description: prefillSource?.description || '',
+      // Garment Design Info - NEVER prefill design info across garments
+      designName: '',
+      skuCode: '',
+      description: '',
       note: '',
-      size: prefillSource?.size || '',
+      size: '',
       deliveryType: prefillSource?.deliveryType || 'Production',
       embroidery: prefillSource?.embroidery || 'Yes',
-      catalogImageUrl: prefillSource?.catalogImageUrl || null,
-      designImages: prefillSource?.designImages ? [...prefillSource.designImages] : [],
-      inspirationImages: prefillSource?.inspirationImages ? [...prefillSource.inspirationImages] : [],
+      catalogImageUrl: null,
+      designImages: [],
+      inspirationImages: [],
       // Measurement Chart - prefilled from previous item
       hasUpper: prefillSource ? prefillSource.hasUpper : true,
       hasLower: prefillSource ? prefillSource.hasLower : true,
@@ -133,19 +133,15 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       prev.map((item) => {
         if (item.uid !== uid) return item;
 
-        // If user clears the design name completely, also clean up the associated catalog image
+        // If user clears the design name completely, wipe all design images, SKU, and description
         if (field === 'designName' && (!value || value.trim() === '')) {
-          const currentImgs = Array.isArray(item.designImages) ? item.designImages : [];
-          const cleanedImgs = item.catalogImageUrl
-            ? currentImgs.filter((img) => img !== item.catalogImageUrl)
-            : currentImgs;
-
           return {
             ...item,
             designName: '',
             skuCode: '',
+            description: '',
             catalogImageUrl: null,
-            designImages: cleanedImgs
+            designImages: []
           };
         }
 
@@ -859,10 +855,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                                     e.stopPropagation();
                                     removeImage(item.uid, idx, 'design');
                                   }}
-                                  className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
+                                  className="absolute top-1 right-1 p-1 bg-black/75 hover:bg-rose-600 text-white rounded-md sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition-all cursor-pointer z-10 shadow-sm"
                                   title="Delete photo"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             ))}
@@ -914,10 +910,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                                     e.stopPropagation();
                                     removeImage(item.uid, idx, 'inspiration');
                                   }}
-                                  className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
+                                  className="absolute top-1 right-1 p-1 bg-black/75 hover:bg-rose-600 text-white rounded-md sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition-all cursor-pointer z-10 shadow-sm"
                                   title="Delete photo"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             ))}
@@ -1129,12 +1125,10 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
               >
                 <span>
                   {submitting
-                    ? 'Creating Orders…'
+                    ? 'Submitting…'
                     : uploadingCount > 0
                     ? 'Uploading photos…'
-                    : items.length === 1
-                    ? 'Create Order'
-                    : `Create All ${items.length} Orders (${firstId} – ${lastId})`}
+                    : 'Submit'}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>

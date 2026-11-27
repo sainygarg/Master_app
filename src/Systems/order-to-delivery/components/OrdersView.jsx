@@ -187,33 +187,14 @@ export const OrdersView = ({
                         ) : (
                           <div className="flex items-center gap-1.5">
                             {/* View Job Sheet Button */}
+                            {/* Order Details Button */}
                             <button
                               onClick={() => onViewOrderDetails(order)}
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] shadow-2xs transition-all"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#5B172E] bg-white border border-[#DECDB8] hover:bg-[#FAF5EE] shadow-2xs transition-all"
                               title="View Full Order Sheet"
                             >
                               <Eye className="w-3.5 h-3.5" />
                               <span>Sheet</span>
-                            </button>
-
-                            {/* Design Sheet Status / Action Button */}
-                            <button
-                              onClick={() => {
-                                if (onOpenDesignSheet) {
-                                  onOpenDesignSheet(order);
-                                } else {
-                                  onViewOrderDetails(order);
-                                }
-                              }}
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                                order.designSheet?.status === 'Completed'
-                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                                  : 'text-amber-800 bg-amber-50 border-amber-200 hover:bg-amber-100'
-                              }`}
-                              title={order.designSheet?.status === 'Completed' ? 'Design Sheet Completed (Click to view)' : 'Fill Design Sheet'}
-                            >
-                              <FileText className="w-3.5 h-3.5" />
-                              <span>{order.designSheet?.status === 'Completed' ? 'DS Done' : 'Fill DS'}</span>
                             </button>
 
                             {/* Measurements Button */}

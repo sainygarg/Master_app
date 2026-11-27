@@ -8,6 +8,7 @@ export const ALL_PAGE_IDS = [
   { id: 'design-sheet', label: 'Design Sheet' },
   { id: 'stages', label: 'Production Stages' },
   { id: 'pc', label: 'PC (Production Control)' },
+  { id: 'karigar-report', label: 'Karigar Report' },
   { id: 'settings', label: 'Settings' }
 ];
 
@@ -24,6 +25,20 @@ export const ALL_CHECKLIST_PAGE_IDS = [
   { id: '/checklist/working-day-calendar', label: 'Working Day Calendar' },
   { id: '/checklist/admin-approval', label: 'Admin Approval' },
   { id: '/checklist/training-video', label: 'Training Video' }
+];
+
+// Purchase System sub pages (route href is the permission id)
+export const ALL_PURCHASE_PAGE_IDS = [
+  { id: '/purchase/dashboard', label: 'Purchase Dashboard' },
+  { id: '/purchase/indent', label: 'Indent' },
+  { id: '/purchase/approval', label: 'Approval' },
+  { id: '/purchase/vendor-selection', label: 'Vendor Selection' },
+  { id: '/purchase/3-party-approval', label: '3 Party Approval' },
+  { id: '/purchase/po', label: 'PO' },
+  { id: '/purchase/vendor-follow-up', label: 'Vendor Follow Up' },
+  { id: '/purchase/receiving', label: 'Receiving' },
+  { id: '/purchase/quality-check', label: 'Quality Check' },
+  { id: '/purchase/return', label: 'Return' }
 ];
 
 // DB row (snake_case) <-> app user (camelCase)
@@ -185,6 +200,12 @@ export const canUserAccessChecklistPage = (user, href) => {
   if (!user) return false;
   const resolvedHref = href === '/checklist/bulk-import' ? '/checklist/assign-task' : href;
   return canView(user, resolvedHref);
+};
+
+export const canUserAccessPurchasePage = (user, href) => {
+  if (isApexAdmin(user)) return true;
+  if (!user) return false;
+  return canView(user, href);
 };
 
 export const canUserAccessStage = (user, stageId) => {

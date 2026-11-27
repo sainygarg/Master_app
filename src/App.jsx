@@ -144,15 +144,15 @@ function AppRoutes() {
         }
       />
 
-      {/* System: Purchase (Hidden for now) */}
-      {/* <Route
+      {/* System: Purchase */}
+      <Route
         path="/purchase/*"
         element={
           <ProtectedRoute>
             <PurchaseApp />
           </ProtectedRoute>
         }
-      /> */}
+      />
 
       {/* System 2: Order to Delivery & Master Hub Settings */}
       <Route

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   FileSpreadsheet,
   PlusCircle,
@@ -17,7 +17,11 @@ import {
   ShieldCheck,
   Calendar,
   Eye,
-  Check
+  Check,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  ExternalLink
 } from 'lucide-react';
 import { useUnifiedAuth } from '../../core/auth/UnifiedAuthContext';
 import { useToastAlert } from '../../core/context/ToastAlertContext';
@@ -25,7 +29,8 @@ import { isApexAdmin, canModify, fetchUsers } from '../order-to-delivery/utils/u
 import {
   fetchKarigarReports,
   submitKarigarReport,
-  fetchDistinctKarigars
+  fetchDistinctKarigars,
+  uploadKarigarReportImage
 } from './services/karigarReportService';
 
 export default function KarigarReportView() {
@@ -59,6 +64,13 @@ export default function KarigarReportView() {
   const [formOrderId, setFormOrderId] = useState('');
   const [formRemark, setFormRemark] = useState('');
   const [allUsers, setAllUsers] = useState([]);
+
+  // Image Upload & Compression State
+  const fileInputRef = useRef(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageCompressing, setImageCompressing] = useState(false);
+  const [previewModalUrl, setPreviewModalUrl] = useState(null);
 
   // Fetch distinct karigars & all users once for admin
   useEffect(() => {
@@ -117,6 +129,37 @@ export default function KarigarReportView() {
     setCurrentPage(1);
   };
 
+  // Handle Image Selection with Live Local Preview
+  const handleImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, JPEG, WEBP)', 'error');
+      return;
+    }
+
+    // Free previous preview url
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setImageFile(file);
+    setImagePreview(objectUrl);
+  };
+
+  const handleRemoveImage = () => {
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Submit new report
   const handleSubmitReport = async (e) => {
     e.preventDefault();
@@ -142,12 +185,27 @@ export default function KarigarReportView() {
       );
       const targetUserId = matchedUser?.id || (finalKarigarName === loggedInKarigarName ? user?.id : null);
 
+      // Upload and compress image if attached
+      let finalImageUrl = '';
+      if (imageFile) {
+        setImageCompressing(true);
+        try {
+          finalImageUrl = await uploadKarigarReportImage(imageFile);
+        } catch (uploadErr) {
+          console.warn('Image upload failed, proceeding with report submission:', uploadErr);
+          showToast('Image could not be uploaded to storage, submitting report details...', 'warning');
+        } finally {
+          setImageCompressing(false);
+        }
+      }
+
       await submitKarigarReport({
         userId: targetUserId,
         karigarName: finalKarigarName,
         orderId: formOrderId.trim(),
         reportDate: formDate,
         workingTime: formWorkingTime.trim(),
+        imageUrl: finalImageUrl,
         remark: formRemark.trim()
       });
 
@@ -155,6 +213,7 @@ export default function KarigarReportView() {
       setFormOrderId('');
       setFormWorkingTime('');
       setFormRemark('');
+      handleRemoveImage();
       setFormDate(new Date().toISOString().split('T')[0]);
       setFormKarigarName(loggedInKarigarName);
       setIsModalOpen(false);
@@ -168,6 +227,7 @@ export default function KarigarReportView() {
       showToast('Failed to submit report: ' + (err.message || 'Unknown error'), 'error');
     } finally {
       setSubmitting(false);
+      setImageCompressing(false);
     }
   };
 
@@ -396,6 +456,7 @@ export default function KarigarReportView() {
                   <th className="px-4 py-3 font-semibold">Karigar Name</th>
                   <th className="px-4 py-3 font-semibold">Order ID</th>
                   <th className="px-4 py-3 font-semibold">Working Time</th>
+                  <th className="px-4 py-3 font-semibold">Attachment</th>
                   <th className="px-4 py-3 font-semibold">Remark / Work Details</th>
                 </tr>
               </thead>
@@ -432,6 +493,26 @@ export default function KarigarReportView() {
                             <Clock className="w-3 h-3 text-stone-400" />
                             {row.workingTime}
                           </span>
+                        ) : (
+                          <span className="text-stone-300 italic text-[11px]">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {row.imageUrl ? (
+                          <button
+                            type="button"
+                            onClick={() => setPreviewModalUrl(row.imageUrl)}
+                            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-[#DECDB8] bg-[#FAF5EE] text-[#5B172E] hover:bg-[#F3ECE2] text-[11px] font-semibold transition-all cursor-pointer group"
+                            title="Click to view work photo"
+                          >
+                            <img
+                              src={row.imageUrl}
+                              alt="Attachment thumbnail"
+                              className="w-5 h-5 rounded object-cover border border-stone-300"
+                            />
+                            <span>View Photo</span>
+                            <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                          </button>
                         ) : (
                           <span className="text-stone-300 italic text-[11px]">—</span>
                         )}
@@ -597,13 +678,86 @@ export default function KarigarReportView() {
                     onChange={(e) => setFormWorkingTime(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#DECDB8] bg-white text-stone-800 font-medium focus:outline-hidden focus:border-[#9B783E] focus:ring-1 focus:ring-[#9B783E]"
                   />
-                  <p className="text-[10px] text-stone-400 mt-1">
-                    Shift or duration (e.g. 4 hrs, Full Day).
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    <span className="text-[10px] text-stone-400">Presets:</span>
+                    {['Full Day', 'Half Day', '4 Hours', '8 Hours'].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setFormWorkingTime(preset)}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
+                          formWorkingTime === preset
+                            ? 'bg-[#5B172E] text-white border-[#5B172E] font-semibold'
+                            : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border-stone-200'
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Field 3: Remark Field */}
+              {/* Field 3: Image Upload with Client Compression */}
+              <div>
+                <label className="block font-bold text-stone-700 uppercase tracking-wide mb-1.5">
+                  Work / Job Card Photo (Optional)
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+
+                {imagePreview ? (
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-[#DECDB8] bg-[#FAF6F0]">
+                    <img
+                      src={imagePreview}
+                      alt="Selected work preview"
+                      className="w-14 h-14 object-cover rounded-lg border border-stone-300 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-stone-800 truncate">
+                        {imageFile?.name || 'Attached Photo'}
+                      </div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">
+                        {imageFile ? `${(imageFile.size / (1024 * 1024)).toFixed(2)} MB • Auto-compressing` : 'Ready to upload'}
+                      </div>
+                      <span className="inline-block mt-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        Canvas Auto-Downscaling Active
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Remove image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-[#DECDB8] hover:border-[#9B783E] bg-[#FDFBF7] hover:bg-[#FAF5EE] transition-all cursor-pointer group text-center"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-[#F3ECE2] flex items-center justify-center text-[#5B172E] mb-2 group-hover:scale-105 transition-transform">
+                      <Upload className="w-4 h-4 text-[#9B783E]" />
+                    </div>
+                    <span className="text-xs font-semibold text-stone-800">
+                      Click to upload work photo or sample
+                    </span>
+                    <span className="text-[11px] text-stone-400 mt-0.5">
+                      JPG, PNG or WEBP (automatically compressed to ~200KB before upload)
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {/* Field 4: Remark Field */}
               <div>
                 <label className="block font-bold text-stone-700 uppercase tracking-wide mb-1.5">
                   Remark / Work Completed
@@ -629,13 +783,13 @@ export default function KarigarReportView() {
 
                 <button
                   type="submit"
-                  disabled={submitting || !formOrderId.trim()}
+                  disabled={submitting || imageCompressing || !formOrderId.trim()}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#5B172E] hover:bg-[#431021] disabled:opacity-50 cursor-pointer shadow-xs transition-all"
                 >
-                  {submitting ? (
+                  {submitting || imageCompressing ? (
                     <>
                       <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Submitting...</span>
+                      <span>{imageCompressing ? 'Compressing Photo...' : 'Submitting...'}</span>
                     </>
                   ) : (
                     <>
@@ -646,6 +800,50 @@ export default function KarigarReportView() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Full Image Preview Modal */}
+      {previewModalUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setPreviewModalUrl(null)}
+          />
+          <div className="relative z-10 max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-[#DECDB8]">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#FAF6F0] border-b border-[#E8DFD3]">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#9B783E]" />
+                <span className="text-xs font-bold text-stone-800">Job Card / Work Photo</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewModalUrl(null)}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-center bg-stone-900/5 min-h-[300px] max-h-[75vh] overflow-auto">
+              <img
+                src={previewModalUrl}
+                alt="Enlarged work preview"
+                className="max-w-full max-h-[70vh] rounded-lg shadow-md object-contain"
+              />
+            </div>
+            <div className="px-4 py-2.5 bg-white border-t border-stone-200 flex items-center justify-between">
+              <span className="text-[11px] text-stone-500">Auto-compressed photographic record</span>
+              <a
+                href={previewModalUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-[#5B172E] hover:underline font-semibold"
+              >
+                <span>Open Original</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
         </div>
       )}

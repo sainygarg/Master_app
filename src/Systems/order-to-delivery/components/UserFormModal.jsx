@@ -466,27 +466,25 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
-          {/* Section 2B: PURCHASE SYSTEM PERMISSIONS (Hidden for now) */}
-          {false && (
-            <PermissionSection
-              icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
-              title="Purchase System"
-              isAdmin={isAdmin}
-              adminNote="Admins automatically access every Purchase page unconditionally."
-              onSetAllNone={() => setGroupPermissions(allPurchaseIds, 'none')}
-              onSetAllView={() => setGroupPermissions(allPurchaseIds, 'view')}
-              onSetAllModify={() => setGroupPermissions(allPurchaseIds, 'modify')}
-            >
-              {ALL_PURCHASE_PAGE_IDS.map((p) => (
-                <SegmentedPermissionRow
-                  key={p.id}
-                  label={p.label}
-                  value={getPermVal(p.id)}
-                  onChange={(val) => handlePermissionChange(p.id, val)}
-                />
-              ))}
-            </PermissionSection>
-          )}
+          {/* Section 2B: PURCHASE SYSTEM PERMISSIONS (collapsible, 3-tier) */}
+          <PermissionSection
+            icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
+            title="Purchase System"
+            isAdmin={isAdmin}
+            adminNote="Admins automatically access every Purchase page unconditionally."
+            onSetAllNone={() => setGroupPermissions(allPurchaseIds, 'none')}
+            onSetAllView={() => setGroupPermissions(allPurchaseIds, 'view')}
+            onSetAllModify={() => setGroupPermissions(allPurchaseIds, 'modify')}
+          >
+            {ALL_PURCHASE_PAGE_IDS.map((p) => (
+              <SegmentedPermissionRow
+                key={p.id}
+                label={p.label}
+                value={getPermVal(p.id)}
+                onChange={(val) => handlePermissionChange(p.id, val)}
+              />
+            ))}
+          </PermissionSection>
 
           {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, 3-tier + Team Scope) */}
           <PermissionSection

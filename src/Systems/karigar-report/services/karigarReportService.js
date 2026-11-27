@@ -8,6 +8,85 @@ const cache = new Map();
 let distinctKarigarsCache = null;
 let inflightDistinct = null;
 
+export const KARIGAR_IMAGE_BUCKET = 'order-images';
+
+/**
+ * Client-Side Image Compression using HTML Canvas:
+ * 1. Reads image file into FileReader
+ * 2. Downscales if max dimension > 1280px (retaining aspect ratio)
+ * 3. Encodes to JPEG at 72% quality to compress typical 4MB-10MB mobile photos to ~150KB-250KB
+ */
+export const compressImageFile = (file, maxDimension = 1280, quality = 0.72) =>
+  new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) {
+      return reject(new Error('Selected file is not an image'));
+    }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read image file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Failed to parse image data'));
+      img.onload = () => {
+        const maxCurrent = Math.max(img.width, img.height);
+        const scale = maxCurrent > maxDimension ? maxDimension / maxCurrent : 1;
+        const targetWidth = Math.round(img.width * scale);
+        const targetHeight = Math.round(img.height * scale);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return reject(new Error('Canvas context unavailable'));
+        }
+
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Image compression failed'));
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+/**
+ * Uploads compressed image blob to Supabase Storage and returns public URL
+ */
+export const uploadKarigarReportImage = async (file) => {
+  const compressedBlob = await compressImageFile(file);
+  const fileName = `karigar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const storagePath = `karigar-reports/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from(KARIGAR_IMAGE_BUCKET)
+    .upload(storagePath, compressedBlob, {
+      contentType: 'image/jpeg',
+      cacheControl: '31536000',
+      upsert: false
+    });
+
+  if (error) {
+    // If bucket/storage isn't reachable or fails, fallback to local object preview URL or throw
+    throw error;
+  }
+
+  const { data } = supabase.storage
+    .from(KARIGAR_IMAGE_BUCKET)
+    .getPublicUrl(storagePath);
+
+  return data.publicUrl;
+};
+
 export const clearKarigarReportCache = () => {
   cache.clear();
   distinctKarigarsCache = null;
@@ -91,6 +170,7 @@ export const fetchKarigarReports = async ({
         orderId: r.order_id,
         reportDate: r.report_date || r.created_at?.split('T')[0] || '',
         workingTime: r.working_time || '',
+        imageUrl: r.image_url || '',
         remark: r.remark || '',
         createdAt: r.created_at
       })),
@@ -122,6 +202,7 @@ export const fetchKarigarReports = async ({
       orderId: r.orderId || r.order_id,
       reportDate: r.reportDate || r.report_date || (r.createdAt || r.created_at)?.split('T')[0] || '',
       workingTime: r.workingTime || r.working_time || '',
+      imageUrl: r.imageUrl || r.image_url || '',
       remark: r.remark || '',
       createdAt: r.createdAt || r.created_at
     }));
@@ -174,7 +255,7 @@ export const fetchDistinctKarigars = async (forceRefresh = false) => {
 /**
  * Submit a new Karigar Report
  */
-export const submitKarigarReport = async ({ userId, karigarName, orderId, reportDate, workingTime, remark }) => {
+export const submitKarigarReport = async ({ userId, karigarName, orderId, reportDate, workingTime, imageUrl, remark }) => {
   const newRow = {
     id: `REP-${Date.now()}`,
     user_id: userId || null,
@@ -182,6 +263,7 @@ export const submitKarigarReport = async ({ userId, karigarName, orderId, report
     order_id: orderId.trim(),
     report_date: reportDate || new Date().toISOString().split('T')[0],
     working_time: workingTime?.trim() || '',
+    image_url: imageUrl || '',
     remark: remark?.trim() || '',
     created_at: new Date().toISOString()
   };
@@ -195,6 +277,7 @@ export const submitKarigarReport = async ({ userId, karigarName, orderId, report
         order_id: newRow.order_id,
         report_date: newRow.report_date,
         working_time: newRow.working_time,
+        image_url: newRow.image_url,
         remark: newRow.remark
       })
       .select()
@@ -220,6 +303,7 @@ export const submitKarigarReport = async ({ userId, karigarName, orderId, report
     orderId: newRow.order_id,
     reportDate: newRow.report_date,
     workingTime: newRow.working_time,
+    imageUrl: newRow.image_url,
     remark: newRow.remark,
     createdAt: newRow.created_at
   };

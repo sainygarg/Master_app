@@ -64,15 +64,29 @@ export const StageDetailView = ({
   const [selectedOrderForUpdate, setSelectedOrderForUpdate] = useState(null);
 
   // Orders currently pending at this stage
-  const pendingOrders = orders.filter(o => o.currentStageId === selectedStageId);
+  // If order was stopped in alteration (Status = No), it is no longer pending
+  const pendingOrders = orders.filter(
+    (o) => o.currentStageId === selectedStageId && !(selectedStageId === 'alteration' && o.isAlterationStopped)
+  );
 
   // Orders that have passed or completed this stage in the past
-  const historyOrders = orders.filter(o =>
-    !isStageSkipped(o, selectedStageId) && (
+  // Both Yes (advanced to Final Delivery) and No (stopped in Alteration) appear in History
+  const historyOrders = orders.filter((o) => {
+    if (isStageSkipped(o, selectedStageId)) return false;
+
+    // Special check for Alteration stage: both advanced (Yes) and stopped (No) orders
+    if (selectedStageId === 'alteration') {
+      if (o.isAlterationStopped) return true;
+      if (o.currentStageIndex > currentStageIndex) return true;
+      if (o.stageData?.alteration?.status && o.currentStageId !== 'alteration') return true;
+      return false;
+    }
+
+    return (
       o.currentStageIndex > currentStageIndex ||
       (o.stageData && o.stageData[selectedStageId] && o.currentStageId !== selectedStageId)
-    )
-  );
+    );
+  });
 
   const handleOpenUpdateModal = (order) => {
     // Orders in history cannot be updated; only pending orders can be updated

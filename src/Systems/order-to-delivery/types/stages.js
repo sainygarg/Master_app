@@ -146,11 +146,8 @@ export const STAGES = [
     description: 'Post-trial adjustments, in-stock fitting alterations & ready-for-handover rework',
     icon: 'Scissors',
     fields: [
-      { key: 'alterationType', label: 'Alteration Type', type: 'select', options: ['Fitting / Size Adjust', 'Length Shortening', 'Neck / Sleeves Alteration', 'Finishing / Hook Rework', 'No Alteration Needed', 'Other'] },
-      { key: 'alterationDoneBy', label: 'Master / Tailor Assigned', type: 'text', placeholder: 'e.g. Master Salim / Sunita' },
-      { key: 'targetCompletionDate', label: 'Target Completion Date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'select', options: ['In Alteration', 'Alteration Completed', 'Approved & Cleared', 'Pending Trial Feedback'] },
-      { key: 'remarks', label: 'Alteration Notes / Remarks', type: 'textarea', placeholder: 'Measurement adjustments (e.g., waist let out 1 inch, length -2 inches)...' },
+      { key: 'status', label: 'Status', type: 'select', options: ['Yes', 'No'] },
+      { key: 'remarks', label: 'Remark', type: 'textarea', placeholder: 'Enter alteration details or reason for stopping...' },
     ]
   },
   {

@@ -248,24 +248,34 @@ export const StageUpdateModal = ({
                 <span>Save Draft</span>
               </button>
 
-              {/* Save & Advance to Next Stage */}
+              {/* Save & Advance to Next Stage (or Stop & Move to History if Alteration Status is No) */}
               <button
                 type="button"
                 onClick={handleAdvance}
                 className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all ${
                   hasCompletedDesignSheet
-                    ? 'bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-xs hover:shadow cursor-pointer'
+                    ? stageId === 'alteration' && formData.status === 'No'
+                      ? 'bg-amber-700 hover:bg-amber-800 shadow-xs cursor-pointer'
+                      : 'bg-gradient-to-r from-[#5B172E] via-[#6B1B37] to-[#802243] hover:from-[#431021] hover:to-[#5B172E] shadow-xs hover:shadow cursor-pointer'
                     : 'bg-stone-400 opacity-70 cursor-not-allowed'
                 }`}
                 title={
                   !hasCompletedDesignSheet
                     ? 'Design Sheet is required before advancing'
+                    : stageId === 'alteration' && formData.status === 'No'
+                    ? 'Stop order at Alteration stage and move to History'
                     : nextStage
                     ? `Save and move to Stage ${nextStageIndex + 1}: ${nextStage.name}`
                     : 'Finalize Delivery'
                 }
               >
-                <span>Save & Advance</span>
+                <span>
+                  {stageId === 'alteration'
+                    ? formData.status === 'No'
+                      ? 'Stop & Move to History'
+                      : 'Move to Final Delivery'
+                    : 'Save & Advance'}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

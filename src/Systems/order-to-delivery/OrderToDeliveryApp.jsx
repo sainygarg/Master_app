@@ -336,6 +336,47 @@ export function App() {
     }
 
     const currentIndex = currentOrder.currentStageIndex;
+
+    // SPECIAL BRANCHING FOR ALTERATION STAGE:
+    // If Status === 'No': Stop order here, do NOT advance to Final Delivery, move into Alteration History
+    if (currentStgId === 'alteration' && stageFields.status === 'No') {
+      const updatedOrders = orders.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const newHistoryEntry = {
+          stageId: 'alteration',
+          stageName: 'Alteration',
+          timestamp: new Date().toISOString(),
+          action: 'Alteration Completed / Stopped (Status: No)',
+          actor: currentUser?.name || 'Staff User',
+          notes: stageFields.remarks || 'Order stopped at Alteration stage and moved to History.'
+        };
+
+        return {
+          ...order,
+          isAlterationStopped: true,
+          stageData: {
+            ...order.stageData,
+            alteration: {
+              ...(order.stageData?.alteration || {}),
+              ...stageFields
+            }
+          },
+          history: [...(order.history || []), newHistoryEntry]
+        };
+      });
+
+      setOrders(updatedOrders);
+      persistOrder(updatedOrders.find((o) => o.id === orderId));
+
+      if (selectedOrderForDetails && selectedOrderForDetails.id === orderId) {
+        setSelectedOrderForDetails(updatedOrders.find((o) => o.id === orderId));
+      }
+
+      showToast(`Order ${orderId} closed in Alteration (Status: No) and moved to History.`, 'info');
+      return;
+    }
+
     if (currentIndex >= STAGES.length - 1) {
       showToast(`Order ${orderId} is in final delivery stage.`, 'info');
       return;
@@ -357,7 +398,7 @@ export function App() {
         timestamp: new Date().toISOString(),
         action: `Moved from ${STAGES[currentIndex].name} to ${nextStage.name}`,
         actor: currentUser?.name || 'Staff User',
-        notes: stageFields.stageNotes || (nextIndex > currentIndex + 1 ? 'Stage parameters confirmed. Embroidery stages skipped (Embroidery = No).' : 'Stage parameters confirmed.')
+        notes: stageFields.stageNotes || stageFields.remarks || (nextIndex > currentIndex + 1 ? 'Stage parameters confirmed. Stages skipped.' : 'Stage parameters confirmed.')
       };
 
       return {

@@ -17,10 +17,11 @@ import {
   Sliders,
   ChevronDown,
   Scissors,
-  PackageCheck
+  PackageCheck,
+  FileSpreadsheet
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
-import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, isApexAdmin } from '../utils/userAuthService';
+import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, ALL_PURCHASE_PAGE_IDS, isApexAdmin } from '../utils/userAuthService';
 
 // Order to Delivery sub pages (stage access is separate, per stage)
 const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders' || p.id === 'design-sheet');
@@ -144,6 +145,7 @@ export const UserFormModal = ({
   const [allowedPages, setAllowedPages] = useState([]);
   const [allowedStages, setAllowedStages] = useState([]);
   const allChecklistIds = ALL_CHECKLIST_PAGE_IDS.map(p => p.id);
+  const allPurchaseIds = ALL_PURCHASE_PAGE_IDS.map(p => p.id);
   const [allowedChecklistPages, setAllowedChecklistPages] = useState([]);
   const [avatarColor, setAvatarColor] = useState('bg-[#5B172E]');
   const [errors, setErrors] = useState({});
@@ -196,7 +198,7 @@ export const UserFormModal = ({
 
     // Keep legacy arrays in sync
     const isGranted = val === 'view' || val === 'modify';
-    if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'settings') {
+    if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'karigar-report' || key === 'settings') {
       setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
     } else if (STAGES.some(s => s.id === key)) {
       setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
@@ -215,7 +217,7 @@ export const UserFormModal = ({
 
     const isGranted = val === 'view' || val === 'modify';
     keys.forEach(key => {
-      if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'settings') {
+      if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'karigar-report' || key === 'settings') {
         setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
       } else if (STAGES.some(s => s.id === key)) {
         setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
@@ -250,6 +252,7 @@ export const UserFormModal = ({
       ALL_PAGE_IDS.forEach(p => { finalPermissions[p.id] = 'modify'; });
       STAGES.forEach(s => { finalPermissions[s.id] = 'modify'; });
       ALL_CHECKLIST_PAGE_IDS.forEach(c => { finalPermissions[c.id] = 'modify'; });
+      ALL_PURCHASE_PAGE_IDS.forEach(pr => { finalPermissions[pr.id] = 'modify'; });
     }
 
     const userData = {
@@ -463,6 +466,26 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
+          {/* Section 2B: PURCHASE SYSTEM PERMISSIONS (collapsible, 3-tier) */}
+          <PermissionSection
+            icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
+            title="Purchase System"
+            isAdmin={isAdmin}
+            adminNote="Admins automatically access every Purchase page unconditionally."
+            onSetAllNone={() => setGroupPermissions(allPurchaseIds, 'none')}
+            onSetAllView={() => setGroupPermissions(allPurchaseIds, 'view')}
+            onSetAllModify={() => setGroupPermissions(allPurchaseIds, 'modify')}
+          >
+            {ALL_PURCHASE_PAGE_IDS.map((p) => (
+              <SegmentedPermissionRow
+                key={p.id}
+                label={p.label}
+                value={getPermVal(p.id)}
+                onChange={(val) => handlePermissionChange(p.id, val)}
+              />
+            ))}
+          </PermissionSection>
+
           {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, 3-tier + Team Scope) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
@@ -560,6 +583,27 @@ export const UserFormModal = ({
                 label="PC (Production Control)"
                 value={getPermVal('pc')}
                 onChange={(val) => handlePermissionChange('pc', val)}
+              />
+            )}
+          </div>
+
+          {/* Section 3.5: Karigar Report Access (Placed after PC) */}
+          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <FileSpreadsheet className="w-4 h-4 text-[#9B783E]" />
+                <span>Karigar Report</span>
+              </h3>
+            </div>
+            {isAdmin ? (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                Admins always have Karigar Report access.
+              </div>
+            ) : (
+              <SegmentedPermissionRow
+                label="Karigar Report (Worker Operation Log)"
+                value={getPermVal('karigar-report')}
+                onChange={(val) => handlePermissionChange('karigar-report', val)}
               />
             )}
           </div>

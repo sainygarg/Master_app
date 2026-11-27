@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import './Systems'; // Automatically registers all systems
 import { UnifiedAuthProvider, useUnifiedAuth } from './core/auth/UnifiedAuthContext';
 import { ToastAlertProvider } from './core/context/ToastAlertContext';
 import { STAGES } from './Systems/order-to-delivery/types/stages';
@@ -13,12 +12,24 @@ import {
   isApexAdmin
 } from './Systems/order-to-delivery/utils/userAuthService';
 import MasterShell from './core/layout/MasterShell';
-import ProfilePage from './core/pages/ProfilePage';
-import OrderToDeliveryApp from './Systems/order-to-delivery/OrderToDeliveryApp';
-import ChecklistDelegationApp from './Systems/checklist-delegation/ChecklistDelegationApp';
-import ProductionControlView from './Systems/pc/ProductionControlView';
-import MasterExecutiveDashboard from './core/pages/MasterExecutiveDashboard';
 import { LoginPage } from './Systems/order-to-delivery/components/LoginPage';
+
+// Lazy load route views to avoid loading entire app bundles simultaneously in dev mode
+const MasterExecutiveDashboard = lazy(() => import('./core/pages/MasterExecutiveDashboard'));
+const ProfilePage = lazy(() => import('./core/pages/ProfilePage'));
+const ProductionControlView = lazy(() => import('./Systems/pc/ProductionControlView'));
+const KarigarReportView = lazy(() => import('./Systems/karigar-report/KarigarReportView'));
+const PurchaseApp = lazy(() => import('./Systems/purchase/PurchaseApp'));
+const OrderToDeliveryApp = lazy(() => import('./Systems/order-to-delivery/OrderToDeliveryApp'));
+const ChecklistDelegationApp = lazy(() => import('./Systems/checklist-delegation/ChecklistDelegationApp'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-7 h-7 border-3 border-[#DECDB8] border-t-[#5B172E] rounded-full animate-spin" />
+    </div>
+  );
+}
 
 // Reusable RBAC ProtectedRoute component
 export function ProtectedRoute({ children, requiredPageId, requiredStageId, requiredChecklistPageId }) {
@@ -123,6 +134,26 @@ function AppRoutes() {
         }
       />
 
+      {/* System: Karigar Report (Placed after PC) */}
+      <Route
+        path="/karigar-report"
+        element={
+          <ProtectedRoute requiredPageId="karigar-report">
+            <KarigarReportView />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* System: Purchase */}
+      <Route
+        path="/purchase/*"
+        element={
+          <ProtectedRoute>
+            <PurchaseApp />
+          </ProtectedRoute>
+        }
+      />
+
       {/* System 2: Order to Delivery & Master Hub Settings */}
       <Route
         path="/settings"
@@ -160,7 +191,9 @@ export function App() {
     <UnifiedAuthProvider>
       <ToastAlertProvider>
         <MasterShell>
-          <AppRoutes />
+          <Suspense fallback={<PageLoader />}>
+            <AppRoutes />
+          </Suspense>
         </MasterShell>
       </ToastAlertProvider>
     </UnifiedAuthProvider>

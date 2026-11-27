@@ -35,10 +35,11 @@ import {
   Package,
   Truck,
   Layers,
-  FileText
+  FileText,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useUnifiedAuth } from '../auth/UnifiedAuthContext';
-import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage } from '../../Systems/order-to-delivery/utils/userAuthService';
+import { canUserAccessChecklistPage, canUserAccessPage, canUserAccessStage, canUserAccessPurchasePage } from '../../Systems/order-to-delivery/utils/userAuthService';
 import { STAGES } from '../../Systems/order-to-delivery/types/stages';
 import { fetchOrders } from '../../Systems/order-to-delivery/utils/orderService';
 import { useChecklistDelegationPendingCounts } from '../../Systems/checklist-delegation/hooks/usePendingCounts';
@@ -81,6 +82,21 @@ export default function MasterShell({ children }) {
   // Mobile drawer state
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const isPurchaseActive = location.pathname.startsWith('/purchase');
+  const purchaseSubpages = [
+    { label: 'Dashboard', href: '/purchase/dashboard', icon: LayoutDashboard },
+    { label: 'Indent', href: '/purchase/indent', icon: ClipboardList },
+    { label: 'Approval', href: '/purchase/approval', icon: CheckCircle2 },
+    { label: 'Vendor Selection', href: '/purchase/vendor-selection', icon: UserCheck },
+    { label: '3 Party Approval', href: '/purchase/3-party-approval', icon: ShieldCheck },
+    { label: 'PO', href: '/purchase/po', icon: FileText },
+    { label: 'Vendor Follow Up', href: '/purchase/vendor-follow-up', icon: BadgeCheck },
+    { label: 'Receiving', href: '/purchase/receiving', icon: Package },
+    { label: 'Quality Check', href: '/purchase/quality-check', icon: ClipboardCheck },
+    { label: 'Return', href: '/purchase/return', icon: Truck }
+  ].filter((sub) => canUserAccessPurchasePage(user, sub.href));
+  const showPurchase = purchaseSubpages.length > 0;
+
   // 1. Order Flow Main Dropdown state
   const [orderFlowOpen, setOrderFlowOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
@@ -93,6 +109,12 @@ export default function MasterShell({ children }) {
     if (typeof window === 'undefined') return false;
     const p = window.location.pathname;
     return p.startsWith('/checklist') || p.startsWith('/checklist');
+  });
+
+  // 3. Purchase Main Dropdown state
+  const [purchaseOpen, setPurchaseOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.pathname.startsWith('/purchase');
   });
 
   // Holiday submenu toggle state
@@ -111,12 +133,14 @@ export default function MasterShell({ children }) {
   const isProfile = location.pathname === '/profile';
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
   const isPc = location.pathname.startsWith('/pc');
-  const isOrderFlow = location.pathname.startsWith('/order-to-delivery') && !isPc;
-  const isChecklist = location.pathname.startsWith('/checklist') && !isPc;
+  const isKarigarReport = location.pathname.startsWith('/karigar-report');
+  const isOrderFlow = location.pathname.startsWith('/order-to-delivery') && !isPc && !isKarigarReport;
+  const isChecklist = location.pathname.startsWith('/checklist') && !isPc && !isKarigarReport;
 
   // Active helpers
   const isDashboardActive = isDashboard;
   const isPcActive = isPc;
+  const isKarigarReportActive = isKarigarReport;
   const isOrderFlowActive = isOrderFlow && currentViewParam !== 'settings';
   const isChecklistActive = isChecklist;
   const isMasterSettingActive = location.pathname === '/settings' || (isOrderFlow && currentViewParam === 'settings');
@@ -270,6 +294,7 @@ export default function MasterShell({ children }) {
   const canDash = canUserAccessPage(user, 'dashboard');
   const canOrders = canUserAccessPage(user, 'orders');
   const canPc = canUserAccessPage(user, 'pc');
+  const canKarigarReport = canUserAccessPage(user, 'karigar-report');
   const canSettings = canUserAccessPage(user, 'settings');
   const permittedStages = STAGES.filter((s) => canUserAccessStage(user, s.id));
   const showOrderFlow = canDash || canOrders || permittedStages.length > 0;
@@ -291,6 +316,7 @@ export default function MasterShell({ children }) {
 
     const path = location.pathname;
     if (path.startsWith('/pc')) return 'Production Control (PC)';
+    if (path.startsWith('/karigar-report')) return 'Karigar Report';
     if (path.includes('bulk-import')) return 'Bulk Import';
     if (path.includes('assign-task') || path.includes('/checklist/checklist') || path.includes('assign-delegation') || path.includes('maintenance') || path.includes('repair') || path.includes('ea-task')) return 'Assign Task';
     if (path.includes('quick-task')) return 'Quick Task';
@@ -402,6 +428,18 @@ export default function MasterShell({ children }) {
                 </button>
               )}
 
+              {/* 2.5 Karigar Report Rail Icon (Placed after PC) */}
+              {canKarigarReport && (
+                <button
+                  onClick={() => { handleNavigate('/karigar-report'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isKarigarReportActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="Karigar Report"
+                >
+                  <FileSpreadsheet className="w-5 h-5" />
+                </button>
+              )}
+
               {/* 3. Checklist Icon */}
               {showChecklist && (
                 <button
@@ -428,11 +466,19 @@ export default function MasterShell({ children }) {
                   title="Order to Delivery"
                 >
                   <Scissors className="w-5 h-5" />
-                  {activeOrdersCount > 0 && (
-                    <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E11D48] text-white">
-                      {activeOrdersCount}
-                    </span>
-                  )}
+                </button>
+              )}
+
+              {/* 5. Purchase Icon (Collapsed Rail) */}
+              {showPurchase && (
+                <button
+                  onClick={() => handleNavigate(purchaseSubpages[0]?.href || '/purchase/dashboard')}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${
+                    isPurchaseActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  }`}
+                  title="Purchase"
+                >
+                  <ShoppingBag className="w-5 h-5" />
                 </button>
               )}
 
@@ -488,6 +534,27 @@ export default function MasterShell({ children }) {
                       <Layers className="w-3.5 h-3.5 shrink-0" />
                     </div>
                     <span className="truncate font-semibold tracking-tight">PC</span>
+                  </div>
+                </button>
+              )}
+
+              {/* =========================================================================
+                  PAGE 2.5: KARIGAR REPORT (AFTER PC)
+              ========================================================================= */}
+              {canKarigarReport && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/karigar-report'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isKarigarReportActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isKarigarReportActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Karigar Report</span>
                   </div>
                 </button>
               )}
@@ -696,12 +763,6 @@ export default function MasterShell({ children }) {
                             </div>
                             <span className="truncate text-[11px] font-medium">All Orders</span>
                           </div>
-                          {orders.length > 0 && (
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${isOrderFlow && (currentViewParam === 'orders' || !currentViewParam) ? 'bg-white/20 text-white' : 'bg-[#E11D48] text-white'
-                              }`}>
-                              {orders.length}
-                            </span>
-                          )}
                         </button>
                       )}
 
@@ -761,6 +822,59 @@ export default function MasterShell({ children }) {
                         );
                       })}
 
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* =========================================================================
+                  PURCHASE SYSTEM (AFTER OTD)
+              ========================================================================= */}
+              {showPurchase && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setPurchaseOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left select-none cursor-pointer ${
+                      isPurchaseActive
+                        ? 'bg-[#F3ECE2] text-[#5B172E] font-bold border border-[#DECDB8] shadow-2xs'
+                        : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`p-1.5 rounded-lg ${isPurchaseActive ? 'bg-[#5B172E] text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                        <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                      </div>
+                      <span className="truncate font-semibold tracking-tight">Purchase</span>
+                    </div>
+                    <span className={`p-1 rounded-md transition-colors ${purchaseOpen ? 'bg-black/5 text-stone-800' : 'text-stone-400'}`}>
+                      {purchaseOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    </span>
+                  </button>
+
+                  {purchaseOpen && (
+                    <div className="mt-1.5 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1 py-0.5">
+                      {purchaseSubpages.map((sub) => {
+                        const SubIcon = sub.icon;
+                        const isSubActive = location.pathname === sub.href;
+                        return (
+                          <button
+                            key={sub.href}
+                            type="button"
+                            onClick={() => handleNavigate(sub.href)}
+                            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all text-left cursor-pointer group ${
+                              isSubActive
+                                ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                                : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                            }`}
+                          >
+                            <div className={`p-1 rounded-md transition-colors ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#FAF5EE] text-stone-500 group-hover:text-[#5B172E]'}`}>
+                              {SubIcon && <SubIcon className="w-3 h-3 shrink-0" />}
+                            </div>
+                            <span className="truncate text-[11px] font-medium">{sub.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -880,6 +994,21 @@ export default function MasterShell({ children }) {
                   <div className="flex items-center gap-2.5">
                     <Layers className="w-4 h-4 text-[#C5A059]" />
                     <span>PC</span>
+                  </div>
+                </button>
+              )}
+
+              {/* 2.5 Karigar Report in Mobile (Placed after PC) */}
+              {canKarigarReport && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/karigar-report'); setIsMobileOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isKarigarReportActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FileSpreadsheet className="w-4 h-4 text-[#C5A059]" />
+                    <span>Karigar Report</span>
                   </div>
                 </button>
               )}
@@ -1037,11 +1166,6 @@ export default function MasterShell({ children }) {
                             <ShoppingBag className="w-3.5 h-3.5" />
                             <span>All Orders</span>
                           </div>
-                          {orders.length > 0 && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-white/20 text-white">
-                              {orders.length}
-                            </span>
-                          )}
                         </button>
                       )}
 
@@ -1093,6 +1217,46 @@ export default function MasterShell({ children }) {
                                 {stageOrders.length}
                               </span>
                             )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Mobile: Purchase System (after OTD) */}
+              {showPurchase && (
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setPurchaseOpen(!purchaseOpen)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      isPurchaseActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShoppingBag className="w-4 h-4 text-[#9B783E]" />
+                      <span>Purchase</span>
+                    </div>
+                    {purchaseOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  </button>
+                  {purchaseOpen && (
+                    <div className="mt-1 ml-3 pl-2.5 border-l-2 border-[#DECDB8] space-y-1">
+                      {purchaseSubpages.map((sub) => {
+                        const SubIcon = sub.icon;
+                        const isSubActive = location.pathname === sub.href;
+                        return (
+                          <button
+                            key={sub.href}
+                            type="button"
+                            onClick={() => handleNavigate(sub.href)}
+                            className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${
+                              isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                            }`}
+                          >
+                            {SubIcon && <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-[#C5A059]' : 'text-stone-400'}`} />}
+                            <span className="truncate text-[11px]">{sub.label}</span>
                           </button>
                         );
                       })}
@@ -1165,7 +1329,7 @@ export default function MasterShell({ children }) {
                 </span>
                 <span className="text-stone-300">/</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5EE] text-[#5B172E] border border-[#DECDB8] shrink-0">
-                  {isProfile ? 'Profile' : isPc ? 'PC' : isMasterSettingActive ? 'Settings' : isOrderFlow ? 'Order to Delivery' : 'Checklist'}
+                  {isProfile ? 'Profile' : isPc ? 'PC' : isKarigarReport ? 'Karigar Report' : isMasterSettingActive ? 'Settings' : isOrderFlow ? 'Order to Delivery' : 'Checklist'}
                 </span>
                 <span className="text-stone-300 hidden xs:inline">/</span>
                 <span className="text-xs font-semibold text-stone-600 truncate hidden xs:inline">

@@ -33,7 +33,7 @@ export const ALL_PURCHASE_PAGE_IDS = [
   { id: '/purchase/indent', label: 'Indent' },
   { id: '/purchase/approval', label: 'Approval' },
   { id: '/purchase/vendor-selection', label: 'Vendor Selection' },
-  { id: '/purchase/3-party-approval', label: '3 Party Approval' },
+  { id: '/purchase/3-party-approval', label: 'Three Party Approval' },
   { id: '/purchase/po', label: 'PO' },
   { id: '/purchase/vendor-follow-up', label: 'Vendor Follow Up' },
   { id: '/purchase/receiving', label: 'Receiving' },

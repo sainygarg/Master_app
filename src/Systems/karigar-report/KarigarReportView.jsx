@@ -276,7 +276,8 @@ export default function KarigarReportView() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#5B172E] hover:bg-[#431021] shadow-xs cursor-pointer transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Add Report</span>
+              <span>Add
+               Report</span>
             </button>
           ) : (
             <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium text-stone-500 bg-stone-100 border border-stone-200">

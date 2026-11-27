@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Indent from './pages/Indent';
 import Approval from './pages/Approval';
 import Vendor from './pages/Vendor';
-import ThreePartyApproval from './pages/3-Party-approval';
+import ThreePartyApproval from './pages/Three-Party-approval';
 import PO from './pages/PO';
 import VendorFollowUp from './pages/Vendor-follow up';
 import Receiving from './pages/Receiving';
@@ -30,6 +30,7 @@ export default function PurchaseApp() {
       <Route path="/approval" element={<PurchaseGuard path="/purchase/approval"><Approval /></PurchaseGuard>} />
       <Route path="/vendor-selection" element={<PurchaseGuard path="/purchase/vendor-selection"><Vendor /></PurchaseGuard>} />
       <Route path="/3-party-approval" element={<PurchaseGuard path="/purchase/3-party-approval"><ThreePartyApproval /></PurchaseGuard>} />
+      <Route path="/three-party-approval" element={<PurchaseGuard path="/purchase/three-party-approval"><ThreePartyApproval /></PurchaseGuard>} />
       <Route path="/po" element={<PurchaseGuard path="/purchase/po"><PO /></PurchaseGuard>} />
       <Route path="/vendor-follow-up" element={<PurchaseGuard path="/purchase/vendor-follow-up"><VendorFollowUp /></PurchaseGuard>} />
       <Route path="/receiving" element={<PurchaseGuard path="/purchase/receiving"><Receiving /></PurchaseGuard>} />

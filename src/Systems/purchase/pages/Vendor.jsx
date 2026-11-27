@@ -87,13 +87,13 @@ export default function Vendor() {
 
         <div className="p-4 rounded-xl border border-[#E8DFD3] bg-white shadow-2xs">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
-            <span>3 Party Approval</span>
+            <span>Three Party Approval</span>
             <Building2 className="w-4 h-4 text-purple-500" />
           </div>
           <div className="text-2xl font-bold text-purple-800 font-serif">
-            {indents.filter((i) => i.vendorType === '3 Party Approval').length}
+            {indents.filter((i) => i.vendorType === 'Three Party Approval').length}
           </div>
-          <div className="text-[11px] text-stone-500 mt-1">Requires 3-party quotation &amp; sign-off</div>
+          <div className="text-[11px] text-stone-500 mt-1">Requires three-party quotation &amp; sign-off</div>
         </div>
       </div>
 

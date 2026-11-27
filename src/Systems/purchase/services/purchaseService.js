@@ -58,6 +58,7 @@ const mapIndentRow = (r) => ({
   size: r.size,
   uom: r.uom,
   quantity: r.quantity,
+  approvedQuantity: r.approved_quantity ?? r.approvedQuantity ?? r.quantity,
   attachmentUrl: r.attachment_url || r.attachmentUrl,
   attachmentName: r.attachment_name || r.attachmentName,
   specification: r.specification,
@@ -177,7 +178,7 @@ export const fetchApprovalIndents = async () => {
 /**
  * Submit approval action on an indent:
  * - status: 'Approved' | 'Hold' | 'Rejected'
- * - vendorType: 'Regular' | '3 Party Approval'
+ * - vendorType: 'Regular' | 'Three Party Approval'
  * - remarks: string
  * - approverName: string
  *
@@ -186,7 +187,7 @@ export const fetchApprovalIndents = async () => {
  * - If Hold: current_stage stays 'approval', status = 'Hold' (stays on approval page)
  * - If Rejected: current_stage stays 'approval', status = 'Rejected' (does NOT move forward)
  */
-export const submitApproval = async ({ indentId, status, vendorType, remarks, approverName }) => {
+export const submitApproval = async ({ indentId, status, vendorType, approvedQuantity, remarks, approverName }) => {
   const approvedAt = new Date().toISOString();
   const nextStage = status === 'Approved' ? 'vendor_selection' : 'approval';
 
@@ -195,6 +196,7 @@ export const submitApproval = async ({ indentId, status, vendorType, remarks, ap
     indent_id: indentId,
     decision: status,
     vendor_type: vendorType,
+    approved_quantity: approvedQuantity !== undefined && approvedQuantity !== '' ? Number(approvedQuantity) : null,
     remarks: remarks || '',
     approved_by: approverName || 'Approver',
     approved_at: approvedAt
@@ -206,6 +208,7 @@ export const submitApproval = async ({ indentId, status, vendorType, remarks, ap
       indent_id: indentId,
       decision: status,
       vendor_type: vendorType,
+      approved_quantity: approvalRecord.approved_quantity,
       remarks: remarks || '',
       approved_by: approverName || 'Approver',
       approved_at: approvedAt
@@ -222,6 +225,7 @@ export const submitApproval = async ({ indentId, status, vendorType, remarks, ap
         status: status,
         current_stage: nextStage,
         vendor_type: vendorType,
+        approved_quantity: approvalRecord.approved_quantity,
         approval_remarks: remarks || '',
         approved_by: approverName || 'Approver',
         approved_at: approvedAt
@@ -243,6 +247,7 @@ export const submitApproval = async ({ indentId, status, vendorType, remarks, ap
         status,
         currentStage: nextStage,
         vendorType,
+        approvedQuantity: approvalRecord.approved_quantity ?? item.quantity,
         approvalRemarks: remarks || '',
         approvedBy: approverName || 'Approver',
         approvedAt
@@ -257,8 +262,11 @@ export const submitApproval = async ({ indentId, status, vendorType, remarks, ap
 
   return {
     success: true,
+    indentId,
     status,
     nextStage,
+    vendorType,
+    approvedQuantity: approvalRecord.approved_quantity,
     approvalRecord
   };
 };

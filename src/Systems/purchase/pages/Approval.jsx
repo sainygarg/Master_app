@@ -24,7 +24,7 @@ import { useUnifiedAuth } from '../../../core/auth/UnifiedAuthContext';
 import { useToastAlert } from '../../../core/context/ToastAlertContext';
 import { canModify, isApexAdmin } from '../../order-to-delivery/utils/userAuthService';
 
-const VENDOR_TYPES = ['Regular', '3 Party Approval'];
+const VENDOR_TYPES = ['Regular', 'Three Party Approval'];
 
 export default function Approval() {
   const { user } = useUnifiedAuth();
@@ -34,16 +34,17 @@ export default function Approval() {
   const [indents, setIndents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('pending_or_hold'); // 'pending_or_hold' | 'hold' | 'approved' | 'rejected' | 'all'
+  const [activeTab, setActiveTab] = useState('pending'); // 'pending' | 'history'
 
   // Modal State
   const [selectedIndent, setSelectedIndent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // The 3 required parameters in Approval
+  // The required parameters in Approval
   const [decisionStatus, setDecisionStatus] = useState('Approved'); // 'Approved' | 'Hold' | 'Rejected'
-  const [vendorType, setVendorType] = useState('Regular'); // 'Regular' | '3 Party Approval'
+  const [vendorType, setVendorType] = useState('Regular'); // 'Regular' | 'Three Party Approval'
+  const [approvedQuantity, setApprovedQuantity] = useState('');
   const [remarks, setRemarks] = useState('');
 
   const loadData = async () => {
@@ -65,17 +66,14 @@ export default function Approval() {
   // Filtered indents based on active tab and search query
   const filteredIndents = useMemo(() => {
     return indents.filter((item) => {
-      // Tab matching
-      if (activeTab === 'pending_or_hold') {
+      // Tab matching:
+      // 'pending' -> Needs action: 'Pending Approval' or 'Hold'
+      // 'history' -> Completed review: 'Approved' or 'Rejected'
+      if (activeTab === 'pending') {
         if (item.status !== 'Pending Approval' && item.status !== 'Hold') return false;
-      } else if (activeTab === 'hold') {
-        if (item.status !== 'Hold') return false;
-      } else if (activeTab === 'approved') {
-        if (item.status !== 'Approved') return false;
-      } else if (activeTab === 'rejected') {
-        if (item.status !== 'Rejected') return false;
+      } else if (activeTab === 'history') {
+        if (item.status !== 'Approved' && item.status !== 'Rejected') return false;
       }
-      // 'all' includes everything
 
       // Search matching
       if (!searchQuery.trim()) return true;
@@ -93,9 +91,11 @@ export default function Approval() {
 
   // Counts for metric badges
   const counts = useMemo(() => {
+    const pendingCount = indents.filter((i) => i.status === 'Pending Approval' || i.status === 'Hold').length;
+    const historyCount = indents.filter((i) => i.status === 'Approved' || i.status === 'Rejected').length;
     return {
-      actionRequired: indents.filter((i) => i.status === 'Pending Approval' || i.status === 'Hold').length,
-      pending: indents.filter((i) => i.status === 'Pending Approval').length,
+      pending: pendingCount,
+      history: historyCount,
       hold: indents.filter((i) => i.status === 'Hold').length,
       approved: indents.filter((i) => i.status === 'Approved').length,
       rejected: indents.filter((i) => i.status === 'Rejected').length,
@@ -108,6 +108,7 @@ export default function Approval() {
     // Initialize form with existing values or defaults
     setDecisionStatus(indent.status === 'Hold' ? 'Hold' : 'Approved');
     setVendorType(indent.vendorType || 'Regular');
+    setApprovedQuantity(indent.quantity);
     setRemarks(indent.approvalRemarks || '');
     setIsModalOpen(true);
   };
@@ -127,7 +128,7 @@ export default function Approval() {
     }
 
     if (!vendorType) {
-      showToast('Please select a Vendor Type (Regular or 3 Party Approval).', 'error');
+      showToast('Please select a Vendor Type (Regular or Three Party Approval).', 'error');
       return;
     }
 
@@ -138,6 +139,7 @@ export default function Approval() {
         indentId: selectedIndent.id,
         status: decisionStatus,
         vendorType,
+        approvedQuantity: decisionStatus === 'Approved' ? approvedQuantity : selectedIndent.quantity,
         remarks,
         approverName
       });
@@ -151,6 +153,7 @@ export default function Approval() {
               status: decisionStatus,
               currentStage: decisionStatus === 'Approved' ? 'vendor_selection' : 'approval',
               vendorType,
+              approvedQuantity: decisionStatus === 'Approved' && approvedQuantity ? Number(approvedQuantity) : item.quantity,
               approvalRemarks: remarks,
               approvedBy: approverName,
               approvedAt: new Date().toISOString()
@@ -262,134 +265,90 @@ export default function Approval() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <button
           type="button"
-          onClick={() => setActiveTab('pending_or_hold')}
+          onClick={() => setActiveTab('pending')}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-            activeTab === 'pending_or_hold'
-              ? 'bg-amber-50/70 border-amber-300 shadow-xs'
+            activeTab === 'pending'
+              ? 'bg-amber-50/70 border-amber-300 shadow-xs ring-1 ring-amber-300'
               : 'bg-white border-[#E8DFD3] hover:border-amber-200'
           }`}
         >
           <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
-            <span className="font-medium">Action Required</span>
+            <span className="font-medium">Pending Review</span>
             <AlertCircle className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-bold text-stone-900 font-serif">{counts.actionRequired}</div>
+          <div className="text-2xl font-bold text-stone-900 font-serif">{counts.pending}</div>
           <div className="text-[11px] text-amber-700 mt-1">
-            {counts.pending} Pending &bull; {counts.hold} On Hold
+            Requires approval decision
           </div>
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveTab('hold')}
+          onClick={() => setActiveTab('history')}
           className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-            activeTab === 'hold'
-              ? 'bg-orange-50/70 border-orange-300 shadow-xs'
-              : 'bg-white border-[#E8DFD3] hover:border-orange-200'
+            activeTab === 'history'
+              ? 'bg-[#F3ECE2] border-[#DECDB8] shadow-xs ring-1 ring-[#DECDB8]'
+              : 'bg-white border-[#E8DFD3] hover:border-[#DECDB8]'
           }`}
         >
           <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
-            <span className="font-medium">On Hold</span>
-            <Clock className="w-4 h-4 text-orange-500" />
+            <span className="font-medium">History (Processed)</span>
+            <Layers className="w-4 h-4 text-[#9B783E]" />
           </div>
-          <div className="text-2xl font-bold text-stone-900 font-serif">{counts.hold}</div>
-          <div className="text-[11px] text-orange-700 mt-1">Awaiting info / decision</div>
+          <div className="text-2xl font-bold text-[#5B172E] font-serif">{counts.history}</div>
+          <div className="text-[11px] text-[#9B783E] mt-1">Approved &amp; Rejected logs</div>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('approved')}
-          className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-            activeTab === 'approved'
-              ? 'bg-emerald-50/70 border-emerald-300 shadow-xs'
-              : 'bg-white border-[#E8DFD3] hover:border-emerald-200'
-          }`}
-        >
+        <div className="p-4 rounded-xl border border-[#E8DFD3] bg-white">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
             <span className="font-medium">Approved</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-bold text-emerald-700 font-serif">{counts.approved}</div>
           <div className="text-[11px] text-emerald-600 mt-1">Advanced to Vendor Selection</div>
-        </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('rejected')}
-          className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-            activeTab === 'rejected'
-              ? 'bg-rose-50/70 border-rose-300 shadow-xs'
-              : 'bg-white border-[#E8DFD3] hover:border-rose-200'
-          }`}
-        >
+        <div className="p-4 rounded-xl border border-[#E8DFD3] bg-white">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
-            <span className="font-medium">Rejected</span>
+            <span className="font-medium">Rejected / Hold</span>
             <XCircle className="w-4 h-4 text-rose-500" />
           </div>
-          <div className="text-2xl font-bold text-rose-700 font-serif">{counts.rejected}</div>
-          <div className="text-[11px] text-rose-600 mt-1">Halted (Cannot move next)</div>
-        </button>
+          <div className="text-2xl font-bold text-rose-700 font-serif">
+            {counts.rejected} <span className="text-xs text-stone-400 font-normal">/ {counts.hold} Hold</span>
+          </div>
+          <div className="text-[11px] text-rose-600 mt-1">Halted or on-hold indents</div>
+        </div>
       </div>
 
       {/* Tabs and Search Bar */}
       <div className="bg-white rounded-2xl border border-[#E8DFD3] p-4 shadow-2xs space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          {/* Tab buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          {/* Tab buttons: strictly 2 tabs: Pending and History */}
+          <div className="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl">
             <button
-              onClick={() => setActiveTab('pending_or_hold')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'pending_or_hold'
-                  ? 'bg-white text-[#5B172E] shadow-2xs'
+              onClick={() => setActiveTab('pending')}
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'pending'
+                  ? 'bg-white text-[#5B172E] shadow-2xs font-bold'
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Needs Action ({counts.actionRequired})
+              Pending ({counts.pending})
             </button>
             <button
-              onClick={() => setActiveTab('hold')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'hold'
-                  ? 'bg-white text-orange-700 shadow-2xs'
+              onClick={() => setActiveTab('history')}
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'history'
+                  ? 'bg-white text-[#5B172E] shadow-2xs font-bold'
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              On Hold ({counts.hold})
-            </button>
-            <button
-              onClick={() => setActiveTab('approved')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'approved'
-                  ? 'bg-white text-emerald-700 shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              Approved ({counts.approved})
-            </button>
-            <button
-              onClick={() => setActiveTab('rejected')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'rejected'
-                  ? 'bg-white text-rose-700 shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              Rejected ({counts.rejected})
-            </button>
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'all'
-                  ? 'bg-white text-[#5B172E] shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              All Indents ({counts.total})
+              History ({counts.history})
             </button>
           </div>
 
           {/* Search box */}
-          <div className="relative min-w-[240px]">
+          <div className="relative min-w-[260px]">
             <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -414,9 +373,9 @@ export default function Approval() {
             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-stone-300" />
             <div className="text-sm font-semibold text-stone-700">No Indents Found</div>
             <p className="text-xs text-stone-500 mt-1">
-              {activeTab === 'pending_or_hold'
+              {activeTab === 'pending'
                 ? 'All indents have been reviewed! There are currently no pending or hold items.'
-                : 'No indents match the selected filter.'}
+                : 'No past approval records match your search.'}
             </p>
           </div>
         ) : (
@@ -554,10 +513,16 @@ export default function Approval() {
 
       {/* Decision Modal */}
       {isModalOpen && selectedIndent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-xl w-full border border-[#E8DFD3] shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Decoupled Full-Screen Backdrop: Eliminates thin half-page overshadow bug */}
+          <div
+            className="fixed inset-0 bg-black/40 transition-opacity"
+            onClick={closeModal}
+          />
+
+          <div className="relative z-10 bg-white rounded-2xl max-w-xl w-full border border-[#E8DFD3] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
             {/* Modal Header */}
-            <div className="px-6 py-4 bg-[#FAF6F0] border-b border-[#E8DFD3] flex items-center justify-between">
+            <div className="px-6 py-4 bg-[#FAF6F0] border-b border-[#E8DFD3] flex items-center justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-serif text-lg font-bold text-[#431021]">
@@ -568,7 +533,7 @@ export default function Approval() {
                   </span>
                 </div>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  Set decision status, vendor routing type, and remarks.
+                  Set decision status, approved quantity, vendor routing type, and remarks.
                 </p>
               </div>
               <button
@@ -581,13 +546,13 @@ export default function Approval() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleDecisionSubmit} className="p-6 overflow-y-auto space-y-5">
+            <form onSubmit={handleDecisionSubmit} className="p-6 overflow-y-auto space-y-4">
               {/* Indent Summary Card */}
               <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200/80 space-y-2 text-xs">
                 <div className="flex items-center justify-between font-semibold text-stone-800">
                   <span className="text-sm font-serif">{selectedIndent.materialName}</span>
                   <span className="font-bold text-[#5B172E]">
-                    {Number(selectedIndent.quantity).toLocaleString()} {selectedIndent.uom}
+                    Requested: {Number(selectedIndent.quantity).toLocaleString()} {selectedIndent.uom}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-600 pt-1 border-t border-stone-200/60">
@@ -623,84 +588,46 @@ export default function Approval() {
                 )}
               </div>
 
-              {/* Parameter 1: Status (Approved, Hold, Rejected) */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-2 uppercase tracking-wide">
-                  1. Decision Status <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {/* Approved option */}
-                  <button
-                    type="button"
-                    onClick={() => setDecisionStatus('Approved')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                      decisionStatus === 'Approved'
-                        ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-200 shadow-2xs'
-                        : 'bg-white border-stone-200 hover:border-emerald-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-800">Approved</span>
-                      <CheckCircle2
-                        className={`w-4 h-4 ${
-                          decisionStatus === 'Approved' ? 'text-emerald-600' : 'text-stone-300'
-                        }`}
-                      />
-                    </div>
-                    <span className="text-[10px] text-emerald-700 mt-1">
-                      Moves forward to Vendor Selection stage
-                    </span>
-                  </button>
+              {/* Parameter 1: Decision Status & Approved Qty */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5 uppercase tracking-wide">
+                    1. Decision Status <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={decisionStatus}
+                      onChange={(e) => setDecisionStatus(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#DECDB8] bg-white text-stone-800 focus:outline-hidden focus:border-[#9B783E] focus:ring-1 focus:ring-[#9B783E] shadow-2xs font-semibold cursor-pointer"
+                    >
+                      <option value="Approved">Approved</option>
+                      <option value="Hold">Hold</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
 
-                  {/* Hold option */}
-                  <button
-                    type="button"
-                    onClick={() => setDecisionStatus('Hold')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                      decisionStatus === 'Hold'
-                        ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200 shadow-2xs'
-                        : 'bg-white border-stone-200 hover:border-amber-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-800">Hold</span>
-                      <Clock
-                        className={`w-4 h-4 ${
-                          decisionStatus === 'Hold' ? 'text-amber-600' : 'text-stone-300'
-                        }`}
-                      />
-                    </div>
-                    <span className="text-[10px] text-amber-700 mt-1">
-                      Stays on Approval page until reviewed
-                    </span>
-                  </button>
-
-                  {/* Rejected option */}
-                  <button
-                    type="button"
-                    onClick={() => setDecisionStatus('Rejected')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                      decisionStatus === 'Rejected'
-                        ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-200 shadow-2xs'
-                        : 'bg-white border-stone-200 hover:border-rose-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-rose-800">Rejected</span>
-                      <XCircle
-                        className={`w-4 h-4 ${
-                          decisionStatus === 'Rejected' ? 'text-rose-600' : 'text-stone-300'
-                        }`}
-                      />
-                    </div>
-                    <span className="text-[10px] text-rose-700 mt-1">
-                      Will NOT move forward to next stage
-                    </span>
-                  </button>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5 uppercase tracking-wide">
+                    Approved Qty {decisionStatus === 'Approved' && <span className="text-red-500">*</span>}
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    required={decisionStatus === 'Approved'}
+                    value={approvedQuantity}
+                    onChange={(e) => setApprovedQuantity(e.target.value)}
+                    placeholder={`e.g. ${selectedIndent.quantity}`}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#DECDB8] bg-white text-stone-900 font-semibold focus:outline-hidden focus:border-[#9B783E] focus:ring-1 focus:ring-[#9B783E] shadow-2xs"
+                  />
+                  <p className="text-[10px] text-stone-400 mt-1">
+                    Requested Qty: {selectedIndent.quantity}
+                  </p>
                 </div>
               </div>
 
-              {/* Parameter 2: Vendor Type (Regular vs 3 Party Approval) */}
+              {/* Parameter 2: Vendor Type (Regular vs Three Party Approval) */}
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 uppercase tracking-wide">
                   2. Vendor Type <span className="text-red-500">*</span>
@@ -720,7 +647,7 @@ export default function Approval() {
                 </div>
                 <p className="text-[11px] text-stone-400 mt-1">
                   Select <span className="font-semibold text-stone-600">Regular</span> for standard approved vendors or{' '}
-                  <span className="font-semibold text-stone-600">3 Party Approval</span> when third-party sign-off is required.
+                  <span className="font-semibold text-stone-600">Three Party Approval</span> when third-party sign-off is required.
                 </p>
               </div>
 

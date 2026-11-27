@@ -82,20 +82,8 @@ export default function MasterShell({ children }) {
   // Mobile drawer state
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const isPurchaseActive = location.pathname.startsWith('/purchase');
-  const purchaseSubpages = [
-    { label: 'Dashboard', href: '/purchase/dashboard', icon: LayoutDashboard },
-    { label: 'Indent', href: '/purchase/indent', icon: ClipboardList },
-    { label: 'Approval', href: '/purchase/approval', icon: CheckCircle2 },
-    { label: 'Vendor Selection', href: '/purchase/vendor-selection', icon: UserCheck },
-    { label: '3 Party Approval', href: '/purchase/3-party-approval', icon: ShieldCheck },
-    { label: 'PO', href: '/purchase/po', icon: FileText },
-    { label: 'Vendor Follow Up', href: '/purchase/vendor-follow-up', icon: BadgeCheck },
-    { label: 'Receiving', href: '/purchase/receiving', icon: Package },
-    { label: 'Quality Check', href: '/purchase/quality-check', icon: ClipboardCheck },
-    { label: 'Return', href: '/purchase/return', icon: Truck }
-  ].filter((sub) => canUserAccessPurchasePage(user, sub.href));
-  const showPurchase = purchaseSubpages.length > 0;
+  // Purchase System hidden for now
+  const showPurchase = false;
 
   // 1. Order Flow Main Dropdown state
   const [orderFlowOpen, setOrderFlowOpen] = useState(() => {

@@ -286,6 +286,11 @@ export const OrdersView = ({
                               <span className="inline-block px-1.5 py-0.2 rounded bg-[#F2ECE1] text-[#9B783E] font-bold text-[9px] border border-[#DECDB8]">
                                 Size: {order.size}
                               </span>
+                              {order.deliveryType === 'In Stock' && (
+                                <span className="inline-block px-1.5 py-0.2 rounded bg-violet-100 text-violet-800 font-bold text-[9px] border border-violet-200">
+                                  ⚡ In Stock
+                                </span>
+                              )}
                               {order.skuCode && (
                                 <span className="inline-block px-1.5 py-0.2 rounded bg-[#FAF5EE] text-[#5B172E] font-mono font-bold text-[9px] border border-[#DECDB8]">
                                   {order.skuCode}

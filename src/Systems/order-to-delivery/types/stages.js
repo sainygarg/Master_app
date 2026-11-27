@@ -138,6 +138,22 @@ export const STAGES = [
     ]
   },
   {
+    id: 'alteration',
+    name: 'Alteration',
+    code: 'ALT',
+    badgeColor: 'bg-violet-100 text-violet-800 border-violet-200',
+    dotColor: 'bg-violet-500',
+    description: 'Post-trial adjustments, in-stock fitting alterations & ready-for-handover rework',
+    icon: 'Scissors',
+    fields: [
+      { key: 'alterationType', label: 'Alteration Type', type: 'select', options: ['Fitting / Size Adjust', 'Length Shortening', 'Neck / Sleeves Alteration', 'Finishing / Hook Rework', 'No Alteration Needed', 'Other'] },
+      { key: 'alterationDoneBy', label: 'Master / Tailor Assigned', type: 'text', placeholder: 'e.g. Master Salim / Sunita' },
+      { key: 'targetCompletionDate', label: 'Target Completion Date', type: 'date' },
+      { key: 'status', label: 'Status', type: 'select', options: ['In Alteration', 'Alteration Completed', 'Approved & Cleared', 'Pending Trial Feedback'] },
+      { key: 'remarks', label: 'Alteration Notes / Remarks', type: 'textarea', placeholder: 'Measurement adjustments (e.g., waist let out 1 inch, length -2 inches)...' },
+    ]
+  },
+  {
     id: 'final_trial_delivered_return',
     name: 'Final Delivery',
     code: 'FTDR',
@@ -205,12 +221,32 @@ export const LOWER_BODY_MEASUREMENTS = [
 // Orders placed with "Embroidery = No" skip these two stages
 export const EMBROIDERY_STAGE_IDS = ['embroidery_sample_approval', 'full_embroidery'];
 
+// Stages skipped when an order is flagged as "In Stock" (all manufacturing stages up to Alteration)
+export const IN_STOCK_SKIPPED_STAGE_IDS = [
+  'material_check',
+  'embroidery_marking_cutting',
+  'embroidery_sample_approval',
+  'full_embroidery',
+  'final_cutting_karigar_allotment',
+  'stitching_completed',
+  'first_qc_alterations_cleared',
+  'finishing_final_qc_passed',
+  'trial_packing_pickup'
+];
+
+export const isInStockOrder = (order) => (order?.deliveryType || order?.delivery || 'Production') === 'In Stock';
+
 export const isEmbroideryRequired = (order) => (order?.embroidery || 'Yes') !== 'No';
 
-export const isStageSkipped = (order, stageId) =>
-  !isEmbroideryRequired(order) && EMBROIDERY_STAGE_IDS.includes(stageId);
+export const isStageSkipped = (order, stageId) => {
+  // If In Stock order, skip all previous manufacturing stages and land directly at Alteration
+  if (isInStockOrder(order) && IN_STOCK_SKIPPED_STAGE_IDS.includes(stageId)) {
+    return true;
+  }
+  return !isEmbroideryRequired(order) && EMBROIDERY_STAGE_IDS.includes(stageId);
+};
 
-// Index of the stage an order moves to after `fromIndex` (skipping embroidery stages when not required)
+// Index of the stage an order moves to after `fromIndex` (skipping stages when not required)
 export const getNextStageIndex = (order, fromIndex) => {
   let next = fromIndex + 1;
   while (next < STAGES.length && isStageSkipped(order, STAGES[next].id)) next++;

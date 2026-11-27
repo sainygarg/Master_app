@@ -53,6 +53,7 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
       description: prefillSource?.description || '',
       note: '',
       size: prefillSource?.size || '',
+      deliveryType: prefillSource?.deliveryType || 'Production',
       embroidery: prefillSource?.embroidery || 'Yes',
       catalogImageUrl: prefillSource?.catalogImageUrl || null,
       designImages: prefillSource?.designImages ? [...prefillSource.designImages] : [],
@@ -327,10 +328,13 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         size: item.size || '',
         deliveryDate: item.deliveryDate,
         trialDate: item.trialDate,
+        deliveryType: item.deliveryType || 'Production',
         embroidery: item.embroidery || 'Yes',
         createdAt: new Date().toISOString(),
-        currentStageId: STAGES[0].id,
-        currentStageIndex: 0,
+        currentStageId: item.deliveryType === 'In Stock' ? 'alteration' : STAGES[0].id,
+        currentStageIndex: item.deliveryType === 'In Stock'
+          ? Math.max(0, STAGES.findIndex((s) => s.id === 'alteration'))
+          : 0,
         designImages: item.designImages || [],
         inspirationImages: item.inspirationImages || [],
         measurements: {
@@ -339,7 +343,15 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
           upper: item.hasUpper ? item.upperMeasurements : {},
           lower: item.hasLower ? item.lowerMeasurements : {}
         },
-        stageData: {
+        stageData: item.deliveryType === 'In Stock' ? {
+          alteration: {
+            alterationType: 'Fitting / Size Adjust',
+            alterationDoneBy: '',
+            targetCompletionDate: '',
+            status: 'In Alteration',
+            remarks: 'In Stock order fast-tracked directly to Alteration stage.'
+          }
+        } : {
           [STAGES[0].id]: {
             dyeStatus: '',
             materialReadyDate: '',
@@ -348,12 +360,14 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
         },
         history: [
           {
-            stageId: STAGES[0].id,
-            stageName: STAGES[0].name,
+            stageId: item.deliveryType === 'In Stock' ? 'alteration' : STAGES[0].id,
+            stageName: item.deliveryType === 'In Stock' ? 'Alteration' : STAGES[0].name,
             timestamp: new Date().toISOString(),
-            action: 'Order Placed & Created',
+            action: item.deliveryType === 'In Stock' ? 'In-Stock Fast-Track Order Created' : 'Order Placed & Created',
             actor: localStorage.getItem('user-name') || '',
-            notes: `Assigned to ${STAGES[0].name} stage automatically.`
+            notes: item.deliveryType === 'In Stock'
+              ? 'Fast-Track In Stock: Skipped manufacturing stages, routed directly to Alteration stage.'
+              : `Assigned to ${STAGES[0].name} stage automatically.`
           }
         ]
       };
@@ -770,6 +784,30 @@ export const OrderFormModal = ({ isOpen, onClose, onSubmitOrder, nextOrderId }) 
                       </select>
                       {item.embroidery === 'No' && (
                         <p className="text-[11px] text-amber-700 mt-1">Embroidery stages will be skipped.</p>
+                      )}
+                    </div>
+
+                    {/* Delivery / Order Flow Type */}
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        10. Delivery <span className="text-rose-500">*</span>
+                      </label>
+                      <select
+                        value={item.deliveryType || 'Production'}
+                        onChange={(e) => updateItemField(item.uid, 'deliveryType', e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-[#FAF8F5] border border-[#DECDB8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B172E]/30 cursor-pointer font-medium"
+                      >
+                        <option value="Production">Production </option>
+                        <option value="In Stock">In Stock </option>
+                      </select>
+                      {item.deliveryType === 'In Stock' ? (
+                        <p className="text-[11px] text-violet-700 font-semibold mt-1">
+                          ⚡ Skips all stages &rarr; opens directly in Alteration stage.
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-stone-400 mt-1">
+                          Normal production cycle (Material Check &rarr; Delivery).
+                        </p>
                       )}
                     </div>
                   </div>

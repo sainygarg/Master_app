@@ -39,6 +39,7 @@ const stageIcons = {
   first_qc_alterations_cleared: Ruler,
   finishing_final_qc_passed: ShieldCheck,
   trial_packing_pickup: Package,
+  alteration: Scissors,
   final_trial_delivered_return: Truck,
 };
 

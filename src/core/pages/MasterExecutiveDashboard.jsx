@@ -137,21 +137,10 @@ export default function MasterExecutiveDashboard() {
     ? Math.round((delegationDoneCount / delegationTotalCount) * 100)
     : 0;
 
-  // 3. Order to Delivery (OTD) Pipeline Metrics (Scoped to user's orders unless company-wide master admin)
+  // 3. Order to Delivery (OTD) Pipeline Metrics (All orders based on system permissions)
   const userOrders = useMemo(() => {
-    if (!orders.length) return [];
-    if (user?.canAccessAllOrders || user?.isAdmin || (user?.role || '').toLowerCase() === 'admin') {
-      return orders;
-    }
-    return orders.filter((o) => {
-      const actor = (o.actor || o.createdBy || o.userId || '').toLowerCase().trim();
-      return (
-        actor === currentUsername ||
-        actor === currentDisplayName ||
-        actor.includes(currentUsername)
-      );
-    });
-  }, [orders, user, currentUsername, currentDisplayName]);
+    return orders;
+  }, [orders]);
 
   const activeOrders = useMemo(() => {
     return userOrders.filter((o) => (o.currentStageIndex ?? 0) < 9);

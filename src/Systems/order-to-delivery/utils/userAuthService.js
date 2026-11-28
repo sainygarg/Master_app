@@ -53,8 +53,6 @@ export const fromRow = (r) => ({
   role: r.role,
   isAdmin: !!r.is_admin,
   status: r.status,
-  // Team Data Scope: Can user access and manage other employees' orders in OTD?
-  canAccessAllOrders: Boolean(r.can_access_all_orders),
   // Granular 3-Tier Permissions Map: { [pageOrStageId]: 'none' | 'view' | 'modify' }
   permissions: r.permissions && typeof r.permissions === 'object' ? r.permissions : {},
   allowedPages: r.allowed_pages || [],
@@ -82,7 +80,6 @@ const toRow = (u) => ({
   role: u.role,
   is_admin: !!u.isAdmin,
   status: u.status,
-  can_access_all_orders: Boolean(u.canAccessAllOrders),
   permissions: u.permissions || {},
   allowed_pages: u.allowedPages || [],
   allowed_stages: u.allowedStages || [],

@@ -18,13 +18,14 @@ import {
   ChevronDown,
   Scissors,
   PackageCheck,
-  FileSpreadsheet
+  FileSpreadsheet,
+  LayoutDashboard
 } from 'lucide-react';
 import { STAGES } from '../types/stages';
 import { ALL_PAGE_IDS, ALL_CHECKLIST_PAGE_IDS, ALL_PURCHASE_PAGE_IDS, isApexAdmin } from '../utils/userAuthService';
 
 // Order to Delivery sub pages (stage access is separate, per stage)
-const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'dashboard' || p.id === 'orders' || p.id === 'design-sheet');
+const OTD_PAGES = ALL_PAGE_IDS.filter((p) => p.id === 'orders' || p.id === 'design-sheet');
 
 // One selectable permission row with 3-way segmented control: None | View | Modify
 const SegmentedPermissionRow = ({ label, value = 'none', onChange, disabled = false }) => {
@@ -137,8 +138,6 @@ export const UserFormModal = ({
   const [phone, setPhone] = useState('');
   const [designation, setDesignation] = useState('');
   const [status, setStatus] = useState('Active');
-  // Team Data Scope: Can user access and manage other employees' orders in OTD?
-  const [canAccessAllOrders, setCanAccessAllOrders] = useState(false);
   // Granular 3-Tier Permissions Map: { [pageOrStageId]: 'none' | 'view' | 'modify' }
   const [permissions, setPermissions] = useState({});
   // New users start with NO access; an admin must grant each page explicitly
@@ -161,7 +160,6 @@ export const UserFormModal = ({
       setPhone(editingUser.phone || '');
       setDesignation(editingUser.designation || '');
       setStatus(editingUser.status || 'Active');
-      setCanAccessAllOrders(Boolean(editingUser.canAccessAllOrders));
       
       // Strictly initialize permissions from user's permissions object
       const initialPerms = { ...(editingUser.permissions || {}) };
@@ -181,7 +179,6 @@ export const UserFormModal = ({
       setPhone('');
       setDesignation('');
       setStatus('Active');
-      setCanAccessAllOrders(false);
       setPermissions({});
       setAllowedPages([]);
       setAllowedStages([]);
@@ -198,7 +195,7 @@ export const UserFormModal = ({
 
     // Keep legacy arrays in sync
     const isGranted = val === 'view' || val === 'modify';
-    if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'karigar-report' || key === 'settings') {
+    if (OTD_PAGES.some(p => p.id === key) || key === 'dashboard' || key === 'pc' || key === 'karigar-report' || key === 'settings') {
       setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
     } else if (STAGES.some(s => s.id === key)) {
       setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
@@ -217,7 +214,7 @@ export const UserFormModal = ({
 
     const isGranted = val === 'view' || val === 'modify';
     keys.forEach(key => {
-      if (OTD_PAGES.some(p => p.id === key) || key === 'pc' || key === 'karigar-report' || key === 'settings') {
+      if (OTD_PAGES.some(p => p.id === key) || key === 'dashboard' || key === 'pc' || key === 'karigar-report' || key === 'settings') {
         setAllowedPages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
       } else if (STAGES.some(s => s.id === key)) {
         setAllowedStages(prev => isGranted ? Array.from(new Set([...prev, key])) : prev.filter(k => k !== key));
@@ -266,7 +263,6 @@ export const UserFormModal = ({
       phone: phone.trim(),
       designation: designation.trim(),
       status,
-      canAccessAllOrders: isAdmin ? true : canAccessAllOrders,
       permissions: finalPermissions,
       allowedPages: isAdmin ? ALL_PAGE_IDS.map(p => p.id) : allowedPages,
       allowedStages: isAdmin ? STAGES.map(s => s.id) : allowedStages,
@@ -446,7 +442,58 @@ export const UserFormModal = ({
             </div>
           </div>
 
-          {/* Section 1: CHECKLIST PERMISSIONS (collapsible, 3-tier) */}
+          {/* 1. Dashboard Access - Inline Single Row */}
+          <div className="bg-white p-3.5 px-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4 text-[#9B783E] shrink-0" />
+                <span>Dashboard</span>
+              </h3>
+              {isAdmin ? (
+                <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+                  Full Admin Access
+                </span>
+              ) : (
+                <div className="inline-flex rounded-lg border border-[#DECDB8] bg-[#FAF8F5] p-0.5 shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('dashboard', 'none')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('dashboard') === 'none'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    None
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('dashboard', 'view')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('dashboard') === 'view'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('dashboard', 'modify')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('dashboard') === 'modify'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    Modify
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 2. CHECKLIST PERMISSIONS (collapsible, 3-tier) */}
           <PermissionSection
             icon={<CheckSquare className="w-4 h-4 text-[#9B783E]" />}
             title="Checklist & Delegation"
@@ -466,27 +513,109 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
-          {/* Section 2B: PURCHASE SYSTEM PERMISSIONS (collapsible, 3-tier) */}
-          <PermissionSection
-            icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
-            title="Purchase System"
-            isAdmin={isAdmin}
-            adminNote="Admins automatically access every Purchase page unconditionally."
-            onSetAllNone={() => setGroupPermissions(allPurchaseIds, 'none')}
-            onSetAllView={() => setGroupPermissions(allPurchaseIds, 'view')}
-            onSetAllModify={() => setGroupPermissions(allPurchaseIds, 'modify')}
-          >
-            {ALL_PURCHASE_PAGE_IDS.map((p) => (
-              <SegmentedPermissionRow
-                key={p.id}
-                label={p.label}
-                value={getPermVal(p.id)}
-                onChange={(val) => handlePermissionChange(p.id, val)}
-              />
-            ))}
-          </PermissionSection>
+          {/* 2. PC Access - Inline Single Row */}
+          <div className="bg-white p-3.5 px-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <PackageCheck className="w-4 h-4 text-[#9B783E] shrink-0" />
+                <span>PC</span>
+              </h3>
+              {isAdmin ? (
+                <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+                  Full Admin Access
+                </span>
+              ) : (
+                <div className="inline-flex rounded-lg border border-[#DECDB8] bg-[#FAF8F5] p-0.5 shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('pc', 'none')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('pc') === 'none'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    None
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('pc', 'view')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('pc') === 'view'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('pc', 'modify')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('pc') === 'modify'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    Modify
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* Section 2: ORDER TO DELIVERY PERMISSIONS (collapsible, 3-tier + Team Scope) */}
+          {/* 3. Karigar Report Access - Inline Single Row */}
+          <div className="bg-white p-3.5 px-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
+                <FileSpreadsheet className="w-4 h-4 text-[#9B783E] shrink-0" />
+                <span>Karigar Report</span>
+              </h3>
+              {isAdmin ? (
+                <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+                  Full Admin Access
+                </span>
+              ) : (
+                <div className="inline-flex rounded-lg border border-[#DECDB8] bg-[#FAF8F5] p-0.5 shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('karigar-report', 'none')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('karigar-report') === 'none'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    None
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('karigar-report', 'view')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('karigar-report') === 'view'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('karigar-report', 'modify')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('karigar-report') === 'modify'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    Modify
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 4. ORDER TO DELIVERY PERMISSIONS (collapsible, 3-tier) */}
           <PermissionSection
             icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
             title="Order to Delivery"
@@ -505,46 +634,7 @@ export const UserFormModal = ({
               setGroupPermissions(allOtdKeys, 'modify');
             }}
           >
-            {/* SPECIAL PRIVILEGE: TEAM DATA SCOPE FOR USER EMPLOYEES */}
-            {!isAdmin && (
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#FAF5EE] to-amber-50/50 border border-[#DECDB8] mb-3 space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#9B783E] shrink-0" />
-                    <div>
-                      <span className="text-xs font-bold text-stone-900 block">Access All Team Orders</span>
-                      <span className="text-[11px] text-stone-500 block">
-                        Allow this employee to view and CRUD orders created by other team members
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Toggle Button */}
-                  <button
-                    type="button"
-                    onClick={() => setCanAccessAllOrders(prev => !prev)}
-                    className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                      canAccessAllOrders ? 'bg-[#5B172E]' : 'bg-stone-300'
-                    }`}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                        canAccessAllOrders ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-                <div className="text-[10px] text-stone-600 font-medium">
-                  {canAccessAllOrders ? (
-                    <span className="text-emerald-800 font-bold">✓ Full Team Visibility Enabled: Can see and update all employees' orders.</span>
-                  ) : (
-                    <span className="text-stone-500">🔒 Personal Scope Only: Can strictly view and update only orders they created.</span>
-                  )}
-                </div>
-              </div>
-            )}
-
+            {/* Main Pages */}
             <div className="text-[11px] uppercase font-bold text-stone-400 tracking-wider pt-1">Main Pages</div>
             {OTD_PAGES.map((p) => (
               <SegmentedPermissionRow
@@ -566,67 +656,75 @@ export const UserFormModal = ({
             ))}
           </PermissionSection>
 
-          {/* Section 3: PC (Production Control) Access (Placed after Order to Delivery) */}
-          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
-                <PackageCheck className="w-4 h-4 text-[#9B783E]" />
-                <span>PC (Production Control)</span>
-              </h3>
-            </div>
-            {isAdmin ? (
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                Admins always have PC (Production Control) access.
-              </div>
-            ) : (
+          {/* 5. PURCHASE SYSTEM PERMISSIONS (collapsible, 3-tier) */}
+          <PermissionSection
+            icon={<Layers className="w-4 h-4 text-[#9B783E]" />}
+            title="Purchase System"
+            isAdmin={isAdmin}
+            adminNote="Admins automatically access every Purchase page unconditionally."
+            onSetAllNone={() => setGroupPermissions(allPurchaseIds, 'none')}
+            onSetAllView={() => setGroupPermissions(allPurchaseIds, 'view')}
+            onSetAllModify={() => setGroupPermissions(allPurchaseIds, 'modify')}
+          >
+            {ALL_PURCHASE_PAGE_IDS.map((p) => (
               <SegmentedPermissionRow
-                label="PC (Production Control)"
-                value={getPermVal('pc')}
-                onChange={(val) => handlePermissionChange('pc', val)}
+                key={p.id}
+                label={p.label}
+                value={getPermVal(p.id)}
+                onChange={(val) => handlePermissionChange(p.id, val)}
               />
-            )}
-          </div>
+            ))}
+          </PermissionSection>
 
-          {/* Section 3.5: Karigar Report Access (Placed after PC) */}
-          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
-            <div className="flex items-center justify-between gap-3">
+          {/* 6. Settings Access - Inline Single Row */}
+          <div className="bg-white p-3.5 px-4 rounded-2xl border border-[#E8DFD3] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-[#9B783E]" />
-                <span>Karigar Report</span>
-              </h3>
-            </div>
-            {isAdmin ? (
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                Admins always have Karigar Report access.
-              </div>
-            ) : (
-              <SegmentedPermissionRow
-                label="Karigar Report (Worker Operation Log)"
-                value={getPermVal('karigar-report')}
-                onChange={(val) => handlePermissionChange('karigar-report', val)}
-              />
-            )}
-          </div>
-
-          {/* Section 4: Settings Access (Placed after Order to Delivery & PC) */}
-          <div className="bg-white p-4 rounded-2xl border border-[#E8DFD3] shadow-xs space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-serif font-bold text-sm text-[#431021] flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#9B783E]" />
+                <Shield className="w-4 h-4 text-[#9B783E] shrink-0" />
                 <span>Settings</span>
               </h3>
+              {isAdmin ? (
+                <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg self-start sm:self-auto">
+                  Full Admin Access
+                </span>
+              ) : (
+                <div className="inline-flex rounded-lg border border-[#DECDB8] bg-[#FAF8F5] p-0.5 shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('settings', 'none')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('settings') === 'none'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    None
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('settings', 'view')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('settings') === 'view'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePermissionChange('settings', 'modify')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      getPermVal('settings') === 'modify'
+                        ? 'bg-[#5B172E] text-white shadow-xs'
+                        : 'text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    Modify
+                  </button>
+                </div>
+              )}
             </div>
-            {isAdmin ? (
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                Admins always have Settings access.
-              </div>
-            ) : (
-              <SegmentedPermissionRow
-                label="Settings Management"
-                value={getPermVal('settings')}
-                onChange={(val) => handlePermissionChange('settings', val)}
-              />
-            )}
           </div>
 
           {/* Footer Actions */}

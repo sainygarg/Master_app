@@ -6,8 +6,10 @@ import { STAGES } from './Systems/order-to-delivery/types/stages';
 import {
   ALL_CHECKLIST_PAGE_IDS,
   ALL_PAGE_IDS,
+  ALL_PURCHASE_PAGE_IDS,
   canUserAccessChecklistPage,
   canUserAccessPage,
+  canUserAccessPurchasePage,
   canUserAccessStage,
   isApexAdmin
 } from './Systems/order-to-delivery/utils/userAuthService';
@@ -31,6 +33,37 @@ function PageLoader() {
   );
 }
 
+export function getDefaultLandingRoute(user) {
+  if (!user) return '/login';
+  if (isApexAdmin(user)) return '/dashboard';
+  if (canUserAccessPage(user, 'dashboard')) return '/dashboard';
+
+  // Check first allowed checklist page
+  const allowedChecklist = ALL_CHECKLIST_PAGE_IDS.find((p) => canUserAccessChecklistPage(user, p.id));
+  if (allowedChecklist) return allowedChecklist.id;
+
+  // Check PC
+  if (canUserAccessPage(user, 'pc')) return '/pc';
+
+  // Check Karigar Report
+  if (canUserAccessPage(user, 'karigar-report')) return '/karigar-report';
+
+  // Check Order to Delivery
+  if (canUserAccessPage(user, 'orders')) return '/order-to-delivery/orders';
+  if (canUserAccessPage(user, 'design-sheet')) return '/order-to-delivery/design-sheet';
+  const allowedStage = STAGES.find((s) => canUserAccessStage(user, s.id));
+  if (allowedStage) return `/order-to-delivery/stages/${allowedStage.id}`;
+
+  // Check Purchase
+  const allowedPurchase = ALL_PURCHASE_PAGE_IDS.find((p) => canUserAccessPurchasePage(user, p.id));
+  if (allowedPurchase) return allowedPurchase.id;
+
+  // Check Settings
+  if (canUserAccessPage(user, 'settings')) return '/settings';
+
+  return '/no-access';
+}
+
 // Reusable RBAC ProtectedRoute component
 export function ProtectedRoute({ children, requiredPageId, requiredStageId, requiredChecklistPageId }) {
   const { isAuthenticated, user } = useUnifiedAuth();
@@ -40,16 +73,18 @@ export function ProtectedRoute({ children, requiredPageId, requiredStageId, requ
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  const defaultLanding = getDefaultLandingRoute(user);
+
   if (requiredPageId && !isApexAdmin(user) && !canUserAccessPage(user, requiredPageId)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={defaultLanding} replace />;
   }
 
   if (requiredStageId && !isApexAdmin(user) && !canUserAccessStage(user, requiredStageId)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={defaultLanding} replace />;
   }
 
   if (requiredChecklistPageId && !isApexAdmin(user) && !canUserAccessChecklistPage(user, requiredChecklistPageId)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={defaultLanding} replace />;
   }
 
   return children;
@@ -75,12 +110,13 @@ function AppRoutes() {
     return <LoginPage onLogin={login} />;
   }
   // Signed-in users have no reason to be on /login
-  if (pathname === '/login') return <Navigate to="/dashboard" replace />;
+  if (pathname === '/login') return <Navigate to={getDefaultLandingRoute(user)} replace />;
 
   // RBAC: a user with nothing granted gets no pages at all
   const hasAnyAccess =
     isApexAdmin(user) ||
     ALL_CHECKLIST_PAGE_IDS.some((p) => canUserAccessChecklistPage(user, p.id)) ||
+    ALL_PURCHASE_PAGE_IDS.some((p) => canUserAccessPurchasePage(user, p.id)) ||
     ALL_PAGE_IDS.some((p) => canUserAccessPage(user, p.id)) ||
     STAGES.some((s) => canUserAccessStage(user, s.id));
   if (!hasAnyAccess) {
@@ -103,12 +139,12 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* 1. Default Root & Main Landing Page: Dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* 1. Default Root & Main Landing Page: Dashboard or user's default */}
+      <Route path="/" element={<Navigate to={getDefaultLandingRoute(user)} replace />} />
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPageId="dashboard">
             <MasterExecutiveDashboard />
           </ProtectedRoute>
         }

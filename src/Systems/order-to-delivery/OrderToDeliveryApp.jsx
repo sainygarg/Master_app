@@ -214,20 +214,8 @@ export function App() {
     navigate('/dashboard', { replace: true });
   };
 
-  // =========================================================================
-  // DATA ISOLATION & TEAM DATA SCOPE:
-  // - If Admin / Superadmin OR canAccessAllOrders is ON: see & manage ALL orders!
-  // - If User (and canAccessAllOrders is OFF): strictly see ONLY orders created by this user!
-  // =========================================================================
-  const canAccessAll = isApexAdmin(currentUser) || Boolean(currentUser?.canAccessAllOrders);
-
-  const scopedOrders = canAccessAll
-    ? orders
-    : orders.filter((o) => 
-        o.createdByUserId === currentUser?.id || 
-        o.createdByUserId === currentUser?.username ||
-        (currentUser?.name && o.createdByName === currentUser.name)
-      );
+  // All users can view orders based on their page & stage permissions
+  const scopedOrders = orders;
 
   // Filtered orders with search query
   const filteredOrders = scopedOrders.filter((order) => {

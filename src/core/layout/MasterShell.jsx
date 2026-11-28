@@ -408,40 +408,18 @@ export default function MasterShell({ children }) {
               </button>
 
               {/* 1. Dashboard Icon */}
-              <button
-                onClick={() => { handleNavigate('/dashboard'); setChecklistOpen(false); setOrderFlowOpen(false); }}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isDashboardActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                  }`}
-                title="Dashboard"
-              >
-                <LayoutDashboard className="w-5 h-5" />
-              </button>
-
-              {/* 2. PC Rail Icon */}
-              {canPc && (
+              {canDash && (
                 <button
-                  onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                  onClick={() => { handleNavigate('/dashboard'); setChecklistOpen(false); setOrderFlowOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isDashboardActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
                     }`}
-                  title="PC"
+                  title="Dashboard"
                 >
-                  <Layers className="w-5 h-5" />
+                  <LayoutDashboard className="w-5 h-5" />
                 </button>
               )}
 
-              {/* 2.5 Karigar Report Rail Icon (Placed after PC) */}
-              {canKarigarReport && (
-                <button
-                  onClick={() => { handleNavigate('/karigar-report'); setOrderFlowOpen(false); setChecklistOpen(false); }}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isKarigarReportActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
-                    }`}
-                  title="Karigar Report"
-                >
-                  <FileSpreadsheet className="w-5 h-5" />
-                </button>
-              )}
-
-              {/* 3. Checklist Icon */}
+              {/* 2. Checklist Icon (Second after Dashboard) */}
               {showChecklist && (
                 <button
                   onClick={() => { handleNavigate('/checklist/admin'); setChecklistOpen(true); setOrderFlowOpen(false); }}
@@ -455,6 +433,30 @@ export default function MasterShell({ children }) {
                       {totalChecklistPending}
                     </span>
                   )}
+                </button>
+              )}
+
+              {/* 3. PC Rail Icon */}
+              {canPc && (
+                <button
+                  onClick={() => { handleNavigate('/pc'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isPcActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="PC"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
+              )}
+
+              {/* 3.5 Karigar Report Rail Icon (Placed after PC) */}
+              {canKarigarReport && (
+                <button
+                  onClick={() => { handleNavigate('/karigar-report'); setOrderFlowOpen(false); setChecklistOpen(false); }}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all relative ${isKarigarReportActive ? 'bg-[#5B172E] text-white shadow-xs' : 'text-stone-600 hover:bg-white hover:text-[#5B172E]'
+                    }`}
+                  title="Karigar Report"
+                >
+                  <FileSpreadsheet className="w-5 h-5" />
                 </button>
               )}
 
@@ -502,66 +504,26 @@ export default function MasterShell({ children }) {
               {/* =========================================================================
                   PAGE 1: MAIN DASHBOARD
               ========================================================================= */}
-              <button
-                type="button"
-                onClick={() => handleNavigate('/dashboard')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isDashboardActive
-                    ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                    : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                  }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`p-1.5 rounded-lg ${isDashboardActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                    <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
-                  </div>
-                  <span className="truncate font-semibold tracking-tight">Dashboard</span>
-                </div>
-              </button>
-
-              {/* =========================================================================
-                  PAGE 2: PC (PRODUCTION CONTROL)
-              ========================================================================= */}
-              {canPc && (
+              {canDash && (
                 <button
                   type="button"
-                  onClick={() => { handleNavigate('/pc'); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isPcActive
+                  onClick={() => handleNavigate('/dashboard')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isDashboardActive
                       ? 'bg-[#5B172E] text-white font-bold shadow-xs'
                       : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
                     }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <Layers className="w-3.5 h-3.5 shrink-0" />
+                    <div className={`p-1.5 rounded-lg ${isDashboardActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
                     </div>
-                    <span className="truncate font-semibold tracking-tight">PC</span>
+                    <span className="truncate font-semibold tracking-tight">Dashboard</span>
                   </div>
                 </button>
               )}
 
               {/* =========================================================================
-                  PAGE 2.5: KARIGAR REPORT (AFTER PC)
-              ========================================================================= */}
-              {canKarigarReport && (
-                <button
-                  type="button"
-                  onClick={() => { handleNavigate('/karigar-report'); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isKarigarReportActive
-                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
-                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
-                    }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isKarigarReportActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
-                      <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
-                    </div>
-                    <span className="truncate font-semibold tracking-tight">Karigar Report</span>
-                  </div>
-                </button>
-              )}
-
-              {/* =========================================================================
-                  PAGE 3: CHECKLIST & DELEGATION (MAIN DROPDOWN - EXACT TO SCREENSHOT)
+                  PAGE 2: CHECKLIST & DELEGATION (SECOND AFTER DASHBOARD)
               ========================================================================= */}
               {showChecklist && (
                 <div className="flex flex-col">
@@ -692,6 +654,48 @@ export default function MasterShell({ children }) {
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* =========================================================================
+                  PAGE 3: PC
+              ========================================================================= */}
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isPcActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isPcActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <Layers className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">PC</span>
+                  </div>
+                </button>
+              )}
+
+              {/* =========================================================================
+                  PAGE 3.5: KARIGAR REPORT (AFTER PC)
+              ========================================================================= */}
+              {canKarigarReport && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/karigar-report'); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors duration-150 cursor-pointer select-none ${isKarigarReportActive
+                      ? 'bg-[#5B172E] text-white font-bold shadow-xs'
+                      : 'text-stone-700 hover:bg-[#F3ECE2] hover:text-[#5B172E] font-medium'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg ${isKarigarReportActive ? 'bg-white/20 text-white shadow-2xs' : 'bg-white text-[#9B783E] border border-[#E8DFD3]'}`}>
+                      <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
+                    </div>
+                    <span className="truncate font-semibold tracking-tight">Karigar Report</span>
+                  </div>
+                </button>
               )}
 
               {/* =========================================================================
@@ -972,49 +976,21 @@ export default function MasterShell({ children }) {
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
 
               {/* 1. Dashboard in Mobile */}
-              <button
-                type="button"
-                onClick={() => { handleNavigate('/dashboard'); setIsMobileOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isDashboardActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                  }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
-                  <span>Dashboard</span>
-                </div>
-              </button>
-
-              {/* 2. PC in Mobile */}
-              {canPc && (
+              {canDash && (
                 <button
                   type="button"
-                  onClick={() => { handleNavigate('/pc'); setIsMobileOpen(false); }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isPcActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                  onClick={() => { handleNavigate('/dashboard'); setIsMobileOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${isDashboardActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
                     }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-[#C5A059]" />
-                    <span>PC</span>
+                    <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
+                    <span>Dashboard</span>
                   </div>
                 </button>
               )}
 
-              {/* 2.5 Karigar Report in Mobile (Placed after PC) */}
-              {canKarigarReport && (
-                <button
-                  type="button"
-                  onClick={() => { handleNavigate('/karigar-report'); setIsMobileOpen(false); }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isKarigarReportActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
-                    }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <FileSpreadsheet className="w-4 h-4 text-[#C5A059]" />
-                    <span>Karigar Report</span>
-                  </div>
-                </button>
-              )}
-
-              {/* 3. Checklist & Delegation in Mobile */}
+              {/* 2. Checklist & Delegation in Mobile (Second after Dashboard) */}
               {showChecklist && (
                 <div className="flex flex-col">
                   <button
@@ -1039,43 +1015,63 @@ export default function MasterShell({ children }) {
                     </div>
                   </button>
 
+                  {/* Checklist Subpages in Mobile */}
                   {checklistOpen && (
-                    <div className="mt-1 ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
+                    <div className="mt-1 ml-4 pl-2 border-l border-stone-200 space-y-1">
                       {checklistSubpages.map((sub) => {
                         const SubIcon = sub.icon;
+
+                        // Expandable Holiday Submenu in Mobile
                         if (sub.isSubmenu) {
+                          const isAnyChildActive = sub.subItems.some((item) => location.pathname === item.href);
                           return (
                             <div key={sub.label} className="flex flex-col">
                               <button
                                 type="button"
                                 onClick={() => setHolidayOpen(!holidayOpen)}
-                                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-[#F3ECE2]"
+                                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all text-left ${isAnyChildActive
+                                    ? 'bg-[#F3ECE2] text-[#5B172E] font-bold'
+                                    : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                                  }`}
                               >
                                 <div className="flex items-center gap-2">
-                                  {SubIcon && <SubIcon className="w-3.5 h-3.5" />}
+                                  {SubIcon && <SubIcon className="w-3.5 h-3.5 text-[#C5A059]" />}
                                   <span>{sub.label}</span>
                                 </div>
-                                {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                <span className="text-stone-400">
+                                  {holidayOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                </span>
                               </button>
+
                               {holidayOpen && (
-                                <div className="ml-3 pl-2 border-l-2 border-[#E8DFD3] space-y-0.5">
-                                  {sub.subItems.map((item) => (
-                                    <button
-                                      key={item.href}
-                                      type="button"
-                                      onClick={() => handleNavigate(item.href)}
-                                      className={`w-full px-2 py-1 text-left text-[11px] rounded ${location.pathname === item.href ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600'
-                                        }`}
-                                    >
-                                      {item.label}
-                                    </button>
-                                  ))}
+                                <div className="mt-1 ml-3 pl-2 border-l border-stone-200 space-y-0.5">
+                                  {sub.subItems.map((item) => {
+                                    const isChildActive = location.pathname === item.href;
+                                    const ItemIcon = item.icon;
+                                    return (
+                                      <button
+                                        key={item.href}
+                                        type="button"
+                                        onClick={() => { handleNavigate(item.href); setIsMobileOpen(false); }}
+                                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all text-left ${isChildActive
+                                            ? 'bg-[#5B172E] text-white font-bold'
+                                            : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
+                                          }`}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          {ItemIcon && <ItemIcon className="w-3 h-3" />}
+                                          <span>{item.label}</span>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
                           );
                         }
 
+                        // Regular Checklist Item in Mobile
                         const isSubActive =
                           location.pathname === sub.href ||
                           (sub.href === '/checklist/assign-task' && [
@@ -1090,18 +1086,19 @@ export default function MasterShell({ children }) {
                           <button
                             key={sub.href}
                             type="button"
-                            onClick={() => handleNavigate(sub.href)}
-                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left ${isSubActive ? 'bg-[#5B172E] text-white font-bold' : 'text-stone-600 hover:bg-[#F3ECE2]'
+                            onClick={() => { handleNavigate(sub.href); setIsMobileOpen(false); }}
+                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all text-left ${isSubActive
+                                ? 'bg-[#5B172E] text-white font-bold'
+                                : 'text-stone-600 hover:bg-[#F3ECE2] hover:text-[#5B172E]'
                               }`}
                           >
-                            <div className="flex items-center gap-2 min-w-0 pr-1">
-                              {SubIcon && (
-                                <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-stone-400'}`} />
-                              )}
-                              <span className="truncate text-[11px]">{sub.label}</span>
+                            <div className="flex items-center gap-2">
+                              {SubIcon && <SubIcon className="w-3.5 h-3.5 text-[#C5A059]" />}
+                              <span>{sub.label}</span>
                             </div>
                             {sub.badge && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#E11D48] text-white">
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isSubActive ? 'bg-white text-[#5B172E]' : 'bg-[#E11D48] text-white'
+                                }`}>
                                 {sub.badge}
                               </span>
                             )}
@@ -1111,6 +1108,36 @@ export default function MasterShell({ children }) {
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* 3. PC in Mobile */}
+              {canPc && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/pc'); setIsMobileOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isPcActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="w-4 h-4 text-[#C5A059]" />
+                    <span>PC</span>
+                  </div>
+                </button>
+              )}
+
+              {/* 3.5 Karigar Report in Mobile (Placed after PC) */}
+              {canKarigarReport && (
+                <button
+                  type="button"
+                  onClick={() => { handleNavigate('/karigar-report'); setIsMobileOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${isKarigarReportActive ? 'bg-[#F3ECE2] text-[#5B172E]' : 'text-stone-700 hover:bg-[#F3ECE2]'
+                    }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FileSpreadsheet className="w-4 h-4 text-[#C5A059]" />
+                    <span>Karigar Report</span>
+                  </div>
+                </button>
               )}
 
               {/* 1. Order Flow in Mobile */}

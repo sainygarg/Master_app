@@ -106,7 +106,7 @@ export function UnifiedAuthProvider({ children }) {
           return;
         }
         const next = { ...fresh, password: undefined };
-        const changed = ['role', 'isAdmin', 'allowedPages', 'allowedStages', 'allowedChecklistPages', 'permissions', 'canAccessAllOrders', 'name'].some(
+        const changed = ['role', 'isAdmin', 'allowedPages', 'allowedStages', 'allowedChecklistPages', 'permissions', 'name'].some(
           (k) => JSON.stringify(user?.[k]) !== JSON.stringify(next[k])
         );
         if (changed) login({ ...user, ...next });
